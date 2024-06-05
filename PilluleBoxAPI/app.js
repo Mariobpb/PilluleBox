@@ -5,10 +5,10 @@ const app = express();
 app.use(express.json());
 
 const connection = mysql.createConnection({
-    host: '35.239.105.175',
+    host: 'localhost',
     user: 'root',
-    password: 'proyectomalo20100335$',
-    database: 'dbtest'
+    password: '',
+    database: 'pillulebox'
 });
 
 connection.connect((err) => {
@@ -19,8 +19,8 @@ connection.connect((err) => {
   console.log('Conectado a la base de datos MySQL');
 });
 
-app.get('/registros', (req, res) => {
-  const query = 'SELECT * FROM Registros';
+app.get('/users', (req, res) => {
+  const query = 'SELECT * FROM user';
   connection.query(query, (err, results) => {
     if (err) {
       console.error(err);
