@@ -1,0 +1,30 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/esp32-sql-project/pillulebox-repository-test/pillulebox:latest', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/esp32-sql-project/pillulebox-repository-test/pillulebox:latest']
+
+# Autenticación con Google Cloud
+- name: 'google/cloud-sdk'
+  args: ['gcloud', 'auth', 'configure-docker']
+
+# Despliegue en Cloud Run
+- name: 'google/cloud-sdk'
+  args:
+    - 'gcloud'
+    - 'run'
+    - 'deploy'
+    - 'pillulebox'
+    - '--image'
+    - 'us-central1-docker.pkg.dev/esp32-sql-project/pillulebox-repository-test/pillulebox:latest'
+    - '--region'
+    - 'us-central1'
+    - '--allow-unauthenticated'
+    - '--set-env-vars'
+    - 'DB_HOST=172.30.160.3'
+
+images:
+  - 'us-central1-docker.pkg.dev/esp32-sql-project/pillulebox-repository-test/pillulebox:latest'
+
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
