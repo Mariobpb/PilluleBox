@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
     password: '',
     database: 'pillulebox'
@@ -35,7 +35,7 @@ app.post('/auth', (req, res) => {
   });
 });
 
-/*
+
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM user';
   connection.query(query, (err, results) => {
@@ -47,7 +47,7 @@ app.get('/users', (req, res) => {
     res.json(results);
   });
 });
-
+/*
 app.post('/registros', (req, res) => {
   const { led, fecha, hora } = req.body;
   const query = 'INSERT INTO Registros (led, fecha, hora) VALUES (?, ?, ?)';
