@@ -37,9 +37,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         username_email_et = findViewById(R.id.username_email_login);
         password_et = findViewById(R.id.password_login);
+        toastMessage(":)");
         findViewById(R.id.login_button).setOnClickListener(v -> {
             String username_email_str = username_email_et.getText().toString();
             String password_str = password_et.getText().toString();
+            new O();
             new AuthenticateUserTask(MainActivity.this).execute(username_email_str, password_str);
         });
     }
