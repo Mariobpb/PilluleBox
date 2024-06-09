@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="@drawable/background1">
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="20dp">
+        <ImageView
+            android:id="@+id/logo_login"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_margin="20dp"
+            android:src="@drawable/capsule"/>
+        <TextView
+            android:id="@+id/error_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:text="Error, el nombre de usuario, correo electrónico o contraseña son incorrectos."
+            android:textAlignment="center"
+            android:textColor="#ff0000"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="left"
+            android:text="Nombre de usuario o correo electrónico:"
+            android:textSize="15dp"
+            android:textColor="#000000"/>
+        <EditText
+            android:id="@+id/username_email_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/corners1"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp"
+            android:maxLines="1"
+            android:textSize="20dp"
+            android:textColorHint="#000000"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="left"
+            android:text="Contraseña:"
+            android:textSize="15dp"
+            android:textColor="#000000"/>
+        <EditText
+            android:id="@+id/password_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/corners1"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp"
+            android:maxLines="1"
+            android:inputType="textPassword"
+            android:textSize="20dp"
+            android:textColorHint="#000000"/>
+
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:backgroundTint="#FF0000"
+            android:text="Iniciar sesión"
+            android:textColor="#000000"
+            android:textSize="25dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:textStyle="bold"
+            android:text="¿No tienes una cuenta?"
+            android:textSize="17dp"
+            android:textColor="#000000"/>
+        <TextView
+            android:id="@+id/from_login_to_signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:text="Crea una"
+            android:textSize="18dp"
+            android:textColor="#00FCFF"
+            android:onClick="signupAtivity"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>
