@@ -20,6 +20,7 @@ connection.connect((err) => {
 });
 app.post('/auth', (req, res) => {
   const { username, password } = req.body;
+  console.log("Autenticando: '"+username+"' & '"+password+"'");
   const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
   connection.query(query, [username, password], (err, results) => {
     if (err) {
@@ -29,8 +30,10 @@ app.post('/auth', (req, res) => {
     }
     if (results.length > 0) {
       res.json({ message: 'Usuario autenticado' });
+      console.log(":)");
     } else {
       res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+      console.log(":(");
     }
   });
 });
