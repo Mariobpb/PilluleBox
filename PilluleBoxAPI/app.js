@@ -18,7 +18,24 @@ connection.connect((err) => {
   }
   console.log('Conectado a la base de datos MySQL');
 });
+app.post('/auth', (req, res) => {
+  const { username, password } = req.body;
+  const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
+  connection.query(query, [username, password], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al buscar el usuario' });
+      return;
+    }
+    if (results.length > 0) {
+      res.json({ message: 'Usuario autenticado' });
+    } else {
+      res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+    }
+  });
+});
 
+/*
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM user';
   connection.query(query, (err, results) => {
@@ -78,6 +95,7 @@ app.patch('/registros/:id', (req, res) => {
     res.json({ message: 'Registro actualizado correctamente' });
   });
 });
+*/
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
