@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.login_button).setOnClickListener(v -> {
             String username_email_str = username_email_et.getText().toString();
             String password_str = password_et.getText().toString();
-            new O();
             new AuthenticateUserTask(MainActivity.this).execute(username_email_str, password_str);
         });
     }
