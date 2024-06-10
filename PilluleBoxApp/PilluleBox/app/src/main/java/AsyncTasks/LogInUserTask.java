@@ -18,7 +18,7 @@ import okhttp3.Response;
 
 public class LogInUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/";
+    private final String BASE_URL = "http://192.168.137.57:8080/";
     Context context;
     TextView error_text;
     public LogInUserTask(Context context, TextView error_text){
@@ -56,14 +56,15 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
 
     @Override
     protected void onPostExecute(Response response) {
-        if (response != null && response.isSuccessful()) {
-            // Autenticación exitosa
-            error_text.setText("");
-            toastMessage("Autenticación exitosa");
+        if (response != null) {
+            if(response.isSuccessful()){
+                error_text.setText("");
+                toastMessage("Autenticación exitosa");
+            } else {
+                toastMessage("Error de autenticación");
+            }
         } else {
-            // Autenticación fallida
-            error_text.setText("Error, el nombre de usuario, correo electrónico o contraseña son incorrectos.");
-            toastMessage("Autenticación fallida");
+            toastMessage("Error de conexión con el servidor");
         }
     }
 
