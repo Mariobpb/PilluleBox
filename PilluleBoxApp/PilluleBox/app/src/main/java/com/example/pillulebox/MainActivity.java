@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             String password_str = password_et.getText().toString();
             new AuthenticateUserTask(MainActivity.this).execute(username_email_str, password_str);
         });
+        int i;
     }
     public void toastMessage(String str){
         Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
