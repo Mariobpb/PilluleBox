@@ -1,49 +1,42 @@
 package com.example.pillulebox;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.Call;
-import okhttp3.Callback;
+import AsyncTasks.LogInUserTask;
 
 
 public class MainActivity extends AppCompatActivity {
-    Button login_button;
-    EditText username_email_et, password_et;
-    private static final String BASE_URL = "http://192.168.100.14:8080/";
-    private final OkHttpClient client = new OkHttpClient();
+    Button login;
+    EditText username_email, password;
+    TextView error, signup;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        username_email_et = findViewById(R.id.username_email_login);
-        password_et = findViewById(R.id.password_login);
-        toastMessage(":)");
-        findViewById(R.id.login_button).setOnClickListener(v -> {
-            String username_email_str = username_email_et.getText().toString();
-            String password_str = password_et.getText().toString();
-            new AuthenticateUserTask(MainActivity.this).execute(username_email_str, password_str);
+
+        login = findViewById(R.id.login_button);
+        username_email = findViewById(R.id.username_email_login);
+        password = findViewById(R.id.password_login);
+        error = findViewById(R.id.error_login);
+        signup = findViewById(R.id.from_login_to_signup);
+
+        error.setText("");
+        login.setOnClickListener(v -> {
+            String username_email_str = username_email.getText().toString();
+            String password_str = password.getText().toString();
+            new LogInUserTask(MainActivity.this, error).execute(username_email_str, password_str);
         });
-        int i;
+        signup.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+            startActivity(intent);
+        });
     }
     public void toastMessage(String str){
         Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();

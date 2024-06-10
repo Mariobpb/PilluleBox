@@ -5,10 +5,10 @@ const app = express();
 app.use(express.json());
 
 const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: '',
-    database: 'pillulebox'
+  host: '127.0.0.1',
+  user: 'root',
+  password: '',
+  database: 'pillulebox'
 });
 
 connection.connect((err) => {
@@ -18,9 +18,9 @@ connection.connect((err) => {
   }
   console.log('Conectado a la base de datos MySQL');
 });
-app.post('/auth', (req, res) => {
+app.post('/login', (req, res) => {
   const { username_email, password } = req.body;
-  console.log("Autenticando: '"+username_email+"' & '"+password+"'");
+  console.log("Autenticando: '" + username_email + "' & '" + password + "'");
   const query = 'SELECT * FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
     if (err) {
@@ -37,8 +37,51 @@ app.post('/auth', (req, res) => {
     }
   });
 });
+app.post('/signup', (req, res) => {
+  const { username, email, password } = req.body;
+  console.log("Registrando: '" + username + "' & '" + email + "' & '" + password + "'");
 
+  const checkUsernameQuery = 'SELECT * FROM user WHERE username = ?';
+  connection.query(checkUsernameQuery, [username], (err, usernameResults) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al verificar el nombre de usuario' });
+      return;
+    }
 
+    const checkEmailQuery = 'SELECT * FROM user WHERE email = ?';
+    connection.query(checkEmailQuery, [email], (err, emailResults) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al verificar el correo electrónico' });
+        return;
+      }
+
+      if (usernameResults.length > 0) {
+        console.log(":(");
+        res.status(409).json({ error: 'El nombre de usuario ya está en uso' });
+        return;
+      }
+      if (emailResults.length > 0) {
+        console.log(":(");
+        res.status(409).json({ error: 'El correo electrónico ya está en uso' });
+        return;
+      }
+
+      const query = 'INSERT INTO user (username, email, password) VALUES (?, ?, ?)';
+      connection.query(query, [username, email, password], (err) => {
+        if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Error al registrar el usuario' });
+          return;
+        }
+        res.json({ message: 'Usuario registrado' });
+        console.log(":)");
+      });
+    });
+  });
+});
+/*
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM user';
   connection.query(query, (err, results) => {
@@ -50,6 +93,7 @@ app.get('/users', (req, res) => {
     res.json(results);
   });
 });
+*/
 /*
 app.post('/registros', (req, res) => {
   const { led, fecha, hora } = req.body;

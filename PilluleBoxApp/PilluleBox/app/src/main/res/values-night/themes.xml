@@ -2,6 +2,10 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.PilluleBox" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@android:color/black</item>
+        <item name="colorOnPrimary">@android:color/black</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">#FF3D3D</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

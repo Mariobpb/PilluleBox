@@ -1,6 +1,8 @@
-package com.example.pillulebox;
+package AsyncTasks;
+
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -8,31 +10,30 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class AuthenticateUserTask extends AsyncTask<String, Void, Response> {
+public class LogInUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/"; // Actualiza con tu URL
-    Context contextMain;
-    private String str;
-    public AuthenticateUserTask(Context context){
-        contextMain = context;
+    private final String BASE_URL = "http://192.168.100.14:8080/";
+    Context context;
+    TextView error_text;
+    public LogInUserTask(Context context, TextView error_text){
+        this.context = context;
+        this.error_text = error_text;
     }
     @Override
     protected Response doInBackground(String... params) {
-        String username = params[0];
+        String username_email = params[0];
         String password = params[1];
 
         JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("username_email", username);
+            jsonBody.put("username_email", username_email);
             jsonBody.put("password", password);
-            str = jsonBody.toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -40,7 +41,7 @@ public class AuthenticateUserTask extends AsyncTask<String, Void, Response> {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "auth")
+                .url(BASE_URL + "login")
                 .post(requestBody)
                 .build();
 
@@ -55,17 +56,18 @@ public class AuthenticateUserTask extends AsyncTask<String, Void, Response> {
 
     @Override
     protected void onPostExecute(Response response) {
-        toastMessage(str);
         if (response != null && response.isSuccessful()) {
             // Autenticación exitosa
+            error_text.setText("");
             toastMessage("Autenticación exitosa");
         } else {
             // Autenticación fallida
+            error_text.setText("Error, el nombre de usuario, correo electrónico o contraseña son incorrectos.");
             toastMessage("Autenticación fallida");
         }
     }
 
     private void toastMessage(String message) {
-        Toast.makeText(contextMain, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }
