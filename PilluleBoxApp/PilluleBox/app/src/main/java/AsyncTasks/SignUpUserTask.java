@@ -60,14 +60,18 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     protected void onPostExecute(Response response) {
         if (response != null) {
             if (response.isSuccessful()) {
-                toastMessage("Usuario registrado correctamente");
+                toastMessage("Usuario registrado exitosamente");
             } else {
-                // Operación fallida
                 int statusCode = response.code();
-                if (statusCode == 401) {
-                    toastMessage("Usuario o contraseña incorrectos");
-                } else {
-                    error_text.setText("Error al registrar al usuario");
+                try {
+                    String errorMessage = response.body().string();
+                    if (statusCode == 409) {
+                        error_text.setText(errorMessage);
+                    } else {
+                        toastMessage("Error al registrar al usuario");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         } else {
