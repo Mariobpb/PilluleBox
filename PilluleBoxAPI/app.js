@@ -19,10 +19,10 @@ connection.connect((err) => {
   console.log('Conectado a la base de datos MySQL');
 });
 app.post('/auth', (req, res) => {
-  const { username, password } = req.body;
-  console.log("Autenticando: '"+username+"' & '"+password+"'");
-  const query = 'SELECT * FROM user WHERE username = ? AND password = ?';
-  connection.query(query, [username, password], (err, results) => {
+  const { username: username_email, password } = req.body;
+  console.log("Autenticando: '"+username_email+"' & '"+password+"'");
+  const query = 'SELECT * FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
+  connection.query(query, [username_email, password, username_email, password], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Error al buscar el usuario' });
