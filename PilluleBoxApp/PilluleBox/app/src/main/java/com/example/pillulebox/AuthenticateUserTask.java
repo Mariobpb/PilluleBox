@@ -29,7 +29,7 @@ public class AuthenticateUserTask extends AsyncTask<String, Void, Response> {
 
         JSONObject jsonBody = new JSONObject();
         try {
-            jsonBody.put("username", username);
+            jsonBody.put("username_email", username);
             jsonBody.put("password", password);
         } catch (JSONException e) {
             e.printStackTrace();
