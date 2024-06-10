@@ -75,7 +75,7 @@ app.post('/signup', (req, res) => {
           res.status(500).json({ error: 'Error al registrar el usuario' });
           return;
         }
-        res.json({ message: 'Usuario registrado' });
+        res.json({ message: 'Usuario registradoo' });
         console.log(":)");
       });
     });
