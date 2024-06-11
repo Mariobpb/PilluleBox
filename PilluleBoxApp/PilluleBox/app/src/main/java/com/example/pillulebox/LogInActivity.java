@@ -12,14 +12,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import AsyncTasks.LogInUserTask;
 
 
-public class MainActivity extends AppCompatActivity {
+public class LogInActivity extends AppCompatActivity {
     Button login;
     EditText username_email, password;
     TextView error, signup;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_log_in);
 
         login = findViewById(R.id.login_button);
         username_email = findViewById(R.id.username_email_login);
@@ -31,14 +31,11 @@ public class MainActivity extends AppCompatActivity {
         login.setOnClickListener(v -> {
             String username_email_str = username_email.getText().toString();
             String password_str = password.getText().toString();
-            new LogInUserTask(MainActivity.this, error).execute(username_email_str, password_str);
+            new LogInUserTask(LogInActivity.this, error).execute(username_email_str, password_str);
         });
         signup.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+            Intent intent = new Intent(LogInActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
-    }
-    public void toastMessage(String str){
-        Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 }

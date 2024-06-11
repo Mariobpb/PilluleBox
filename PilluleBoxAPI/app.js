@@ -45,6 +45,7 @@ app.post('/signup', (req, res) => {
   connection.query(checkUsernameQuery, [username], (err, usernameResults) => {
     if (err) {
       console.error(err);
+      console.log(err);
       res.status(500).json({ error: 'Error al verificar el nombre de usuario' });
       return;
     }
@@ -53,6 +54,7 @@ app.post('/signup', (req, res) => {
     connection.query(checkEmailQuery, [email], (err, emailResults) => {
       if (err) {
         console.error(err);
+        console.log(err);
         res.status(500).json({ error: 'Error al verificar el correo electrónico' });
         return;
       }
@@ -72,6 +74,7 @@ app.post('/signup', (req, res) => {
       connection.query(query, [username, email, password], (err) => {
         if (err) {
           console.error(err);
+          console.log(err);
           res.status(500).json({ error: 'Error al registrar el usuario' });
           return;
         }

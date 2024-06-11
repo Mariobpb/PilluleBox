@@ -1,5 +1,6 @@
 package com.example.pillulebox;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -42,7 +43,9 @@ public class SignUpActivity extends AppCompatActivity {
             String password_str = password.getText().toString();
             Toast.makeText(SignUpActivity.this, "Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", Toast.LENGTH_SHORT).show();
             if(validateFields(username_str, email_str, password_str)){
-                new SignUpUserTask(SignUpActivity.this, error).execute(username_str, email_str, password_str);
+                //new SignUpUserTask(SignUpActivity.this, error).execute(username_str, email_str, password_str);
+                Intent intent = new Intent(SignUpActivity.this, EmailActivity.class);
+                startActivity(intent);
             }
         });
     }
