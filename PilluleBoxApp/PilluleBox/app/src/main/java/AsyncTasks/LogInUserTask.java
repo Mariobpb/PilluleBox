@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pillulebox.Functions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +20,7 @@ import okhttp3.Response;
 
 public class LogInUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/";
+    private final String BASE_URL = "http://192.168.137.57:8080/";
     Context context;
     TextView error_text;
     public LogInUserTask(Context context, TextView error_text){
@@ -59,16 +61,12 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
         if (response != null) {
             if(response.isSuccessful()){
                 error_text.setText("");
-                toastMessage("Autenticación exitosa");
+                Functions.toastMessage("Autenticación exitosa", context);
             } else {
-                toastMessage("Error de autenticación");
+                Functions.toastMessage("Error de autenticación", context);
             }
         } else {
-            toastMessage("Error de conexión con el servidor");
+            Functions.toastMessage("Error de conexión con el servidor", context);
         }
-    }
-
-    private void toastMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pillulebox.Functions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +20,7 @@ import okhttp3.Response;
 
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/";
+    private final String BASE_URL = "http://192.168.137.57:8080/";
     Context context;
     TextView error_text;
     public SignUpUserTask(Context context, TextView error_text){
@@ -60,7 +62,7 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     protected void onPostExecute(Response response) {
         if (response != null) {
             if (response.isSuccessful()) {
-                toastMessage("Usuario registrado exitosamente");
+                Functions.toastMessage("Usuario registrado exitosamente", context);
             } else {
                 int statusCode = response.code();
                 try {
@@ -68,18 +70,14 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
                     if (statusCode == 409) {
                         error_text.setText(errorMessage);
                     } else {
-                        toastMessage("Error al registrar al usuario");
+                        Functions.toastMessage("Error al registrar al usuario", context);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Functions.toastMessage(e.toString(), context);
                 }
             }
         } else {
-            toastMessage("Error de conexión con el servidor");
+            Functions.toastMessage("Error de conexión con el servidor", context);
         }
-    }
-
-    private void toastMessage(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 }

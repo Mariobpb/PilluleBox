@@ -4,6 +4,9 @@ const mysql = require('mysql');
 const app = express();
 app.use(express.json());
 
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey('TU_CLAVE_API_SENDGRID');
+
 const connection = mysql.createConnection({
   host: '127.0.0.1',
   user: 'root',
@@ -82,6 +85,38 @@ app.post('/signup', (req, res) => {
         console.log(":)");
       });
     });
+  });
+});
+
+app.post('/emailCode', (req, res) => {
+  const { code, email } = req.body;
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + (5 * 60 * 1000));
+
+  const query = 'INSERT INTO codes (code, email, created_at, expires_at) VALUES (?, ?, ?, ?)';
+  connection.query(query, [code, email, createdAt, expiresAt], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al registrar el código' });
+      return;
+    }
+
+    const msg = {
+      to: email,
+      from: 'mariobpb27@gmail.com',
+      subject: 'Código de verificación',
+      text: `Tu código de verificación es: ${code}`
+    };
+
+    sgMail.send(msg)
+      .then(() => {
+        console.log('Correo enviado');
+        res.json({ message: 'Código registrado y correo enviado' });
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+      });
   });
 });
 /*

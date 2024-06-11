@@ -41,9 +41,15 @@ public class SignUpActivity extends AppCompatActivity {
             String username_str = username.getText().toString();
             String email_str = email.getText().toString();
             String password_str = password.getText().toString();
-            Toast.makeText(SignUpActivity.this, "Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", Toast.LENGTH_SHORT).show();
+            Functions.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
             if(validateFields(username_str, email_str, password_str)){
-                //new SignUpUserTask(SignUpActivity.this, error).execute(username_str, email_str, password_str);
+                try {
+                    String passEncrypted = Functions.encryptPassword(password_str);
+                    Functions.toastMessage("Encriptado: "+password_str+"\n"+passEncrypted, SignUpActivity.this);
+                    new SignUpUserTask(SignUpActivity.this, error).execute(username_str, email_str, passEncrypted);
+                } catch (Exception e) {
+                    Functions.toastMessage(e.toString(), SignUpActivity.this);
+                }
                 Intent intent = new Intent(SignUpActivity.this, EmailActivity.class);
                 startActivity(intent);
             }
@@ -63,11 +69,11 @@ public class SignUpActivity extends AppCompatActivity {
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             error.setText("Ingrese los datos en todos los campos");
             return false;
-        } else if (!username.matches("^[a-zA-Z0-9 &!+:#*_\\$=]*$")) {
-            error.setText("El nombre de usuario debe contener sólo caracteres alfanuméricos y los siguientes símbolos:\n“ ”, “&”, “!”, “+”, “:”, “#”, “*”, “_”, “$”, “=”), ");
+        } else if (!username.matches("^[a-zA-Z0-9 &!+:#*_ñÑ\\$=]*$")) {
+            error.setText("El nombre de usuario debe contener sólo caracteres alfanuméricos y los siguientes símbolos:\n' ', '&', '!', '+', ':', '#', '*', '_', '$', '=')");
             return false;
-        } else if ((!(password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") && password.matches(".*[0-9].*") && password.matches(".*[&!+:#*_$=@.].*"))) || (!password.matches("^[a-zA-Z0-9 &!+:#*_\\$=]*$"))) {
-            error.setText("La contraseña debe contener al menos un caracter alfabético, numérico y algún símbolo permitido:\n(\"&\", “!”, \"+\", \":\", \"#\", \"*\", \"_\", \"$\", \"=\", “@”, “.”)");
+        } else if ((!(password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") && password.matches(".*[0-9].*") && password.matches(".*[&!+:#*_$=@.].*"))) || (!password.matches("^[a-zA-Z0-9 &!+:#*_@.ñÑ\\$=]*$"))) {
+            error.setText("La contraseña debe contener al menos una minúscula, una mayúscula, un número, y algún símbolo permitido:\n('&', '!', '+', ':', '#', '*', '_', '$', '=', '@', '.')");
             return false;
         }
         error.setText("");

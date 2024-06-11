@@ -5,16 +5,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import java.util.Random;
 
-import AsyncTasks.LogInUserTask;
+import AsyncTasks.CodeAPITask;
 
 public class EmailActivity extends AppCompatActivity {
     Button send_code;
@@ -32,7 +28,7 @@ public class EmailActivity extends AppCompatActivity {
         send_code = findViewById(R.id.email_button);
 
         send_code.setOnClickListener(v -> {
-            sendCodeToEmail();
+            sendCode();
         });
     }
     @Override
@@ -43,15 +39,10 @@ public class EmailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    private void sendCodeToApiAndEmail() {
+    private void sendCode() {
         String randomCode = generateRandomCode();
-        String email = getEmailFromSignUpActivity(); // Obtener el correo electrónico ingresado en SignUpActivity
-
-        // Enviar el código, la fecha y hora de creación y expiración, y el correo electrónico a la API
-        new SendCodeToApiTask(this).execute(randomCode, email);
-
-        // Enviar el código al correo electrónico
-        new SendCodeToEmailTask(this).execute(randomCode, email);
+        String email = "a20100335@ceti.mx";
+        new CodeAPITask(this).execute(randomCode, email);
     }
     private String generateRandomCode() {
         Random random = new Random();
