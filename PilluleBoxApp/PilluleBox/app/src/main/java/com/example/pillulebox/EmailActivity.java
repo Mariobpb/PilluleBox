@@ -2,6 +2,8 @@ package com.example.pillulebox;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,12 +12,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class EmailActivity extends AppCompatActivity {
+import java.util.Random;
 
+import AsyncTasks.LogInUserTask;
+
+public class EmailActivity extends AppCompatActivity {
+    Button send_code;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_email);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -24,10 +29,10 @@ public class EmailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        send_code = findViewById(R.id.email_button);
+
+        send_code.setOnClickListener(v -> {
+            sendCodeToEmail();
         });
     }
     @Override
@@ -37,5 +42,27 @@ public class EmailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void sendCodeToApiAndEmail() {
+        String randomCode = generateRandomCode();
+        String email = getEmailFromSignUpActivity(); // Obtener el correo electrónico ingresado en SignUpActivity
+
+        // Enviar el código, la fecha y hora de creación y expiración, y el correo electrónico a la API
+        new SendCodeToApiTask(this).execute(randomCode, email);
+
+        // Enviar el código al correo electrónico
+        new SendCodeToEmailTask(this).execute(randomCode, email);
+    }
+    private String generateRandomCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
+    }
+
+    private void toastMessage(String message) {
+        Toast.makeText(EmailActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 }
