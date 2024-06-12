@@ -1,11 +1,14 @@
 package AsyncTasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pillulebox.EmailActivity;
 import com.example.pillulebox.Functions;
+import com.example.pillulebox.SignUpActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +23,7 @@ import okhttp3.Response;
 
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.137.57:8080/";
+    private final String BASE_URL = "http://192.168.100.14:8080/";
     Context context;
     TextView error_text;
     public SignUpUserTask(Context context, TextView error_text){
@@ -63,16 +66,19 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
         if (response != null) {
             if (response.isSuccessful()) {
                 Functions.toastMessage("Usuario registrado exitosamente", context);
+                Intent intent = new Intent(context, EmailActivity.class);
+                context.startActivity(intent);
             } else {
                 int statusCode = response.code();
                 try {
-                    String errorMessage = response.body().string();
+                    String errorMessageBody = response.body().string();
                     if (statusCode == 409) {
-                        error_text.setText(errorMessage);
+                        JSONObject jsonObject = new JSONObject(errorMessageBody);
+                        error_text.setText(jsonObject.getString("error"));
                     } else {
                         Functions.toastMessage("Error al registrar al usuario", context);
                     }
-                } catch (IOException e) {
+                } catch (IOException | JSONException e) {
                     Functions.toastMessage(e.toString(), context);
                 }
             }

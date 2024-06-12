@@ -1,6 +1,7 @@
 package com.example.pillulebox;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -45,13 +46,11 @@ public class SignUpActivity extends AppCompatActivity {
             if(validateFields(username_str, email_str, password_str)){
                 try {
                     String passEncrypted = Functions.encryptPassword(password_str);
-                    Functions.toastMessage("Encriptado: "+password_str+"\n"+passEncrypted, SignUpActivity.this);
-                    new SignUpUserTask(SignUpActivity.this, error).execute(username_str, email_str, passEncrypted);
+                    SignUpUserTask task = new SignUpUserTask(SignUpActivity.this, error);
+                    task.execute(username_str, email_str, passEncrypted);
                 } catch (Exception e) {
                     Functions.toastMessage(e.toString(), SignUpActivity.this);
                 }
-                Intent intent = new Intent(SignUpActivity.this, EmailActivity.class);
-                startActivity(intent);
             }
         });
     }

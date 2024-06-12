@@ -4,6 +4,8 @@ const mysql = require('mysql');
 const app = express();
 app.use(express.json());
 
+const jwt = require('jsonwebtoken');
+
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey('TU_CLAVE_API_SENDGRID');
 
@@ -22,9 +24,9 @@ connection.connect((err) => {
   console.log('Conectado a la base de datos MySQL');
 });
 app.post('/login', (req, res) => {
-  const { username_email, password } = req.body;
-  console.log("Autenticando: '" + username_email + "' & '" + password + "'");
-  const query = 'SELECT * FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
+  const { username_email, password, secretKey } = req.body;
+  console.log("Autenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
+  const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
     if (err) {
       console.error(err);
@@ -32,8 +34,36 @@ app.post('/login', (req, res) => {
       return;
     }
     if (results.length > 0) {
-      res.json({ message: 'Usuario autenticado' });
-      console.log(":)");
+      console.log("Usuario autenticado");
+      const id = results[0].id;
+      const payload = {
+        username_email,
+        password
+      };
+      const options = {
+        expiresIn: '1w' // Expiración en una semana
+      };
+      const token = jwt.sign(payload, secretKey, options);
+      console.log("Token: "+token);
+      const decodedToken = jwt.decode(token);
+      const expirationDate = decodedToken.exp;
+      const queryToken = 'UPDATE user SET token = ?, token_exp = ? WHERE id = ?';
+      connection.query(queryToken, [token, expirationDate, id], (err, resultToken) => {
+        console.log("Datos:\ntoken"+token+"\nExpirationDate: "+expirationDate+"\nid: "+id);
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: 'Error al registrar el token' });
+          return;
+        }
+        if (resultToken.affectedRows > 0) {
+          res.json({ token });
+          console.log(":)");
+        }
+        else {
+          res.status(500).json({ error: 'Error al actualizar campos' });
+          console.log("Error al actualizar campos");
+        }
+      });
     } else {
       res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
       console.log(":(");
