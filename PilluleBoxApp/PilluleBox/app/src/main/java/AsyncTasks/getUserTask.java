@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.example.pillulebox.Functions;
+
 import java.io.IOException;
 
 import okhttp3.FormBody;
@@ -14,7 +16,7 @@ import okhttp3.Response;
 
 public class getUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/"; // Actualiza con tu URL
+    private final String BASE_URL = Functions.getURL();
     Context contextMain;
     public getUserTask(Context context){
         contextMain = context;

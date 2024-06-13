@@ -23,7 +23,7 @@ import okhttp3.Response;
 
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = "http://192.168.100.14:8080/";
+    private final String BASE_URL = Functions.getURL();
     Context context;
     TextView error_text;
     public SignUpUserTask(Context context, TextView error_text){
