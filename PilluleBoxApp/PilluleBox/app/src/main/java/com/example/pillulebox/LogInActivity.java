@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import AsyncTasks.LogInUserTask;
+import AsyncTasks.ValidateTokenTask;
 
 
 public class LogInActivity extends AppCompatActivity {
@@ -20,6 +21,11 @@ public class LogInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
+        String token = General.getToken(this);
+        if (token != null) {
+            new ValidateTokenTask(LogInActivity.this).execute(token);
+        }
+
         login = findViewById(R.id.login_button);
         username_email = findViewById(R.id.username_email_login);
         password = findViewById(R.id.password_login);
@@ -30,7 +36,12 @@ public class LogInActivity extends AppCompatActivity {
         login.setOnClickListener(v -> {
             String username_email_str = username_email.getText().toString();
             String password_str = password.getText().toString();
-            new LogInUserTask(LogInActivity.this, error).execute(username_email_str, password_str);
+            try {
+                String passEncrypted = General.encryptPassword(password_str);
+                new LogInUserTask(LogInActivity.this, error).execute(username_email_str, passEncrypted);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
         signup.setOnClickListener(v -> {
             Intent intent = new Intent(LogInActivity.this, SignUpActivity.class);

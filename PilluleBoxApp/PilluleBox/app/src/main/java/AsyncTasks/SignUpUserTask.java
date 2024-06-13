@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.pillulebox.EmailActivity;
-import com.example.pillulebox.Functions;
-import com.example.pillulebox.SignUpActivity;
+import com.example.pillulebox.General;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,8 +21,8 @@ import okhttp3.Response;
 
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = Functions.getURL();
-    Context context;
+    private final String BASE_URL = General.getURL();
+    private final Context context;
     TextView error_text;
     public SignUpUserTask(Context context, TextView error_text){
         this.context = context;
@@ -65,7 +63,7 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     protected void onPostExecute(Response response) {
         if (response != null) {
             if (response.isSuccessful()) {
-                Functions.toastMessage("Usuario registrado exitosamente", context);
+                General.toastMessage("Usuario registrado exitosamente", context);
                 Intent intent = new Intent(context, EmailActivity.class);
                 context.startActivity(intent);
             } else {
@@ -76,14 +74,14 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
                         JSONObject jsonObject = new JSONObject(errorMessageBody);
                         error_text.setText(jsonObject.getString("error"));
                     } else {
-                        Functions.toastMessage("Error al registrar al usuario", context);
+                        General.toastMessage("Error al registrar al usuario", context);
                     }
                 } catch (IOException | JSONException e) {
-                    Functions.toastMessage(e.toString(), context);
+                    General.toastMessage(e.toString(), context);
                 }
             }
         } else {
-            Functions.toastMessage("Error de conexión con el servidor", context);
+            General.toastMessage("Error de conexión con el servidor", context);
         }
     }
 }

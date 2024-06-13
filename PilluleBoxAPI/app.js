@@ -25,7 +25,7 @@ connection.connect((err) => {
 });
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey } = req.body;
-  console.log("Autenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
+  console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
     if (err) {
@@ -34,22 +34,23 @@ app.post('/login', (req, res) => {
       return;
     }
     if (results.length > 0) {
-      console.log("Usuario autenticado");
+      console.log("\nUsuario autenticado");
       const id = results[0].id;
       const payload = {
         username_email,
         password
       };
       const options = {
-        expiresIn: '1w' // Expiración en una semana
+        expiresIn: '1m' // Expiración en una semana
       };
       const token = jwt.sign(payload, secretKey, options);
-      console.log("Token: "+token);
       const decodedToken = jwt.decode(token);
-      const expirationDate = decodedToken.exp;
+      const expirationNumber = decodedToken.exp;
+
       const queryToken = 'UPDATE user SET token = ?, token_exp = ? WHERE id = ?';
-      connection.query(queryToken, [token, expirationDate, id], (err, resultToken) => {
-        console.log("Datos:\ntoken"+token+"\nExpirationDate: "+expirationDate+"\nid: "+id);
+      connection.query(queryToken, [token, expirationNumber, id], (err, resultToken) => {
+        const expirationDate = new Date(expirationNumber * 1000);
+        console.log("\n\nDatos:\ntoken: " + token + "\nExpirationDate: " + expirationDate.toLocaleString() + "\nid: " + id);
         if (err) {
           console.log(err);
           res.status(500).json({ error: 'Error al registrar el token' });
@@ -70,6 +71,39 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
+app.post('/auth_token', (req, res) => {
+  const { token } = req.body;
+  console.log("\nValidando token: " + token);
+
+  const query = 'SELECT id, token_exp FROM user WHERE token = ? AND token_exp > ?';
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  
+  const currentDate = new Date(currentTimestamp * 1000);
+  
+  connection.query(query, [token, currentTimestamp], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al verificar el token' });
+      return;
+    }
+    if (results.length > 0) {
+      const expirationDate = new Date(results[0].token_exp * 1000);
+      
+      console.log("Token válido");
+      console.log("Fecha actual:", currentDate.toLocaleString());
+      console.log("Fecha de expiración:", expirationDate.toLocaleString());
+      console.log("Tiempo restante:", Math.floor((expirationDate - currentDate) / 1000)+" segundos");
+      
+      res.json({ valid: true });
+    } else {
+      console.log("Token inválido o expirado");
+      console.log("Fecha actual:", currentDate.toLocaleString());
+      res.status(401).json({ valid: false, error: 'Token inválido o expirado' });
+    }
+  });
+});
+
 app.post('/signup', (req, res) => {
   const { username, email, password } = req.body;
   console.log("Registrando: '" + username + "' & '" + email + "' & '" + password + "'");

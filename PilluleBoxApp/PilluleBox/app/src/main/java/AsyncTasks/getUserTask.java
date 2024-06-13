@@ -4,19 +4,17 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.example.pillulebox.Functions;
+import com.example.pillulebox.General;
 
 import java.io.IOException;
 
-import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class getUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = Functions.getURL();
+    private final String BASE_URL = General.getURL();
     Context contextMain;
     public getUserTask(Context context){
         contextMain = context;

@@ -1,13 +1,10 @@
 package com.example.pillulebox;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -42,14 +39,15 @@ public class SignUpActivity extends AppCompatActivity {
             String username_str = username.getText().toString();
             String email_str = email.getText().toString();
             String password_str = password.getText().toString();
-            Functions.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
+            General.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
             if(validateFields(username_str, email_str, password_str)){
                 try {
-                    String passEncrypted = Functions.encryptPassword(password_str);
+                    String passEncrypted = General.encryptPassword(password_str);
                     SignUpUserTask task = new SignUpUserTask(SignUpActivity.this, error);
+                    error.setText(passEncrypted);
                     task.execute(username_str, email_str, passEncrypted);
                 } catch (Exception e) {
-                    Functions.toastMessage(e.toString(), SignUpActivity.this);
+                    General.toastMessage(e.toString(), SignUpActivity.this);
                 }
             }
         });

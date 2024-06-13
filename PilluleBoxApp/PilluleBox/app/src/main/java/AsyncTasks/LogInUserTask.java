@@ -1,10 +1,13 @@
 package AsyncTasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.example.pillulebox.Functions;
+import com.example.pillulebox.General;
+import com.example.pillulebox.LogInActivity;
+import com.example.pillulebox.MenuActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,10 +23,10 @@ import okhttp3.Response;
 
 public class LogInUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = Functions.getURL();
+    private final String BASE_URL = General.getURL();
     private final String secretKey;
     public String token;
-    Context context;
+    private final Context context;
     TextView error_text;
     public LogInUserTask(Context context, TextView error_text){
         this.context = context;
@@ -53,12 +56,14 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
         try {
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                token = response.body().string();
+                String responseBody = response.body().string();
+                JSONObject jsonObject = new JSONObject(responseBody);
+                token = jsonObject.getString("token");
                 return response;
             } else {
                 return null;
             }
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
             return null;
         }
@@ -69,12 +74,18 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
         if (response != null) {
             if(response.isSuccessful()){
                 error_text.setText("");
-                Functions.toastMessage("Autenticación exitosa", context);
+                General.toastMessage("Autenticación exitosa", context);
+
+                General.setToken(context, token);
+
+                Intent intent = new Intent(context, MenuActivity.class);
+                context.startActivity(intent);
+                ((LogInActivity) context).finish();
             } else {
-                Functions.toastMessage("Error de autenticación", context);
+                General.toastMessage("Error de autenticación", context);
             }
         } else {
-            Functions.toastMessage("Error de conexión con el servidor", context);
+            General.toastMessage("Error de conexión con el servidor", context);
         }
     }
 

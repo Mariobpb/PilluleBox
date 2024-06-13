@@ -3,7 +3,7 @@ package AsyncTasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.example.pillulebox.Functions;
+import com.example.pillulebox.General;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +18,7 @@ import okhttp3.Response;
 
 public class CodeAPITask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = Functions.getURL();
+    private final String BASE_URL = General.getURL();
     private final Context context;
 
     public CodeAPITask(Context context) {

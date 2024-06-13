@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LogInActivity"
+    android:background="@drawable/background1"
+    android:orientation="vertical">
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        />
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="20dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_gravity="left"
+            android:text="Dispensador seleccionado:"
+            android:textSize="24dp"
+            android:textColor="#000000"/>
+        <TextView
+            android:id="@+id/dispenser_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/corners2"
+            android:padding="5dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="Dispensador ######"
+            android:textSize="28dp"
+            android:textColor="#000000"/>
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
+            android:orientation="vertical"
+            android:background="@drawable/corners3">
+            <Button
+                android:id="@+id/token_validation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="40dp"
+                android:backgroundTint="#ffffff"
+                android:text="Validar Token"
+                android:textSize="28dp"/>
+            <Button
+                android:id="@+id/schedule_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="40dp"
+                android:backgroundTint="#ffffff"
+                android:text="Modos de horario"
+                android:textSize="28dp"/>
+            <Button
+                android:id="@+id/actions_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="40dp"
+                android:backgroundTint="#ffffff"
+                android:text="Historial de acciones"
+                android:textSize="28dp"/>
+            <Button
+                android:id="@+id/schedule_assignment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="40dp"
+                android:backgroundTint="#ffffff"
+                android:text="Asignar horario"
+                android:textSize="28dp"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+        <ImageButton
+            android:id="@+id/logout_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/log_out_icon"
+            android:layout_gravity="end"/>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>
