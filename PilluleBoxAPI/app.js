@@ -6,6 +6,9 @@ app.use(express.json());
 
 const jwt = require('jsonwebtoken');
 
+const crypto = require('crypto');
+
+
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey('TU_CLAVE_API_SENDGRID');
 
@@ -26,6 +29,23 @@ connection.connect((err) => {
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey } = req.body;
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
+  const decryptedPasswordApp = decryptPassword(password);
+  const queryPass = 'SELECT password FROM user WHERE username = ? OR email = ?';
+  connection.query(queryPass, [username_email, username_email], (err, results) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    if (results.length > 0) {
+      const passDB = results[0].password;
+      const decryptedPasswordDB = decryptPassword(passDB);
+      console.log("Contraseñas:\nBD: "+decryptedPasswordDB+"\nApp: "+decryptedPasswordApp);
+    } else {
+      console.log("no coinciden las credenciales");
+    }
+  });
+
+
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
     if (err) {
@@ -41,7 +61,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '1m' // Expiración en una semana
+        expiresIn: '1w' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);
@@ -78,9 +98,9 @@ app.post('/auth_token', (req, res) => {
 
   const query = 'SELECT id, token_exp FROM user WHERE token = ? AND token_exp > ?';
   const currentTimestamp = Math.floor(Date.now() / 1000);
-  
+
   const currentDate = new Date(currentTimestamp * 1000);
-  
+
   connection.query(query, [token, currentTimestamp], (err, results) => {
     if (err) {
       console.error(err);
@@ -89,12 +109,12 @@ app.post('/auth_token', (req, res) => {
     }
     if (results.length > 0) {
       const expirationDate = new Date(results[0].token_exp * 1000);
-      
+
       console.log("Token válido");
       console.log("Fecha actual:", currentDate.toLocaleString());
       console.log("Fecha de expiración:", expirationDate.toLocaleString());
-      console.log("Tiempo restante:", Math.floor((expirationDate - currentDate) / 1000)+" segundos");
-      
+      console.log("Tiempo restante:", Math.floor((expirationDate - currentDate) / 1000) + " segundos");
+
       res.json({ valid: true });
     } else {
       console.log("Token inválido o expirado");
@@ -245,6 +265,16 @@ app.patch('/registros/:id', (req, res) => {
   });
 });
 */
+
+function decryptPassword(encryptedPassword) {
+  const Secret_Key = "1234567890123456"; // Debe ser la misma clave que en el cliente
+  const IV = "iughvnbaklsvvkhj"; // Debe ser el mismo IV que en el cliente
+
+  const decipher = crypto.createDecipheriv('aes-128-cbc', Secret_Key, IV);
+  let decrypted = decipher.update(encryptedPassword, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
