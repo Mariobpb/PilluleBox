@@ -182,7 +182,7 @@ app.post('/signup', (req, res) => {
   });
 });
 
-app.post('/sendEmail', (req, res) => {
+app.post('/sendCode', (req, res) => {
   const { code, email } = req.body;
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + (5 * 60 * 1000));
@@ -196,7 +196,7 @@ app.post('/sendEmail', (req, res) => {
     }
 
     let mailOptions = {
-      from: '"Tu Aplicación" <tu_correo@gmail.com>',
+      from: '"PilluleBox" <pillulebox@gmail.com>',
       to: email,
       subject: 'Código de verificación',
       text: `Tu código de verificación es: ${code}`,

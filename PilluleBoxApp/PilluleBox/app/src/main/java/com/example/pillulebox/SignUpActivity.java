@@ -1,5 +1,6 @@
 package com.example.pillulebox;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -9,6 +10,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.util.Random;
+
+import AsyncTasks.SendCodeTask;
 import AsyncTasks.SignUpUserTask;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -42,10 +46,13 @@ public class SignUpActivity extends AppCompatActivity {
             General.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
             if(validateFields(username_str, email_str, password_str)){
                 try {
+                    new SendCodeTask(this, username_str, email_str, password_str).execute(generateRandomCode(), email_str);
+                    /*
                     String passEncrypted = General.encryptPassword(password_str);
                     SignUpUserTask task = new SignUpUserTask(SignUpActivity.this, error);
                     error.setText(passEncrypted);
                     task.execute(username_str, email_str, passEncrypted);
+                     */
                 } catch (Exception e) {
                     General.toastMessage(e.toString(), SignUpActivity.this);
                 }
@@ -76,5 +83,12 @@ public class SignUpActivity extends AppCompatActivity {
         error.setText("");
         return true;
     }
-
+    private String generateRandomCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
+    }
 }
