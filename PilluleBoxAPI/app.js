@@ -8,9 +8,17 @@ const jwt = require('jsonwebtoken');
 
 const crypto = require('crypto');
 
+const nodemailer = require('nodemailer');
 
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey('TU_CLAVE_API_SENDGRID');
+let transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true: 465, false: X
+  auth: {
+    user: 'pillulebox@gmail.com',
+    pass: 'mbab bkcm dggc noax'  // Application pass
+  }
+});
 
 const connection = mysql.createConnection({
   host: '127.0.0.1',
@@ -29,6 +37,8 @@ connection.connect((err) => {
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey } = req.body;
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
+
+  // Imprimir contraseñas desencriptadas
   const decryptedPasswordApp = decryptPassword(password);
   const queryPass = 'SELECT password FROM user WHERE username = ? OR email = ?';
   connection.query(queryPass, [username_email, username_email], (err, results) => {
@@ -44,7 +54,7 @@ app.post('/login', (req, res) => {
       console.log("no coinciden las credenciales");
     }
   });
-
+  
 
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
@@ -172,7 +182,7 @@ app.post('/signup', (req, res) => {
   });
 });
 
-app.post('/emailCode', (req, res) => {
+app.post('/sendEmail', (req, res) => {
   const { code, email } = req.body;
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + (5 * 60 * 1000));
@@ -185,22 +195,23 @@ app.post('/emailCode', (req, res) => {
       return;
     }
 
-    const msg = {
+    let mailOptions = {
+      from: '"Tu Aplicación" <tu_correo@gmail.com>',
       to: email,
-      from: 'mariobpb27@gmail.com',
       subject: 'Código de verificación',
-      text: `Tu código de verificación es: ${code}`
+      text: `Tu código de verificación es: ${code}`,
+      html: `<b>Tu código de verificación es: ${code}</b>`
     };
 
-    sgMail.send(msg)
-      .then(() => {
-        console.log('Correo enviado');
-        res.json({ message: 'Código registrado y correo enviado' });
-      })
-      .catch((error) => {
-        console.error(error);
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
         res.status(500).json({ error: 'Error al enviar el correo electrónico' });
-      });
+      } else {
+        console.log('Correo enviado: ' + info.response);
+        res.json({ message: 'Código registrado y correo enviado' });
+      }
+    });
   });
 });
 /*

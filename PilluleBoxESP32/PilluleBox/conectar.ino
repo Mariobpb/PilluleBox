@@ -6,8 +6,11 @@ void conectar(const char* ssid, const char* password) {
   delay(1000);
 
   WiFi.begin(ssid, password);
-  Serial.print("\n\nConectando a : ");
-  Serial.println(ssid);
+  Serial.print("\n\nConectando a : |");
+  Serial.print(ssid);
+  Serial.print("|\nContraseña: |");
+  Serial.print(password);
+  Serial.println("|");
 
   int tiempo = 0;
   while (WiFi.status() != WL_CONNECTED && tiempo < 30) {
