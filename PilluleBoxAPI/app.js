@@ -34,6 +34,7 @@ connection.connect((err) => {
   }
   console.log('Conectado a la base de datos MySQL');
 });
+
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey } = req.body;
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
@@ -230,12 +231,12 @@ app.post('/sendCode', (req, res) => {
 
 
 });
+
 app.post('/validateCode', (req, res) => {
   const { code, email } = req.body;
   const currentDate = new Date();
   console.log("Validando: '" + code + "' & '" + email + "'");
 
-  // Consulta para obtener el código y su fecha de expiración
   const query = 'SELECT * FROM codes WHERE email = ? AND code = ?';
 
   connection.query(query, [email, code], (err, results) => {
@@ -246,32 +247,24 @@ app.post('/validateCode', (req, res) => {
     }
 
     if (results.length > 0) {
-      // Convertir la fecha de expiración a un objeto Date
       const expirationDate = new Date(results[0].expiration_date);
       console.log("BD: '" + code + "' & '" + email + "' & '" + currentDate + "'");
 
       if (currentDate <= expirationDate) {
-        // El código es válido y no ha expirado
-        // Elimina el código usado
         const deleteQuery = 'DELETE FROM codes WHERE email = ?';
         connection.query(deleteQuery, [email], (deleteErr) => {
           if (deleteErr) {
             console.error(deleteErr);
             console.log(deleteErr);
-            // No enviamos error al cliente, solo lo registramos
           }
-
-          // Respondemos que el código es válido
           res.json({ message: 'Código validado correctamente', validated: true });
           console.log('Código validado correctamente');
         });
       } else {
-        // El código ha expirado
         res.status(400).json({ error: 'Código expirado' });
         console.log('Código expirado');
       }
     } else {
-      // No se encontró el código
       res.status(400).json({ error: 'Código inválido' });
       console.log('Código inválido');
     }
