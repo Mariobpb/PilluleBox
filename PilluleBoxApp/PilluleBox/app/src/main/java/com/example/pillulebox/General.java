@@ -5,13 +5,15 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 import android.widget.Toast;
 
+import java.util.Random;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 public class General {
     private static final String Secret_Key = "1234567890123456"; // Secret Key (16 bytes)
     private static final String IV = "iughvnbaklsvvkhj"; // initialization vector (16 bytes)
-    private static final String BASE_URL = "http://192.168.137.68:8080/";
+    private static final String BASE_URL = "http://192.168.100.14:8080/";
     public static final String Archivo = "PilluleBoxPrefs";
     public static final String Key = "AuthToken";
     public static String encryptPassword(String password) throws Exception {
@@ -43,5 +45,13 @@ public class General {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.remove(Key);
         editor.apply();
+    }
+    public static String generateRandomCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            code.append(random.nextInt(10));
+        }
+        return code.toString();
     }
 }

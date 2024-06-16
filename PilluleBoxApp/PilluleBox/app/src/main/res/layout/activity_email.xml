@@ -57,6 +57,7 @@
             android:layout_gravity="center_horizontal"
             android:paddingHorizontal="10dp"
             android:paddingVertical="8dp"
+            android:gravity="center_horizontal"
             android:maxLines="1"
             android:maxLength="5"
             android:textSize="35dp"

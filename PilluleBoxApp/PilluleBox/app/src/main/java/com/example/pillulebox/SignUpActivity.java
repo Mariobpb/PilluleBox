@@ -10,15 +10,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.util.Random;
-
+import AsyncTasks.SendCodeCallback;
 import AsyncTasks.SendCodeTask;
-import AsyncTasks.SignUpUserTask;
+import AsyncTasks.ValidateFieldsTask;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity implements SendCodeCallback {
     TextView error;
     EditText username, email, password;
     Button signup;
+    String username_str, email_str, password_str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,19 +40,13 @@ public class SignUpActivity extends AppCompatActivity {
 
         error.setText("");
         signup.setOnClickListener(v -> {
-            String username_str = username.getText().toString();
-            String email_str = email.getText().toString();
-            String password_str = password.getText().toString();
+            username_str = username.getText().toString();
+            email_str = email.getText().toString();
+            password_str = password.getText().toString();
             General.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
             if(validateFields(username_str, email_str, password_str)){
                 try {
-                    new SendCodeTask(this, username_str, email_str, password_str).execute(generateRandomCode(), email_str);
-                    /*
-                    String passEncrypted = General.encryptPassword(password_str);
-                    SignUpUserTask task = new SignUpUserTask(SignUpActivity.this, error);
-                    error.setText(passEncrypted);
-                    task.execute(username_str, email_str, passEncrypted);
-                     */
+                    new ValidateFieldsTask(this, this, error).execute(username_str, email_str);
                 } catch (Exception e) {
                     General.toastMessage(e.toString(), SignUpActivity.this);
                 }
@@ -68,7 +62,37 @@ public class SignUpActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    public void onFieldsValidated(boolean success) {
+        if (success) {
+            runOnUiThread(() -> {
+                new SendCodeTask(this).execute(General.generateRandomCode(), email_str);
+            });
+        } else {
+        }
 
+    }
+    @Override
+    public void onCodeValidated(boolean success) {
+    }
+    @Override
+    public void onCodeSent(boolean success) {
+        if (success) {
+            runOnUiThread(() -> {
+                General.toastMessage("Código enviado exitosamente", SignUpActivity.this);
+
+                Intent intent = new Intent(SignUpActivity.this, EmailActivity.class);
+                intent.putExtra("username", username.getText().toString());
+                intent.putExtra("email", email.getText().toString());
+                intent.putExtra("password", password.getText().toString());
+                startActivity(intent);
+            });
+        } else {
+            runOnUiThread(() -> {
+                error.setText("Error al enviar el código");
+            });
+        }
+    }
     private boolean validateFields(String username, String email, String password) {
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             error.setText("Ingrese los datos en todos los campos");
@@ -82,13 +106,5 @@ public class SignUpActivity extends AppCompatActivity {
         }
         error.setText("");
         return true;
-    }
-    private String generateRandomCode() {
-        Random random = new Random();
-        StringBuilder code = new StringBuilder();
-        for (int i = 0; i < 5; i++) {
-            code.append(random.nextInt(10));
-        }
-        return code.toString();
     }
 }

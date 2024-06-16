@@ -49,12 +49,12 @@ app.post('/login', (req, res) => {
     if (results.length > 0) {
       const passDB = results[0].password;
       const decryptedPasswordDB = decryptPassword(passDB);
-      console.log("Contraseñas:\nBD: "+decryptedPasswordDB+"\nApp: "+decryptedPasswordApp);
+      console.log("Contraseñas:\nBD: " + decryptedPasswordDB + "\nApp: " + decryptedPasswordApp);
     } else {
       console.log("no coinciden las credenciales");
     }
   });
-  
+
 
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
   connection.query(query, [username_email, password, username_email, password], (err, results) => {
@@ -134,9 +134,9 @@ app.post('/auth_token', (req, res) => {
   });
 });
 
-app.post('/signup', (req, res) => {
-  const { username, email, password } = req.body;
-  console.log("Registrando: '" + username + "' & '" + email + "' & '" + password + "'");
+app.post('/validate_fields', (req, res) => {
+  const { username, email } = req.body;
+  console.log("Validando: '" + username + "' & '" + email + "'");
 
   const checkUsernameQuery = 'SELECT * FROM user WHERE username = ?';
   connection.query(checkUsernameQuery, [username], (err, usernameResults) => {
@@ -146,7 +146,6 @@ app.post('/signup', (req, res) => {
       res.status(500).json({ error: 'Error al verificar el nombre de usuario' });
       return;
     }
-
     const checkEmailQuery = 'SELECT * FROM user WHERE email = ?';
     connection.query(checkEmailQuery, [email], (err, emailResults) => {
       if (err) {
@@ -155,7 +154,6 @@ app.post('/signup', (req, res) => {
         res.status(500).json({ error: 'Error al verificar el correo electrónico' });
         return;
       }
-
       if (usernameResults.length > 0) {
         console.log(":(");
         res.status(409).json({ error: 'El nombre de usuario ya está en uso' });
@@ -166,19 +164,25 @@ app.post('/signup', (req, res) => {
         res.status(409).json({ error: 'El correo electrónico ya está en uso' });
         return;
       }
-
-      const query = 'INSERT INTO user (username, email, password) VALUES (?, ?, ?)';
-      connection.query(query, [username, email, password], (err) => {
-        if (err) {
-          console.error(err);
-          console.log(err);
-          res.status(500).json({ error: 'Error al registrar el usuario' });
-          return;
-        }
-        res.json({ message: 'Usuario registradoo' });
-        console.log(":)");
-      });
+      res.json({ message: 'El correo electrónico ya está en uso', validated: true });
     });
+  });
+});
+
+app.post('/signup', (req, res) => {
+  const { username, email, password } = req.body;
+  console.log("Registrando: '" + username + "' & '" + email + "' & '" + password + "'");
+
+  const query = 'INSERT INTO user (username, email, password) VALUES (?, ?, ?)';
+  connection.query(query, [username, email, password], (err) => {
+    if (err) {
+      console.error(err);
+      console.log(err);
+      res.status(500).json({ error: 'Error al registrar el usuario' });
+      return;
+    }
+    res.json({ message: 'Usuario registrado', validated: true });
+    console.log(":)");
   });
 });
 
@@ -187,31 +191,90 @@ app.post('/sendCode', (req, res) => {
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + (5 * 60 * 1000));
 
-  const query = 'INSERT INTO codes (code, email, created_at, expires_at) VALUES (?, ?, ?, ?)';
-  connection.query(query, [code, email, createdAt, expiresAt], (err, result) => {
+  const queryDelete = 'DELETE FROM codes WHERE (email = ?)';
+  connection.query(queryDelete, [email], (err) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ error: 'Error al registrar el código' });
+      res.status(500).json({ error: 'Error' });
+      return;
+    }
+  });
+
+  let mailOptions = {
+    from: '"PilluleBox" <pillulebox@gmail.com>',
+    to: email,
+    subject: 'Código de verificación',
+    text: `Tu código de verificación es: ${code}`,
+    html: `<b>Tu código de verificación es: ${code}</b>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+    } else {
+      console.log('Correo enviado: ' + info.response);
+      const query = 'INSERT INTO codes (code, email, creation_date, expiration_date) VALUES (?, ?, ?, ?)';
+      connection.query(query, [code, email, createdAt, expiresAt], (err) => {
+        if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Error al registrar el código' });
+          return;
+        } else {
+          res.json({ message: 'Código registrado y correo enviado', sent: true });
+          console.log('Código registrado y correo enviado');
+        }
+      });
+    }
+  });
+
+
+});
+app.post('/validateCode', (req, res) => {
+  const { code, email } = req.body;
+  const currentDate = new Date();
+  console.log("Validando: '" + code + "' & '" + email + "'");
+
+  // Consulta para obtener el código y su fecha de expiración
+  const query = 'SELECT * FROM codes WHERE email = ? AND code = ?';
+
+  connection.query(query, [email, code], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al verificar el código' });
       return;
     }
 
-    let mailOptions = {
-      from: '"PilluleBox" <pillulebox@gmail.com>',
-      to: email,
-      subject: 'Código de verificación',
-      text: `Tu código de verificación es: ${code}`,
-      html: `<b>Tu código de verificación es: ${code}</b>`
-    };
+    if (results.length > 0) {
+      // Convertir la fecha de expiración a un objeto Date
+      const expirationDate = new Date(results[0].expiration_date);
+      console.log("BD: '" + code + "' & '" + email + "' & '" + currentDate + "'");
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+      if (currentDate <= expirationDate) {
+        // El código es válido y no ha expirado
+        // Elimina el código usado
+        const deleteQuery = 'DELETE FROM codes WHERE email = ?';
+        connection.query(deleteQuery, [email], (deleteErr) => {
+          if (deleteErr) {
+            console.error(deleteErr);
+            console.log(deleteErr);
+            // No enviamos error al cliente, solo lo registramos
+          }
+
+          // Respondemos que el código es válido
+          res.json({ message: 'Código validado correctamente', validated: true });
+          console.log('Código validado correctamente');
+        });
       } else {
-        console.log('Correo enviado: ' + info.response);
-        res.json({ message: 'Código registrado y correo enviado' });
+        // El código ha expirado
+        res.status(400).json({ error: 'Código expirado' });
+        console.log('Código expirado');
       }
-    });
+    } else {
+      // No se encontró el código
+      res.status(400).json({ error: 'Código inválido' });
+      console.log('Código inválido');
+    }
   });
 });
 /*
@@ -240,7 +303,7 @@ app.post('/registros', (req, res) => {
     res.json({ id: result.insertId });
   });
 });
-
+ 
 app.delete('/registros/:id', (req, res) => {
   const id = req.params.id;
   const query = 'DELETE FROM Registros WHERE id = ?';
@@ -257,7 +320,7 @@ app.delete('/registros/:id', (req, res) => {
     res.json({ message: 'Registro eliminado correctamente' });
   });
 });
-
+ 
 app.patch('/registros/:id', (req, res) => {
   const id = req.params.id;
   const { led, fecha, hora } = req.body;

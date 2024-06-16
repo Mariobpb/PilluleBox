@@ -1,5 +1,6 @@
 package AsyncTasks;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -7,6 +8,8 @@ import android.widget.TextView;
 
 import com.example.pillulebox.EmailActivity;
 import com.example.pillulebox.General;
+import com.example.pillulebox.LogInActivity;
+import com.example.pillulebox.SignUpActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,11 +25,14 @@ import okhttp3.Response;
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = General.getURL();
+    private final SendCodeCallback callback;
     private final Context context;
+    private final Activity activity;
     TextView error_text;
-    public SignUpUserTask(Context context, TextView error_text){
-        this.context = context;
-        this.error_text = error_text;
+    public SignUpUserTask(Activity activity, SendCodeCallback callback){
+        this.activity = activity;
+        this.context = activity.getApplicationContext();
+        this.callback = callback;
     }
     @Override
     protected Response doInBackground(String... params) {
@@ -64,8 +70,14 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
         if (response != null) {
             if (response.isSuccessful()) {
                 General.toastMessage("Usuario registrado exitosamente", context);
-                Intent intent = new Intent(context, EmailActivity.class);
+                Intent intent = new Intent(context, LogInActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                // Iniciar LogInActivity
                 context.startActivity(intent);
+
+                // Cerrar todas las Activities relacionadas con la tarea actual
+                activity.finish();
             } else {
                 int statusCode = response.code();
                 try {
