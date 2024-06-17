@@ -8,11 +8,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import AsyncTasks.CallbackValidations;
 import AsyncTasks.LogInUserTask;
 import AsyncTasks.ValidateTokenTask;
 
 
-public class LogInActivity extends AppCompatActivity {
+public class LogInActivity extends AppCompatActivity implements CallbackValidations {
     Button login;
     EditText username_email, password;
     TextView error, signup;
@@ -23,7 +24,7 @@ public class LogInActivity extends AppCompatActivity {
 
         String token = General.getToken(this);
         if (token != null) {
-            new ValidateTokenTask(LogInActivity.this).execute(token);
+            new ValidateTokenTask(this).execute(token);
         }
 
         login = findViewById(R.id.login_button);
@@ -47,5 +48,32 @@ public class LogInActivity extends AppCompatActivity {
             Intent intent = new Intent(LogInActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public void onCodeSent(boolean success) {
+
+    }
+
+    @Override
+    public void onCodeValidated(boolean success) {
+
+    }
+
+    @Override
+    public void onFieldsValidated(boolean success) {
+
+    }
+
+    @Override
+    public void onTokenValidated(boolean success) {
+        if (success) {
+            General.toastMessage("Autenticación exitosa", this);
+            Intent intent = new Intent(this, MenuActivity.class);
+            this.startActivity(intent);
+            finish();
+        } else {
+            General.toastMessage("Autenticación fallida", this);
+        }
     }
 }

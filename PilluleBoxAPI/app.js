@@ -72,7 +72,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '1w' // Expiración "w" : semanas, "m" : minutos
+        expiresIn: '1m' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);
@@ -103,7 +103,7 @@ app.post('/login', (req, res) => {
   });
 });
 
-app.post('/auth_token', (req, res) => {
+app.post('/validate_token', (req, res) => {
   const { token } = req.body;
   console.log("\nValidando token: " + token);
 
@@ -126,11 +126,11 @@ app.post('/auth_token', (req, res) => {
       console.log("Fecha de expiración:", expirationDate.toLocaleString());
       console.log("Tiempo restante:", Math.floor((expirationDate - currentDate) / 1000) + " segundos");
 
-      res.json({ valid: true });
+      res.json({ validated: true });
     } else {
       console.log("Token inválido o expirado");
       console.log("Fecha actual:", currentDate.toLocaleString());
-      res.status(401).json({ valid: false, error: 'Token inválido o expirado' });
+      res.status(401).json({ validated: false, error: 'Token inválido o expirado' });
     }
   });
 });

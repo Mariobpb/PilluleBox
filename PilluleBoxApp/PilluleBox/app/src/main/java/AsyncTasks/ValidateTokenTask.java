@@ -20,15 +20,15 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ValidateTokenTask extends AsyncTask<String, Void, Response> {
+public class ValidateTokenTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = General.getURL();
-    private final Context context;
-    public ValidateTokenTask(Context context){
-        this.context = context;
+    private final CallbackValidations callback;
+    public ValidateTokenTask(CallbackValidations callback){
+        this.callback = callback;
     }
     @Override
-    protected Response doInBackground(String... params) {
+    protected Boolean doInBackground(String... params) {
         String token = params[0];
 
         JSONObject jsonBody = new JSONObject();
@@ -41,46 +41,27 @@ public class ValidateTokenTask extends AsyncTask<String, Void, Response> {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody.toString());
 
         Request request = new Request.Builder()
-                .url(BASE_URL + "auth_token")
+                .url(BASE_URL + "validate_token")
                 .post(requestBody)
                 .build();
         try {
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
-                return response;
-            } else {
-                return null;
+                String responseBody = response.body().string();
+                JSONObject jsonObject = new JSONObject(responseBody);
+                return jsonObject.getBoolean("validated");
             }
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
-            return null;
         }
+
+        return false;
     }
 
     @Override
-    protected void onPostExecute(Response response) {
-        if (response != null && response.isSuccessful()) {
-            try {
-                String responseBody = response.body().string();
-                JSONObject jsonObject = new JSONObject(responseBody);
-                boolean isValid = jsonObject.getBoolean("valid");
-
-                if (isValid) {
-                    General.toastMessage("Autenticación exitosa", context);
-                    Intent intent = new Intent(context, MenuActivity.class);
-                    context.startActivity(intent);
-                    ((LogInActivity) context).finish();
-                } else {
-                    General.toastMessage("Sesión expirada", context);
-                    General.deleteToken(context);
-                }
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-                General.toastMessage("Error al procesar la respuesta", context);
-            }
-        } else {
-            General.toastMessage("Error de autenticación", context);
-            General.deleteToken(context);
+    protected void onPostExecute(Boolean success) {
+        if (callback != null) {
+            callback.onTokenValidated(success);
         }
     }
 }

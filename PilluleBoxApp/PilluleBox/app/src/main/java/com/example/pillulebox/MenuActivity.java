@@ -11,9 +11,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import AsyncTasks.CallbackValidations;
 import AsyncTasks.ValidateTokenTask;
 
-public class MenuActivity extends AppCompatActivity {
+public class MenuActivity extends AppCompatActivity implements CallbackValidations {
     Button validateToken;
     ImageButton logout;
     @Override
@@ -27,7 +28,7 @@ public class MenuActivity extends AppCompatActivity {
         validateToken.setOnClickListener(v -> {
             String token = General.getToken(this);
             if (token != null) {
-                new ValidateTokenTask(MenuActivity.this).execute(token);
+                new ValidateTokenTask(this).execute(token);
             }
         });
         logout.setOnClickListener(v -> {
@@ -36,5 +37,29 @@ public class MenuActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    @Override
+    public void onCodeSent(boolean success) {
+
+    }
+
+    @Override
+    public void onCodeValidated(boolean success) {
+
+    }
+
+    @Override
+    public void onFieldsValidated(boolean success) {
+
+    }
+
+    @Override
+    public void onTokenValidated(boolean success) {
+        if (success) {
+            General.toastMessage("Autenticación exitosa", this);
+        } else {
+            General.toastMessage("Autenticación fallida", this);
+        }
     }
 }
