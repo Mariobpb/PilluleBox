@@ -18,9 +18,9 @@ import okhttp3.Response;
 public class SendCodeTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = General.getURL();
-    private final SendCodeCallback callback;
+    private final CallbackValidations callback;
 
-    public SendCodeTask(SendCodeCallback callback) {
+    public SendCodeTask(CallbackValidations callback) {
         this.callback = callback;
     }
 

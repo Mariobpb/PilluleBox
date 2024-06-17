@@ -20,11 +20,11 @@ import okhttp3.Response;
 public class ValidateCodeTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = General.getURL();
-    private final SendCodeCallback callback;
+    private final CallbackValidations callback;
     private final Context context;
     private final TextView error;
 
-    public ValidateCodeTask(Context context, SendCodeCallback callback, TextView error) {
+    public ValidateCodeTask(Context context, CallbackValidations callback, TextView error) {
         this.context = context;
         this.callback = callback;
         this.error = error;

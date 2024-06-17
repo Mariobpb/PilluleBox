@@ -95,8 +95,7 @@
             android:layout_marginTop="10dp"
             android:text="Crea una"
             android:textSize="18dp"
-            android:textColor="#00FCFF"
-            android:onClick="signupAtivity"/>
+            android:textColor="#00FCFF" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

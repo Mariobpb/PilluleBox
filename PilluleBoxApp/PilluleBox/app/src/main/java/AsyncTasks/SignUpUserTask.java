@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.example.pillulebox.EmailActivity;
 import com.example.pillulebox.General;
 import com.example.pillulebox.LogInActivity;
-import com.example.pillulebox.SignUpActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,11 +23,11 @@ import okhttp3.Response;
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
     private final String BASE_URL = General.getURL();
-    private final SendCodeCallback callback;
+    private final CallbackValidations callback;
     private final Context context;
     private final Activity activity;
     TextView error_text;
-    public SignUpUserTask(Activity activity, SendCodeCallback callback){
+    public SignUpUserTask(Activity activity, CallbackValidations callback){
         this.activity = activity;
         this.context = activity.getApplicationContext();
         this.callback = callback;

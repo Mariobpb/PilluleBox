@@ -10,11 +10,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import AsyncTasks.SendCodeCallback;
+import AsyncTasks.CallbackValidations;
 import AsyncTasks.SendCodeTask;
 import AsyncTasks.ValidateFieldsTask;
 
-public class SignUpActivity extends AppCompatActivity implements SendCodeCallback {
+public class SignUpActivity extends AppCompatActivity implements CallbackValidations {
     TextView error;
     EditText username, email, password;
     Button signup;
@@ -72,6 +72,12 @@ public class SignUpActivity extends AppCompatActivity implements SendCodeCallbac
         }
 
     }
+
+    @Override
+    public void onTokenValidated(boolean success) {
+
+    }
+
     @Override
     public void onCodeValidated(boolean success) {
     }
