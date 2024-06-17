@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-06-2024 a las 15:31:04
--- Versión del servidor: 10.4.24-MariaDB
--- Versión de PHP: 8.1.6
+-- Tiempo de generación: 17-06-2024 a las 04:27:49
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,7 +34,7 @@ CREATE TABLE `basic_mode` (
   `morn_range` tinyint(4) DEFAULT NULL,
   `aftn_range` tinyint(4) DEFAULT NULL,
   `night_range` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -47,7 +47,21 @@ CREATE TABLE `cell` (
   `mac_dispenser` char(12) DEFAULT NULL,
   `num_cell` tinyint(4) DEFAULT NULL,
   `status` enum('vacio','disponible','advertencia','requerido') DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `codes`
+--
+
+CREATE TABLE `codes` (
+  `id` int(11) NOT NULL,
+  `code` char(5) DEFAULT NULL,
+  `email` varchar(50) DEFAULT NULL,
+  `creation_date` char(23) DEFAULT NULL,
+  `expiration_date` datetime(3) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -60,7 +74,7 @@ CREATE TABLE `dispenser` (
   `user_id` int(11) DEFAULT NULL,
   `dispenser_name` varchar(30) DEFAULT NULL,
   `context` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -77,7 +91,7 @@ CREATE TABLE `history` (
   `date_consumption` date DEFAULT NULL,
   `time_consumption` time DEFAULT NULL,
   `reason` varchar(128) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -97,7 +111,7 @@ CREATE TABLE `sequential_mode` (
   `limit_times_consumption` tinyint(4) DEFAULT NULL,
   `affected_periods` tinyint(1) DEFAULT NULL,
   `current_times_consumption` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -111,7 +125,7 @@ CREATE TABLE `single_mode` (
   `med_name` varchar(30) DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -122,17 +136,21 @@ CREATE TABLE `single_mode` (
 CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `username` varchar(50) DEFAULT NULL,
-  `password` varchar(50) DEFAULT NULL,
-  `email` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `password` varchar(100) DEFAULT NULL,
+  `email` varchar(50) DEFAULT NULL,
+  `token` text DEFAULT NULL,
+  `token_exp` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `user`
 --
 
-INSERT INTO `user` (`id`, `username`, `password`, `email`) VALUES
-(1, 'Mariobpb', 'passsssssword', 'mariobpb27@gmail.com'),
-(4, 'Mario', 'Contra123$', 'mariobpb@gmail.com');
+INSERT INTO `user` (`id`, `username`, `password`, `email`, `token`, `token_exp`) VALUES
+(1, 'Usuario2', '2mWaW52IW2RPNgFOG4lSAnsvZWTcB9PKn1lDhGL8BbddqPWiFk0Baz99SjaW9NfvGFkzhc1+TNih\n20k/X9wyzQ==\n', 'micorreo1234@ceti.mx', NULL, NULL),
+(3, 'User123', 'ese6yW0mS+ZFjC5hO6Fqzw==\n', 'correo', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6IlVzZXIxMjMiLCJwYXNzd29yZCI6ImVzZTZ5VzBtUytaRmpDNWhPNkZxenc9PVxuIiwiaWF0IjoxNzE4MjY5NDM0LCJleHAiOjE3MTgyNjk0OTR9.FiFmWrVCbqwdiVGglW8_dSv0QFTBpVy7m3SSKO1cxaA', 1718269494),
+(6, 'Mario2', 'ZUJBDssgmVuPzkNQahe0o45ZLeqI0yCSTZG4kEb8HmU=\n', 'a20100335@ceti.mx', NULL, NULL),
+(11, 'Mariobpb', 'kIsANAu3yV94nxC9d4fIAw==\n', 'mariobpb27@gmail.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1hcmlvYnBiIiwicGFzc3dvcmQiOiJrSXNBTkF1M3lWOTRueEM5ZDRmSUF3PT1cbiIsImlhdCI6MTcxODUyMzM1NSwiZXhwIjoxNzE5MTI4MTU1fQ.1LQdLpCvw9iYWzvrOG0coRC792ReDvl55GNmWeGu-iQ', 1719128155);
 
 --
 -- Índices para tablas volcadas
@@ -151,6 +169,12 @@ ALTER TABLE `basic_mode`
 ALTER TABLE `cell`
   ADD PRIMARY KEY (`id`),
   ADD KEY `mac_dispenser` (`mac_dispenser`);
+
+--
+-- Indices de la tabla `codes`
+--
+ALTER TABLE `codes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indices de la tabla `dispenser`
@@ -193,10 +217,16 @@ ALTER TABLE `user`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `codes`
+--
+ALTER TABLE `codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Restricciones para tablas volcadas
