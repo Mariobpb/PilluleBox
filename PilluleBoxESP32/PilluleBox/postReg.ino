@@ -1,3 +1,4 @@
+/*
 void postReg(bool led, String fecha, String hora) {
   HTTPClient http;
   http.begin(apiUrl);
@@ -22,3 +23,4 @@ void postReg(bool led, String fecha, String hora) {
 
   http.end();
 }
+*/

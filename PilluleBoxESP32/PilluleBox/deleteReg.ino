@@ -1,3 +1,4 @@
+/*
 void deleteReg(int id) {
   HTTPClient http;
   String url = String(apiUrl)+"/"+String(id);
@@ -13,3 +14,4 @@ void deleteReg(int id) {
   }
   http.end();
 }
+*/

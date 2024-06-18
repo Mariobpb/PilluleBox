@@ -1,3 +1,4 @@
+/*
 void patchReg(int id, bool led, String fecha, String hora) {
   HTTPClient http;
   String url = String(apiUrl) + "/" + String(id);
@@ -23,3 +24,4 @@ void patchReg(int id, bool led, String fecha, String hora) {
 
   http.end();
 }
+*/

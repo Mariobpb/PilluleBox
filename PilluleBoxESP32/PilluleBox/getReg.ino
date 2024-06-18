@@ -1,3 +1,4 @@
+/*
 void getReg() {
   HTTPClient http;
   http.begin(apiUrl);
@@ -28,3 +29,4 @@ void getReg() {
   }
   http.end();
 }
+*/

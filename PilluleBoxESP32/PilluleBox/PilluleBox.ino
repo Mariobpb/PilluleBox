@@ -1,25 +1,13 @@
-#include <Arduino.h>
-#include <AES.h>
-#include <AESLib.h>
+#include "pillulebox.h"
 
-#include <ArduinoJson.h>
 #include <EEPROM.h>
-#include <HTTPClient.h>
+//#include <HTTPClient.h>
 #include <WiFi.h>
 
-#include <TFT_eSPI.h>
-
-const int dirSSID = 0;
-const int dirPASSWORD = 64;
-const char* apiUrl = "https://pillulebox-q376oyvn2a-uc.a.run.app/registros";
-
-const int bufferSize = 64;
 char buffer[bufferSize];
-int Index = 0;
-char ssidBuffer[bufferSize];      // Asignar memoria para ssidBuffer
-char passwordBuffer[bufferSize];  // Asignar memoria para passwordBuffer
+char ssidBuffer[bufferSize];
+char passwordBuffer[bufferSize];
 
-TFT_eSPI tft = TFT_eSPI();
 
 void setup() {
   Serial.begin(115200);
@@ -28,8 +16,6 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(3);
 
   char ssidEEPROM[bufferSize + 1];
   char passwordEEPROM[bufferSize + 1];
@@ -54,7 +40,7 @@ void loop() {
         reconectar();
         break;
       case 1:
-        getReg();
+        //getReg();
         break;
       case 2:
         Serial.write("LED:\n");
@@ -63,12 +49,12 @@ void loop() {
         Fecha = esperarBuffer();
         Serial.write("Hora:\n");
         Hora = esperarBuffer();
-        postReg(LED, Fecha, Hora);
+        //postReg(LED, Fecha, Hora);
         break;
       case 3:
         Serial.write("\nID:\n");
         ID = esperarBuffer().toInt();
-        deleteReg(ID);
+        //deleteReg(ID);
         break;
       case 4:
         Serial.write("\nID:\n");
@@ -79,7 +65,7 @@ void loop() {
         Fecha = esperarBuffer();
         Serial.write("Hora:\n");
         Hora = esperarBuffer();
-        patchReg(ID, LED, Fecha, Hora);
+        //patchReg(ID, LED, Fecha, Hora);
         break;
       case 5:
         Serial.println("Dirección MAC: " + WiFi.macAddress());
