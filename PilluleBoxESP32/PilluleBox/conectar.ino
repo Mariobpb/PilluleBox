@@ -6,6 +6,12 @@ void conectar(const char* ssid, const char* password) {
   delay(1000);
 
   WiFi.begin(ssid, password);
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setCursor(0, 0);
+  tft.print("Conectando a :");
+  tft.setCursor(0, 30);
+  tft.print(ssid);
   Serial.print("\n\nConectando a : |");
   Serial.print(ssid);
   Serial.print("|\nContraseña: |");

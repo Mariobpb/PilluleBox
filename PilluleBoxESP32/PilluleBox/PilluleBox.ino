@@ -7,6 +7,8 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 
+#include <TFT_eSPI.h>
+
 const int dirSSID = 0;
 const int dirPASSWORD = 64;
 const char* apiUrl = "https://pillulebox-q376oyvn2a-uc.a.run.app/registros";
@@ -17,9 +19,17 @@ int Index = 0;
 char ssidBuffer[bufferSize];      // Asignar memoria para ssidBuffer
 char passwordBuffer[bufferSize];  // Asignar memoria para passwordBuffer
 
+TFT_eSPI tft = TFT_eSPI();
+
 void setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
+
+  tft.init();
+  tft.setRotation(0);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.setTextSize(3);
 
   char ssidEEPROM[bufferSize + 1];
   char passwordEEPROM[bufferSize + 1];
