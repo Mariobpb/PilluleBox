@@ -10,17 +10,13 @@ void reconectar();
 String esperarBuffer();
 void leerCadenaDesdeEEPROM(int direccion, char* cadena, int longitud);
 bool memoriaVacia(int direccion, int longitud);
-void mostrarRedesDisponibles();
+bool RedesEscaneadas();
 void reiniciarBuffer();
 bool respuestaCompleta();
 bool stringToBool(String value);
 void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud);
 
 // Estructura de datos
-struct MiEstructura {
-   int valor;
-   char campo[20];
-};
 
 // Variables globales
 extern TFT_eSPI tft;
@@ -29,7 +25,6 @@ extern const char* apiUrl;
 extern const int dirPASSWORD;
 extern const int dirSSID;
 const int bufferSize = 16;
-
 
 extern char buffer[bufferSize];
 extern char ssidBuffer[bufferSize];      // Asignar memoria para ssidBuffer

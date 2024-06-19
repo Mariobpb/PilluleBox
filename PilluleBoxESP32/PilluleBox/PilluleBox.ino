@@ -30,6 +30,8 @@ void setup() {
 
 void loop() {
   if ((WiFi.status() == WL_CONNECTED)) {  //Check the current connection status
+    tft.fillScreen(TFT_BLACK);
+    tft.println("Conectado :)");
     Serial.write("\n0: Reconectar\n1: GET\n2: POST\n3: DELETE\n4: PATCH\n5: MAC Address\n");
     int seleccion = esperarBuffer().toInt();
     int ID;
@@ -72,6 +74,8 @@ void loop() {
         break;
     }
   } else {
+    tft.fillScreen(TFT_BLACK);
+    tft.println("WiFi Desconectado :)");
     Serial.println("WiFi Desconectado");
     reconectar();
   }

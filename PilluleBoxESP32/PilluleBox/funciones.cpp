@@ -27,6 +27,7 @@ void conectar(const char* ssid, const char* password) {
 
   WiFi.begin(ssid, password);
 
+  tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setCursor(0, 0);
   tft.setTextSize(2);
@@ -68,33 +69,35 @@ void conectar(const char* ssid, const char* password) {
 }
 
 void reconectar() {
+  bool RedesDisponibles = RedesEscaneadas();
+  delay(2000);
+  if (RedesDisponibles) {
+    reiniciarBuffer();
 
-  mostrarRedesDisponibles();
-  reiniciarBuffer();
+    Serial.write("\nSSID (Seleccione el número de la lista): ");
+    while (!respuestaCompleta()) {
+      // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
+    }
+    Serial.write(buffer);
 
-  Serial.write("\nSSID (Seleccione el número de la lista): ");
-  while (!respuestaCompleta()) {
-    // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
+    int seleccion = atoi(buffer);
+    WiFi.SSID(seleccion - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
+    reiniciarBuffer();
+
+    Serial.write("\nPASSWORD: ");
+    while (!respuestaCompleta()) {
+      // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
+    }
+    Serial.write(buffer);
+
+    strncpy(passwordBuffer, buffer, bufferSize);
+    passwordBuffer[strlen(passwordBuffer) - 1] = '\0';  // Remueve el último carácter
+
+    reiniciarBuffer();
+    escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
+    escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
+    conectar(ssidBuffer, passwordBuffer);
   }
-  Serial.write(buffer);
-
-  int seleccion = atoi(buffer);
-  WiFi.SSID(seleccion - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
-  reiniciarBuffer();
-
-  Serial.write("\nPASSWORD: ");
-  while (!respuestaCompleta()) {
-    // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
-  }
-  Serial.write(buffer);
-
-  strncpy(passwordBuffer, buffer, bufferSize);
-  passwordBuffer[strlen(passwordBuffer) - 1] = '\0';  // Remueve el último carácter
-
-  reiniciarBuffer();
-  escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
-  escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
-  conectar(ssidBuffer, passwordBuffer);
 }
 
 String esperarBuffer() {
@@ -122,20 +125,33 @@ bool memoriaVacia(int direccion, int longitud) {
   return true;  // Está vacía
 }
 
-void mostrarRedesDisponibles() {
+bool RedesEscaneadas() {
+  WiFi.disconnect(true);
   WiFi.scanDelete();  // Borrar la caché de escaneo
 
-  tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextSize(2.5);
+  tft.fillScreen(TFT_WHITE);
   tft.setCursor(0, 20);
 
   delay(1000);
-  int numRedes = WiFi.scanNetworks();  // Escanear redes WiFi
-  delay(1000);
-  if (numRedes == 0) {
-    tft.println("Sin redes disponibles");
+
+  WiFi.scanNetworks(true);  // Escanear redes WiFi
+  tft.println("Escaneando redes ");
+  tft.println(WiFi.scanComplete());
+  delay(2000);
+  while (WiFi.scanComplete() <= 0) {
+    delay(100);
+    Serial.println(WiFi.scanComplete());
+    tft.print(".");
+  }
+  int numRedes = WiFi.scanComplete();
+  tft.fillScreen(TFT_BLACK);
+  tft.setCursor(0, 20);
+  if (numRedes < 1) {
     Serial.println("\nNo se encontraron redes disponibles.");
+    tft.println("Sin redes disponibles");
+    return false;
   } else {
     Serial.println("\nRedes disponibles:");
 
@@ -150,6 +166,7 @@ void mostrarRedesDisponibles() {
       Serial.println(WiFi.SSID(i));
       tft.println(WiFi.SSID(i));
     }
+    return true;
   }
 }
 
