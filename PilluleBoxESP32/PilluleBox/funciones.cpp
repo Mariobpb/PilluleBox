@@ -1,12 +1,13 @@
 #include "pillulebox.h"
 
 #include <Arduino.h>
+#include <vector>
+
 #include <AES.h>
 #include <AESLib.h>
 
 #include <ArduinoJson.h>
 #include <EEPROM.h>
-//#include <HTTPClient.h>
 #include <WiFi.h>
 
 #include <TFT_eSPI.h>
@@ -69,35 +70,24 @@ void conectar(const char* ssid, const char* password) {
 }
 
 void reconectar() {
-  bool RedesDisponibles = RedesEscaneadas();
+  int NumRed = SeleccionarRed();
   delay(2000);
-  if (RedesDisponibles) {
-    reiniciarBuffer();
+  WiFi.SSID(NumRed - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
+  reiniciarBuffer();
 
-    Serial.write("\nSSID (Seleccione el número de la lista): ");
-    while (!respuestaCompleta()) {
-      // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
-    }
-    Serial.write(buffer);
-
-    int seleccion = atoi(buffer);
-    WiFi.SSID(seleccion - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
-    reiniciarBuffer();
-
-    Serial.write("\nPASSWORD: ");
-    while (!respuestaCompleta()) {
-      // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
-    }
-    Serial.write(buffer);
-
-    strncpy(passwordBuffer, buffer, bufferSize);
-    passwordBuffer[strlen(passwordBuffer) - 1] = '\0';  // Remueve el último carácter
-
-    reiniciarBuffer();
-    escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
-    escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
-    conectar(ssidBuffer, passwordBuffer);
+  Serial.write("\nPASSWORD: ");
+  while (!respuestaCompleta()) {
+    // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
   }
+  Serial.write(buffer);
+
+  strncpy(passwordBuffer, buffer, bufferSize);
+  passwordBuffer[strlen(passwordBuffer) - 1] = '\0';  // Remueve el último carácter
+
+  reiniciarBuffer();
+  escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
+  escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
+  conectar(ssidBuffer, passwordBuffer);
 }
 
 String esperarBuffer() {
@@ -125,24 +115,23 @@ bool memoriaVacia(int direccion, int longitud) {
   return true;  // Está vacía
 }
 
-bool RedesEscaneadas() {
+int SeleccionarRed() {
   WiFi.disconnect(true);
   WiFi.scanDelete();  // Borrar la caché de escaneo
 
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(2.5);
-  tft.fillScreen(TFT_WHITE);
+  tft.setTextSize(3);
+  tft.fillScreen(TFT_BLACK);
   tft.setCursor(0, 20);
 
   delay(1000);
 
   WiFi.scanNetworks(true);  // Escanear redes WiFi
-  tft.println("Escaneando redes ");
-  tft.println(WiFi.scanComplete());
-  delay(2000);
-  while (WiFi.scanComplete() <= 0) {
-    delay(100);
-    Serial.println(WiFi.scanComplete());
+  tft.print("Escaneando redes ");
+  int i = 0;
+  while (WiFi.scanComplete() <= 0 && i < 11) {
+    delay(1000);
+    i++;
     tft.print(".");
   }
   int numRedes = WiFi.scanComplete();
@@ -153,20 +142,52 @@ bool RedesEscaneadas() {
     tft.println("Sin redes disponibles");
     return false;
   } else {
+    std::vector<String> ssidList;
+    for (int i = 0; i < numRedes; i++) {
+      ssidList.push_back(WiFi.SSID(i));
+    }
+    tft.println("\nRedes disponibles:");
     Serial.println("\nRedes disponibles:");
 
-    tft.setTextSize(2);
-    for (int i = 0; i < numRedes; i++) {
-      tft.print(i + 1);
-      Serial.print(i + 1);
+    tft.setTextSize(4);
 
-      Serial.print(": ");
-      tft.print(": ");
+    int networkSelected = 1;
+    int option = -1;
+    reiniciarBuffer();
 
-      Serial.println(WiFi.SSID(i));
-      tft.println(WiFi.SSID(i));
+    while (option != 2) {
+      tft.fillScreen(TFT_BLACK);
+      tft.setCursor(0, 20);
+      if (option == 1) networkSelected--;
+      if (option == 0) networkSelected++;
+
+      if (networkSelected < 1) networkSelected = numRedes;
+      else if (networkSelected > numRedes) networkSelected = 1;
+
+      for (int i = 0; i < numRedes; i++) {
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        if ((i + 1) == networkSelected) {
+          tft.setTextColor(TFT_WHITE, TFT_BLUE);
+        }
+
+        tft.print(i + 1);
+        Serial.print(i + 1);
+
+        Serial.print(": ");
+        tft.print(": ");
+
+        Serial.println(WiFi.SSID(i));
+        tft.println(WiFi.SSID(i));
+      }
+      reiniciarBuffer();
+      while (!respuestaCompleta()) {
+        // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
+      }
+      option = atoi(buffer);
+      Serial.println(buffer);
     }
-    return true;
+
+    return networkSelected;
   }
 }
 
@@ -202,4 +223,7 @@ void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud) {
     EEPROM.write(direccion + i, cadena[i]);
   }
   EEPROM.commit();
+}
+
+int SeleccionarLista(String[] list, int textSize, macro textColor, macro textBackground) {
 }

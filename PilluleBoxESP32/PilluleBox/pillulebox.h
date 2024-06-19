@@ -10,11 +10,12 @@ void reconectar();
 String esperarBuffer();
 void leerCadenaDesdeEEPROM(int direccion, char* cadena, int longitud);
 bool memoriaVacia(int direccion, int longitud);
-bool RedesEscaneadas();
+int SeleccionarRed();
 void reiniciarBuffer();
 bool respuestaCompleta();
 bool stringToBool(String value);
 void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud);
+int SeleccionarLista(String[] list, int textSize, macro textColor, macro textBackground);
 
 // Estructura de datos
 
