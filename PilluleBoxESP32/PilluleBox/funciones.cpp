@@ -5,7 +5,6 @@
 #include <AES.h>
 #include <AESLib.h>
 
-#include <ArduinoJson.h>
 #include <EEPROM.h>
 #include <WiFi.h>
 
