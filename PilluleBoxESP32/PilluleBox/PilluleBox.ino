@@ -30,8 +30,11 @@ void setup() {
 
 void loop() {
   if ((WiFi.status() == WL_CONNECTED)) {  //Check the current connection status
+    tft.setCursor(0, 20);
     tft.fillScreen(TFT_BLACK);
     tft.println("Conectado :)");
+    Lista listaOpciones({"Reconectar", "MAC Address"}, 2);
+    listaOpciones.SeleccionarLista();
     Serial.write("\n0: Reconectar\n1: GET\n2: POST\n3: DELETE\n4: PATCH\n5: MAC Address\n");
     int seleccion = esperarBuffer().toInt();
     int ID;
