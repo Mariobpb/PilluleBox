@@ -11,12 +11,6 @@
 
 #include <TFT_eSPI.h>
 
-TFT_eSPI tft = TFT_eSPI();
-int Index = 0;
-const char* apiUrl = "https://pillulebox-q376oyvn2a-uc.a.run.app/registros";
-const int dirPASSWORD = 64;
-const int dirSSID = 0;
-
 
 void conectar(const char* ssid, const char* password) {
   // Desconecta WiFi si ya está conectado
@@ -77,12 +71,11 @@ void reconectar() {
 
     Serial.write("\nPASSWORD: ");
     while (!respuestaCompleta()) {
-      // Puedes realizar otras tareas en el bucle principal mientras esperas la respuesta
+      // Espera la respuesta completa
     }
-    Serial.write(buffer);
-
+    Serial.println(buffer);  // Imprime el buffer para verificar
     strncpy(passwordBuffer, buffer, bufferSize);
-    passwordBuffer[strlen(passwordBuffer) - 1] = '\0';  // Remueve el último carácter
+    passwordBuffer[bufferSize - 1] = '\0';  // Asegura que la cadena termine con nulo
 
     reiniciarBuffer();
     escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
@@ -162,19 +155,16 @@ void reiniciarBuffer() {
 
 bool respuestaCompleta() {
   while (Serial.available() > 0) {
-    char receivedChar = Serial.read();  // Lee el caracter recibido
-
-    if (receivedChar == '\n') {  // Si se recibe un salto de línea, la respuesta está completa
-      buffer[Index] = '\0';      // Agrega el carácter nulo al final del búfer para formar una cadena
+    char receivedChar = Serial.read();
+    if (receivedChar == '\n' || receivedChar == '\r') {
+      buffer[Index] = '\0';  // Termina la cadena
       return true;
-    } else {
-      // Almacena el carácter en el búfer si no es un salto de línea
+    } else if (Index < bufferSize - 1) {  // Deja espacio para el carácter nulo
       buffer[Index] = receivedChar;
-      Index = (Index + 1) % bufferSize;  // Evita desbordamientos del búfer
+      Index++;
     }
   }
-
-  return false;  // La respuesta no está completa todavía
+  return false;
 }
 
 bool stringToBool(String value) {

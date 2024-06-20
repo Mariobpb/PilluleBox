@@ -13,6 +13,8 @@ void setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
 
+
+
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
@@ -33,47 +35,21 @@ void loop() {
     tft.setCursor(0, 20);
     tft.fillScreen(TFT_BLACK);
     tft.println("Conectado :)");
-    Lista listaOpciones({"Reconectar", "MAC Address"}, 2);
-    listaOpciones.SeleccionarLista();
-    Serial.write("\n0: Reconectar\n1: GET\n2: POST\n3: DELETE\n4: PATCH\n5: MAC Address\n");
-    int seleccion = esperarBuffer().toInt();
-    int ID;
-    bool LED;
-    String Fecha, Hora;
+    String l[] = { "Reconectar", "MAC Address" };
+    Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
+    int seleccion = listaOpciones.SeleccionarLista();
+    tft.setCursor(0, 20);
+    tft.setTextSize(3);
+    tft.fillScreen(TFT_BLACK);
     switch (seleccion) {
-      case 0:
+      case 1:
         reconectar();
         break;
-      case 1:
-        //getReg();
-        break;
       case 2:
-        Serial.write("LED:\n");
-        LED = stringToBool(esperarBuffer());
-        Serial.write("Fecha:\n");
-        Fecha = esperarBuffer();
-        Serial.write("Hora:\n");
-        Hora = esperarBuffer();
-        //postReg(LED, Fecha, Hora);
+        tft.println("Dirección MAC: " + WiFi.macAddress());
         break;
       case 3:
-        Serial.write("\nID:\n");
-        ID = esperarBuffer().toInt();
-        //deleteReg(ID);
-        break;
-      case 4:
-        Serial.write("\nID:\n");
-        ID = esperarBuffer().toInt();
-        Serial.write("LED:\n");
-        LED = stringToBool(esperarBuffer());
-        Serial.write("Fecha:\n");
-        Fecha = esperarBuffer();
-        Serial.write("Hora:\n");
-        Hora = esperarBuffer();
-        //patchReg(ID, LED, Fecha, Hora);
-        break;
-      case 5:
-        Serial.println("Dirección MAC: " + WiFi.macAddress());
+        tft.println("Dirección MAC: " + WiFi.macAddress());
         break;
     }
   } else {
