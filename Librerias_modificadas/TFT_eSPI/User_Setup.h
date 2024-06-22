@@ -86,7 +86,7 @@
 // #define TFT_WIDTH  172 // ST7789 172 x 320
 // #define TFT_WIDTH  170 // ST7789 170 x 320
 // #define TFT_WIDTH  240 // ST7789 240 x 240 and 240 x 320
-#define TFT_WIDTH 320
+#define TFT_WIDTH  320
 // #define TFT_HEIGHT 160
 // #define TFT_HEIGHT 128
 // #define TFT_HEIGHT 240 // ST7789 240 x 240
@@ -169,17 +169,18 @@
 // ###### EDIT THE PIN NUMBERS IN THE LINES FOLLOWING TO SUIT YOUR ESP8266 SETUP ######
 
 // For NodeMCU - use pin numbers in the form PIN_Dx where Dx is the NodeMCU pin designation
-#define TFT_MISO  -1  // Automatically assigned with ESP8266 if not defined
-#define TFT_MOSI  39  // Automatically assigned with ESP8266 if not defined         SDA
-#define TFT_SCLK  38  // Automatically assigned with ESP8266 if not defined         SCL
+#define TFT_MISO  -1 // Automatically assigned with ESP8266 if not defined
+#define TFT_MOSI  39  // Automatically assigned with ESP8266 if not defined
+#define TFT_SCLK  38  // Automatically assigned with ESP8266 if not defined
 
-#define TFT_CS    42  // Chip select control pin D8                                 CS
-#define TFT_DC    41  // Data Command control pin                                   DC
-#define TFT_RST   40  // Reset pin (could connect to NodeMCU RST, see next line)    RST
+#define TFT_CS    42  // Chip select control pin D8
+#define TFT_DC    41  // Data Command control pin
+#define TFT_RST   40  // Reset pin (could connect to NodeMCU RST, see next line)
 //#define TFT_RST  -1     // Set TFT_RST to -1 if the display RESET is connected to NodeMCU RST or 3.3V
 
 
-#define TFT_BL 2  // LED back-light (only for ST7789 with backlight control pin)   BL  
+#define TFT_BL 2  // LED back-light (only for ST7789 with backlight control pin)
+#define TFT_BACKLIGHT_ON HIGH  // Level to turn ON back-light (HIGH or LOW)
 
 //#define TOUCH_CS PIN_D2     // Chip select pin (T_CS) of touch screen
 
