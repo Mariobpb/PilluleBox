@@ -40,6 +40,7 @@ app.post('/login', (req, res) => {
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
 
   // Imprimir contraseñas desencriptadas
+  /*
   const decryptedPasswordApp = decryptPassword(password);
   const queryPass = 'SELECT password FROM user WHERE username = ? OR email = ?';
   connection.query(queryPass, [username_email, username_email], (err, results) => {
@@ -55,6 +56,7 @@ app.post('/login', (req, res) => {
       console.log("no coinciden las credenciales");
     }
   });
+  */
 
 
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';

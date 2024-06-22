@@ -6,9 +6,7 @@
 #include <AESLib.h>
 
 #include <EEPROM.h>
-#include <WiFi.h>
-
-#include <TFT_eSPI.h>
+#include <esp_random.h>
 
 
 void conectar(const char* ssid, const char* password) {
@@ -18,11 +16,11 @@ void conectar(const char* ssid, const char* password) {
   // Espera un momento para que la desconexión tenga lugar
   delay(1000);
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, "1234567890");
 
-  tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setCursor(0, 0);
+  setBackground(1);
+  tft.setTextColor(TFT_WHITE);
+  tft.setCursor(0, 20);
   tft.setTextSize(2);
   tft.print("Conectando a :\n");
   tft.setTextSize(3);
@@ -48,7 +46,7 @@ void conectar(const char* ssid, const char* password) {
     Serial.print(".");
     tiempo++;
   }
-  tft.setTextColor(TFT_RED, TFT_BLACK);
+  tft.setTextColor(TFT_RED);
   tft.setCursor(0, 300);
   if (tiempo == 30) {
     tft.print("Conexión Fallida");
@@ -58,17 +56,22 @@ void conectar(const char* ssid, const char* password) {
   }
   tft.print("Se ha conectado al wifi exitosamente\nIP: ");
   Serial.print("\nSe ha conectado al wifi exitosamente\nIP: ");
+  escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
+  escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
   Serial.println(WiFi.localIP());
 }
 
 void reconectar() {
-  int NumRed = SeleccionarRed();
+  int NumRed = seleccionarRed();
   delay(2000);
   if (NumRed > 0) {
     WiFi.SSID(NumRed - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
-    reiniciarBuffer();
 
     Serial.write("\nPASSWORD: ");
+    setBackground(1);
+    tft.setCursor(0, 20);
+    tft.println("Ingrese la contraseña:");
+    reiniciarBuffer();
     while (!respuestaCompleta()) {
       // Espera la respuesta completa
     }
@@ -77,8 +80,6 @@ void reconectar() {
     passwordBuffer[bufferSize - 1] = '\0';  // Asegura que la cadena termine con nulo
 
     reiniciarBuffer();
-    escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
-    escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
     conectar(ssidBuffer, passwordBuffer);
   }
 }
@@ -106,45 +107,6 @@ bool memoriaVacia(int direccion, int longitud) {
     }
   }
   return true;  // Está vacía
-}
-
-int SeleccionarRed() {
-  WiFi.disconnect(true);
-  WiFi.scanDelete();  // Borrar la caché de escaneo
-
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(3);
-  tft.fillScreen(TFT_BLACK);
-  tft.setCursor(0, 20);
-
-  delay(1000);
-
-  WiFi.scanNetworks(true);  // Escanear redes WiFi
-  tft.print("Escaneando redes ");
-  int i = 0;
-  while (WiFi.scanComplete() <= 0 && i < 11) {
-    delay(1000);
-    i++;
-    tft.print(".");
-  }
-  int numRedes = WiFi.scanComplete();
-  tft.fillScreen(TFT_BLACK);
-  tft.setCursor(0, 20);
-  if (numRedes < 1) {
-    Serial.println("\nNo se encontraron redes disponibles.");
-    tft.println("Sin redes disponibles");
-    return -1;
-  } else {
-    String l[numRedes];
-    for (int i = 0; i < numRedes; i++) {
-      l[i] = WiFi.SSID(i);
-    }
-    tft.println("\nRedes disponibles:");
-    Serial.println("\nRedes disponibles:");
-
-    Lista lista(l, numRedes);
-    return lista.SeleccionarLista();
-  }
 }
 
 void reiniciarBuffer() {
@@ -176,4 +138,69 @@ void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud) {
     EEPROM.write(direccion + i, cadena[i]);
   }
   EEPROM.commit();
+}
+
+int seleccionarRed() {
+  WiFi.disconnect(true);
+  WiFi.scanDelete();  // Borrar la caché de escaneo
+
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(3);
+  setBackground(1);
+  tft.setCursor(0, 20);
+
+  delay(1000);
+
+  WiFi.scanNetworks(true);  // Escanear redes WiFi
+  tft.print("Escaneando redes ");
+  int i = 0;
+  while (WiFi.scanComplete() <= 0 && i < 11) {
+    delay(1000);
+    i++;
+    tft.print(".");
+  }
+  int numRedes = WiFi.scanComplete();
+  setBackground(1);
+  tft.setCursor(0, 20);
+  if (numRedes < 1) {
+    Serial.println("\nNo se encontraron redes disponibles.");
+    tft.println("Sin redes disponibles");
+    return -1;
+  } else {
+    String l[numRedes];
+    for (int i = 0; i < numRedes; i++) {
+      l[i] = WiFi.SSID(i);
+    }
+    tft.println("\nRedes disponibles:");
+    Serial.println("\nRedes disponibles:");
+
+    Lista lista(l, numRedes);
+    return lista.seleccionarLista();
+  }
+}
+
+void setBackground(int b) {
+  switch (b) {
+    case 1:
+      tft.fillRectVGradient(0, 0, tft.width(), tft.height(), convertRGBtoRGB565(130, 0, 0), TFT_BLACK);
+      break;
+    case 2:
+      break;
+  }
+}
+
+uint16_t convertRGBtoRGB565(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
+String generateSecretKey() {
+  const int keyLength = 16;
+  char key[keyLength + 1];
+  
+  for (int i = 0; i < keyLength; i++) {
+    key[i] = char(esp_random() % 26 + 'A');  // Genera letras mayúsculas aleatorias
+  }
+  key[keyLength] = '\0';  // Asegura que la cadena termine con nulo
+  
+  return String(key);
 }
