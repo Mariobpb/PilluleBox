@@ -2,21 +2,21 @@
 
 #include <Arduino.h>
 
-#include <AES.h>
 #include <AESLib.h>
+#include "Base64.h"
 
 #include <EEPROM.h>
 #include <esp_random.h>
 
 
-void conectar(const char* ssid, const char* password) {
+void conectar(String ssid, String password) {
   // Desconecta WiFi si ya está conectado
   WiFi.disconnect(true);
 
   // Espera un momento para que la desconexión tenga lugar
   delay(1000);
 
-  WiFi.begin(ssid, "1234567890");
+  WiFi.begin(ssid.c_str(), password.c_str());
 
   setBackground(1);
   tft.setTextColor(TFT_WHITE);
@@ -56,8 +56,8 @@ void conectar(const char* ssid, const char* password) {
   }
   tft.print("Se ha conectado al wifi exitosamente\nIP: ");
   Serial.print("\nSe ha conectado al wifi exitosamente\nIP: ");
-  escribirCadenaEnEEPROM(dirSSID, ssidBuffer, bufferSize);
-  escribirCadenaEnEEPROM(dirPASSWORD, passwordBuffer, bufferSize);
+  escribirCadenaEnEEPROM(dirSSID, ssid.c_str(), bufferSize);
+  escribirCadenaEnEEPROM(dirPASSWORD, password.c_str(), bufferSize);
   Serial.println(WiFi.localIP());
 }
 
@@ -65,32 +65,18 @@ void reconectar() {
   int NumRed = seleccionarRed();
   delay(2000);
   if (NumRed > 0) {
-    WiFi.SSID(NumRed - 1).toCharArray(ssidBuffer, sizeof(ssidBuffer));
+    String ssid = WiFi.SSID(NumRed - 1);
 
-    Serial.write("\nPASSWORD: ");
+    Serial.println("\nIngrese la contraseña:");
     setBackground(1);
     tft.setCursor(0, 20);
     tft.println("Ingrese la contraseña:");
-    reiniciarBuffer();
-    while (!respuestaCompleta()) {
-      // Espera la respuesta completa
-    }
-    Serial.println(buffer);  // Imprime el buffer para verificar
-    strncpy(passwordBuffer, buffer, bufferSize);
-    passwordBuffer[bufferSize - 1] = '\0';  // Asegura que la cadena termine con nulo
 
-    reiniciarBuffer();
-    conectar(ssidBuffer, passwordBuffer);
+    String password = esperarStringSerial();
+    Serial.println("Contraseña ingresada: " + password);
+
+    conectar(ssid, password);
   }
-}
-
-String esperarBuffer() {
-  reiniciarBuffer();
-  String res;
-  while (!respuestaCompleta()) {}
-  res = String(buffer);
-  reiniciarBuffer();
-  return res;
 }
 
 void leerCadenaDesdeEEPROM(int direccion, char* cadena, int longitud) {
@@ -107,25 +93,6 @@ bool memoriaVacia(int direccion, int longitud) {
     }
   }
   return true;  // Está vacía
-}
-
-void reiniciarBuffer() {
-  Index = 0;
-  memset(buffer, 0, bufferSize);
-}
-
-bool respuestaCompleta() {
-  while (Serial.available() > 0) {
-    char receivedChar = Serial.read();
-    if (receivedChar == '\n' || receivedChar == '\r') {
-      buffer[Index] = '\0';  // Termina la cadena
-      return true;
-    } else if (Index < bufferSize - 1) {  // Deja espacio para el carácter nulo
-      buffer[Index] = receivedChar;
-      Index++;
-    }
-  }
-  return false;
 }
 
 bool stringToBool(String value) {
@@ -196,11 +163,96 @@ uint16_t convertRGBtoRGB565(uint8_t r, uint8_t g, uint8_t b) {
 String generateSecretKey() {
   const int keyLength = 16;
   char key[keyLength + 1];
-  
+
   for (int i = 0; i < keyLength; i++) {
     key[i] = char(esp_random() % 26 + 'A');  // Genera letras mayúsculas aleatorias
   }
   key[keyLength] = '\0';  // Asegura que la cadena termine con nulo
-  
+
   return String(key);
+}
+
+void serialEvent() {
+  while (Serial.available()) {
+    char inChar = (char)Serial.read();
+    if (inChar == '\n' || inChar == '\r') {
+      stringComplete = true;
+    } else {
+      inputString += inChar;
+    }
+  }
+}
+
+String esperarStringSerial() {
+  String res;
+  while (!stringComplete) {
+    serialEvent();
+  }
+  res = inputString;
+
+  // Eliminar el carácter de nueva línea si está presente
+  res.trim();
+
+  Serial.println("Cadena recibida: " + res);
+  inputString = "";
+  stringComplete = false;
+  return res;
+}
+
+String encryptPassword(String password) {
+  byte key[16];
+  byte iv[16];
+  memcpy(key, Secret_Key, 16);
+  memcpy(iv, IV, 16);
+
+  int blockSize = 16;  // Tamaño de bloque AES
+  int paddedLength = ((password.length() + blockSize - 1) / blockSize) * blockSize;
+  byte input[paddedLength];
+  byte encrypted[paddedLength];
+
+  // Aplicar PKCS7 padding
+  int paddingValue = paddedLength - password.length();
+  memset(input, paddingValue, paddedLength);
+  memcpy(input, password.c_str(), password.length());
+
+  aesLib.set_paddingmode((paddingMode)0);  // Sin padding adicional
+  aesLib.encrypt(input, paddedLength, encrypted, key, 16, iv);
+
+  String encoded = base64_encode(encrypted, paddedLength);
+
+  return encoded;
+}
+String base64_encode(uint8_t* data, size_t length) {
+  static const char* base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  String encoded;
+  int i = 0;
+  int j = 0;
+  uint8_t char_array_3[3];
+  uint8_t char_array_4[4];
+  while (length--) {
+    char_array_3[i++] = *(data++);
+    if (i == 3) {
+      char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+      char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+      char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+      char_array_4[3] = char_array_3[2] & 0x3f;
+
+      for (i = 0; i < 4; i++)
+        encoded += base64_chars[char_array_4[i]];
+      i = 0;
+    }
+  }
+
+  if (i) {
+    for (j = i; j < 3; j++)
+      char_array_3[j] = '\0';
+    char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+    for (j = 0; j < i + 1; j++)
+      encoded += base64_chars[char_array_4[j]];
+    while (i++ < 3)
+      encoded += '=';
+  }
+  return encoded;
 }

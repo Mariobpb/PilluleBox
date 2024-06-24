@@ -24,22 +24,30 @@ void menuUI() {
 }
 
 void logInUI() {
+
   setBackground(1);
-  tft.println("Username/Email:");
-  reiniciarBuffer();
-  while (!respuestaCompleta()) {
-  }
-  String username_email = String(buffer);
-  tft.println("Password:");
-  reiniciarBuffer();
-  while (!respuestaCompleta()) {
-  }
-  String password = String(buffer);
-  if(logIn("Mariob", "1223")){
+  tft.setCursor(0, 20);
+  tft.println("Username:");
+  String username_email = esperarStringSerial();
+  tft.setTextSize(3);
+  tft.println(username_email);
+  tft.setTextSize(4);
+  tft.println("\nPassword:");
+  String password = esperarStringSerial();
+  tft.setTextSize(3);
+  tft.println(password);
+  String encryptedPassword = encryptPassword(password);
+  tft.setTextSize(1);
+  tft.println(encryptedPassword);
+  tft.setTextSize(4);
+  tft.setCursor(0, 300);
+  tft.setTextColor(TFT_BLUE);
+  if (logIn(username_email, encryptedPassword)) {
     tft.println("usuario autenticado :)");
   } else {
-    tft.println("Error de autenticación :(");
+    tft.println("Error de autenticacion :(");
   }
+  delay(20000);
 }
 
 void dispenserUI() {
@@ -52,7 +60,11 @@ int Lista::seleccionarLista() {
 
   int itemSelected = 1;
   int option = -1;
-  reiniciarBuffer();
+  if (stringComplete) {
+    Serial.println("Cadena recibida: " + inputString);
+    inputString = "";
+    stringComplete = false;
+  }
 
   while (option != 3) {
     setBackground(1);
@@ -94,12 +106,7 @@ int Lista::seleccionarLista() {
       tft.setCursor(tft.width() - 20, tft.height() - 20);
       tft.print("v");
     }
-
-    reiniciarBuffer();
-    while (!respuestaCompleta()) {
-    }
-    option = atoi(buffer);
-    Serial.print("|"+String(buffer)+"|");
+    option = esperarStringSerial().toInt();
   }
 
   return itemSelected;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 17-06-2024 a las 04:27:49
+-- Tiempo de generación: 24-06-2024 a las 04:11:06
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -130,6 +130,27 @@ CREATE TABLE `single_mode` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tokens`
+--
+
+CREATE TABLE `tokens` (
+  `id` int(11) NOT NULL,
+  `user` int(11) DEFAULT NULL,
+  `token` text DEFAULT NULL,
+  `token_exp` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tokens`
+--
+
+INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
+(1, 12, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1hcmlvMiIsInBhc3N3b3JkIjoiQ0drKzlDYzlUMDhqSDdyQ3QyUFlnQT09IiwiaWF0IjoxNzE5MTk0ODk0LCJleHAiOjE3MTkxOTQ5NTR9.rfOlTBN8pL5OlIstr-EsmTWkNN0rWaf8QY-phpqyyiA', 1719194954),
+(2, 12, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1hcmlvMiIsInBhc3N3b3JkIjoiQ0drKzlDYzlUMDhqSDdyQ3QyUFlnQT09IiwiaWF0IjoxNzE5MTk0OTg3LCJleHAiOjE3MTkxOTUwNDd9.32M7n7ELHZx8NdXYgKZAJp8wi6YLNuj3hPC7-aRt4FI', 1719195047);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `user`
 --
 
@@ -137,20 +158,17 @@ CREATE TABLE `user` (
   `id` int(11) NOT NULL,
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
-  `email` varchar(50) DEFAULT NULL,
-  `token` text DEFAULT NULL,
-  `token_exp` bigint(20) DEFAULT NULL
+  `email` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `user`
 --
 
-INSERT INTO `user` (`id`, `username`, `password`, `email`, `token`, `token_exp`) VALUES
-(1, 'Usuario2', '2mWaW52IW2RPNgFOG4lSAnsvZWTcB9PKn1lDhGL8BbddqPWiFk0Baz99SjaW9NfvGFkzhc1+TNih\n20k/X9wyzQ==\n', 'micorreo1234@ceti.mx', NULL, NULL),
-(3, 'User123', 'ese6yW0mS+ZFjC5hO6Fqzw==\n', 'correo', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6IlVzZXIxMjMiLCJwYXNzd29yZCI6ImVzZTZ5VzBtUytaRmpDNWhPNkZxenc9PVxuIiwiaWF0IjoxNzE4MjY5NDM0LCJleHAiOjE3MTgyNjk0OTR9.FiFmWrVCbqwdiVGglW8_dSv0QFTBpVy7m3SSKO1cxaA', 1718269494),
-(6, 'Mario2', 'ZUJBDssgmVuPzkNQahe0o45ZLeqI0yCSTZG4kEb8HmU=\n', 'a20100335@ceti.mx', NULL, NULL),
-(11, 'Mariobpb', 'kIsANAu3yV94nxC9d4fIAw==\n', 'mariobpb27@gmail.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1hcmlvYnBiIiwicGFzc3dvcmQiOiJrSXNBTkF1M3lWOTRueEM5ZDRmSUF3PT1cbiIsImlhdCI6MTcxODUyMzM1NSwiZXhwIjoxNzE5MTI4MTU1fQ.1LQdLpCvw9iYWzvrOG0coRC792ReDvl55GNmWeGu-iQ', 1719128155);
+INSERT INTO `user` (`id`, `username`, `password`, `email`) VALUES
+(1, 'Usuario2', '2mWaW52IW2RPNgFOG4lSAnsvZWTcB9PKn1lDhGL8BbddqPWiFk0Baz99SjaW9NfvGFkzhc1+TNih\n20k/X9wyzQ==\n', 'micorreo1234@ceti.mx'),
+(3, 'User123', 'ese6yW0mS+ZFjC5hO6Fqzw==\n', 'correo'),
+(12, 'Mario2', 'CGk+9Cc9T08jH7rCt2PYgA==', 'a20100335@ceti.mx');
 
 --
 -- Índices para tablas volcadas
@@ -207,6 +225,13 @@ ALTER TABLE `single_mode`
   ADD KEY `cell_id` (`cell_id`);
 
 --
+-- Indices de la tabla `tokens`
+--
+ALTER TABLE `tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user` (`user`);
+
+--
 -- Indices de la tabla `user`
 --
 ALTER TABLE `user`
@@ -220,13 +245,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT de la tabla `codes`
 --
 ALTER TABLE `codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+
+--
+-- AUTO_INCREMENT de la tabla `tokens`
+--
+ALTER TABLE `tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Restricciones para tablas volcadas
@@ -269,6 +300,12 @@ ALTER TABLE `sequential_mode`
 --
 ALTER TABLE `single_mode`
   ADD CONSTRAINT `single_mode_ibfk_1` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`);
+
+--
+-- Filtros para la tabla `tokens`
+--
+ALTER TABLE `tokens`
+  ADD CONSTRAINT `tokens_ibfk_1` FOREIGN KEY (`user`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

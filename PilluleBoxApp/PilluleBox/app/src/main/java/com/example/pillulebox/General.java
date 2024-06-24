@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class General {
     private static final String Secret_Key = "1234567890123456"; // Secret Key (16 bytes)
     private static final String IV = "iughvnbaklsvvkhj"; // initialization vector (16 bytes)
-    private static final String BASE_URL = "http://192.168.43.234:8080/";
+    private static final String BASE_URL = "http://192.168.100.14:8080/";
     public static final String Archivo = "PilluleBoxPrefs";
     public static final String Key = "AuthToken";
     public static String encryptPassword(String password) throws Exception {
@@ -22,7 +22,8 @@ public class General {
         IvParameterSpec ivParameterSpec = new IvParameterSpec(IV.getBytes());
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
         byte[] encryptedBytes = cipher.doFinal(password.getBytes());
-        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT);
+        String encoded = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
+        return encoded.trim();
     }
     public static void toastMessage(String message, Context context) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();

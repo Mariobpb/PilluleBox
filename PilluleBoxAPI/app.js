@@ -40,7 +40,6 @@ app.post('/login', (req, res) => {
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
 
   // Imprimir contraseñas desencriptadas
-  /*
   const decryptedPasswordApp = decryptPassword(password);
   const queryPass = 'SELECT password FROM user WHERE username = ? OR email = ?';
   connection.query(queryPass, [username_email, username_email], (err, results) => {
@@ -56,7 +55,6 @@ app.post('/login', (req, res) => {
       console.log("no coinciden las credenciales");
     }
   });
-  */
 
 
   const query = 'SELECT id FROM user WHERE (username = ? AND password = ?) OR (email = ? AND password = ?)';
@@ -80,8 +78,8 @@ app.post('/login', (req, res) => {
       const decodedToken = jwt.decode(token);
       const expirationNumber = decodedToken.exp;
 
-      const queryToken = 'UPDATE user SET token = ?, token_exp = ? WHERE id = ?';
-      connection.query(queryToken, [token, expirationNumber, id], (err, resultToken) => {
+      const queryToken = 'INSERT INTO tokens (user, token, token_exp) VALUES (?, ?, ?)';
+      connection.query(queryToken, [id, token, expirationNumber], (err, resultToken) => {
         const expirationDate = new Date(expirationNumber * 1000);
         console.log("\n\nDatos:\ntoken: " + token + "\nExpirationDate: " + expirationDate.toLocaleString() + "\nid: " + id);
         if (err) {
@@ -109,7 +107,7 @@ app.post('/validate_token', (req, res) => {
   const { token } = req.body;
   console.log("\nValidando token: " + token);
 
-  const query = 'SELECT id, token_exp FROM user WHERE token = ? AND token_exp > ?';
+  const query = 'SELECT id, token_exp FROM tokens WHERE token = ? AND token_exp > ?';
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
   const currentDate = new Date(currentTimestamp * 1000);
@@ -336,8 +334,9 @@ app.patch('/registros/:id', (req, res) => {
 */
 
 function decryptPassword(encryptedPassword) {
-  const Secret_Key = "1234567890123456"; // Debe ser la misma clave que en el cliente
-  const IV = "iughvnbaklsvvkhj"; // Debe ser el mismo IV que en el cliente
+  const Secret_Key = "1234567890123456";
+  const IV = "iughvnbaklsvvkhj";
+  encryptedPassword = encryptedPassword.replace(/\r?\n|\r/g, '');
 
   const decipher = crypto.createDecipheriv('aes-128-cbc', Secret_Key, IV);
   let decrypted = decipher.update(encryptedPassword, 'base64', 'utf8');

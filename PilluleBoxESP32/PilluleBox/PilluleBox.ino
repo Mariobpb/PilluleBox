@@ -4,7 +4,6 @@
 //#include <HTTPClient.h>
 #include <WiFi.h>
 
-char buffer[bufferSize];
 char ssidBuffer[bufferSize];
 char passwordBuffer[bufferSize];
 
@@ -13,7 +12,7 @@ void setup() {
   Serial.begin(115200);
   EEPROM.begin(512);
 
-
+  Serial.println("Bienvenido :)");
 
   tft.init();
   tft.setRotation(0);
