@@ -10,6 +10,9 @@
 
 
 // Funciones
+void initPins();
+void resetBtns();
+void readBtns();
 void conectar(String ssid, String password);
 void reconectar();
 String esperarBuffer();
@@ -35,6 +38,18 @@ void dispenserUI();
 bool logIn(String username_email, String password);
 
 // Variables globales
+extern const int UpBtn;
+extern bool UpStatus;
+extern const int DownBtn;
+extern bool DownStatus;
+extern const int LeftBtn;
+extern bool LeftStatus;
+extern const int RightBtn;
+extern bool RightStatus;
+extern const int EnterBtn;
+extern bool EnterStatus;
+extern const int BackBtn;
+extern bool BackStatus;
 extern TFT_eSPI tft;
 extern String inputString;
 extern boolean stringComplete;

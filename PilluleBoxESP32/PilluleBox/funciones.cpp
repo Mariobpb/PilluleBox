@@ -8,6 +8,39 @@
 #include <EEPROM.h>
 #include <esp_random.h>
 
+void initPins() {
+  pinMode(UpBtn, INPUT_PULLDOWN);
+  pinMode(DownBtn, INPUT_PULLDOWN);
+  pinMode(LeftBtn, INPUT_PULLDOWN);
+  pinMode(RightBtn, INPUT_PULLDOWN);
+  pinMode(EnterBtn, INPUT_PULLDOWN);
+  pinMode(BackBtn, INPUT_PULLDOWN);
+
+  attachInterrupt(digitalPinToInterrupt(UpBtn), readBtns, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(DownBtn), readBtns, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LeftBtn), readBtns, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(RightBtn), readBtns, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(EnterBtn), readBtns, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(BackBtn), readBtns, CHANGE);
+}
+
+void resetBtns() {
+  UpStatus = false;
+  DownStatus = false;
+  LeftStatus = false;
+  RightStatus = false;
+  EnterStatus = false;
+  BackStatus = false;
+}
+
+void readBtns() {
+  UpStatus = digitalRead(UpBtn);
+  DownStatus = digitalRead(DownBtn);
+  LeftStatus = digitalRead(LeftBtn);
+  RightStatus = digitalRead(RightBtn);
+  EnterStatus = digitalRead(EnterBtn);
+  BackStatus = digitalRead(BackBtn);
+}
 
 void conectar(String ssid, String password) {
   // Desconecta WiFi si ya está conectado
@@ -76,6 +109,9 @@ void reconectar() {
     Serial.println("Contraseña ingresada: " + password);
 
     conectar(ssid, password);
+  }
+  else {
+    menuUI();
   }
 }
 

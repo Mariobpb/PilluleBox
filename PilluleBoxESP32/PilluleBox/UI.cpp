@@ -6,6 +6,9 @@ void menuUI() {
   listaOpciones.setTextSize(4);
   int seleccion = listaOpciones.seleccionarLista();
   switch (seleccion) {
+    case -1:
+      menuUI();
+      break;
     case 1:
       reconectar();
       break;
@@ -59,18 +62,28 @@ int Lista::seleccionarLista() {
   tft.setTextSize(textSize);
 
   int itemSelected = 1;
-  int option = -1;
+  /*
   if (stringComplete) {
     Serial.println("Cadena recibida: " + inputString);
     inputString = "";
     stringComplete = false;
   }
-
-  while (option != 3) {
+  */
+ do
+ {
+  tft.setCursor(0, tft.height() - 40);
+    tft.setTextColor(TFT_RED, TFT_BLACK);
+    tft.print(BackStatus);
+    if (BackStatus)
+    {
+      delay(3000);
+      return -1;
+    }
+    
     setBackground(1);
     tft.setCursor(0, 20);
-    if (option == 1) itemSelected--;
-    if (option == 2) itemSelected++;
+    if (UpStatus) itemSelected--;
+    if (DownStatus) itemSelected++;
 
     if (itemSelected < 1) itemSelected = length;
     else if (itemSelected > length) itemSelected = 1;
@@ -106,8 +119,8 @@ int Lista::seleccionarLista() {
       tft.setCursor(tft.width() - 20, tft.height() - 20);
       tft.print("v");
     }
-    option = esperarStringSerial().toInt();
-  }
+  while(!UpStatus && !DownStatus && !LeftStatus && !RightStatus && !EnterStatus && !BackStatus){};
+ } while (!EnterStatus);
 
   return itemSelected;
 }

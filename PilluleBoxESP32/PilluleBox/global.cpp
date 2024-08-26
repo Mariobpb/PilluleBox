@@ -1,5 +1,17 @@
 #include "pillulebox.h"
 
+const int UpBtn = 4;
+bool UpStatus;
+const int DownBtn = 5;
+bool DownStatus;
+const int LeftBtn = 6;
+bool LeftStatus;
+const int RightBtn = 7;
+bool RightStatus;
+const int EnterBtn = 15;
+bool EnterStatus;
+const int BackBtn = 16;
+bool BackStatus;
 TFT_eSPI tft = TFT_eSPI();
 extern String inputString = "";
 extern boolean stringComplete = false;

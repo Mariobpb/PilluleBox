@@ -9,6 +9,7 @@ char passwordBuffer[bufferSize];
 
 
 void setup() {
+  initPins();
   Serial.begin(115200);
   EEPROM.begin(512);
 
