@@ -4,6 +4,14 @@ const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };
 bool btnStatus[6];
 bool btnPrevStatus[6] = { false, false, false, false, false, false };
 
+
+char BasicKeys[4][10] = {
+  { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
+  { 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\t' },
+  { ' ', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ' ', '\t' },
+  { '\0', ' ', '.', '\0', '\t', '\t', '\t', '\t', '\t', '\t' }
+};
+
 char keys[] = {
   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
   'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
@@ -19,7 +27,7 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   setBackground();
-  displayKeyboard("& ! + : # * _ $ = @ . oiwhfuHLALFWCHUwloh123456789012345678901234567890123457890123456789012345678901234567890123456789009876543211234567890987654123456789012345678900000000000");
+  displayEnterText("& ! + : # * _ $ = @ . oiwhfuHLALFWCHUwloh123456789012345678901234567890123457890123456789012345678901234567890123456789009876543211234567890987654123456789012345678900000000000");
 }
 
 void loop() {
@@ -62,7 +70,7 @@ bool checkBtnsStatus() {
   return false;
 }
 
-void displayKeyboard(String str) {
+void displayEnterText(String str) {
   tft.fillRect(4, 4, tft.width() - 8, (34 * 4) + 2, TFT_DARKGREY);
   tft.fillRect(5, 5, tft.width() - 10, 34 * 4, TFT_BLACK);
   sprite.setColorDepth(1);
@@ -76,15 +84,35 @@ void displayKeyboard(String str) {
   sprite.pushSprite(15, 15);
   sprite.deleteSprite();
 
+  keyboardCharSelected(BasicKeys, 0, 0);
+}
+char keyboardCharSelected(char Keys[][10], int positionX, int positionY) {
   int keyHeight = 42;
   sprite.setColorDepth(1);
   sprite.createSprite(tft.width(), (keyHeight * 4));
   sprite.fillSprite(TFT_WHITE);
   sprite.setTextColor(TFT_DARKGREY);
   sprite.setTextSize(5);
+
+  TFT_eSprite keySprite = TFT_eSprite(&tft);
+  keySprite.setColorDepth(1);
+
   // Line 1
   int currentPositionY = 0;
-  int keyWidth = sprite.width() / 10;
+  for (int i = 0; i < 4; i++) {
+    int columns = 0;
+    while (Keys[i][columns] != '\t') { columns++ }
+    int keyWidth = sprite.width() / columns;
+    keySprite.createSprite(keyWidth, keyHeight);
+    keySprite.fillSprite(TFT_WHITE);
+    keySprite.setTextColor(TFT_DARKGREY);
+    keySprite.setTextSize(4);
+    keySprite.fillRect(1, 1, keyWidth-2, keyHeight-2, TFT_BLACK);
+    spritePrincipal.drawSprite(spriteSecundario, 0, 0);
+    
+    sprite.setPivot(0, 0);
+    keySprite.setPivot(0, 0);
+  }
   for (int i = 0; i < 10; i++) {
     sprite.setCursor((keyWidth * i) + 1, currentPositionY + 1);
     sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), keyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
@@ -107,7 +135,7 @@ void displayKeyboard(String str) {
   for (int i = 0; i < 4; i++) {
     sprite.setCursor((currentPositionX) + 1, currentPositionY + 1);
     if (i == 1) {
-      int spaceKeyWidth = keyWidth*6;
+      int spaceKeyWidth = keyWidth * 6;
       sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), spaceKeyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
       sprite.print(String(keys[i + 28]));
       currentPositionX += spaceKeyWidth;
