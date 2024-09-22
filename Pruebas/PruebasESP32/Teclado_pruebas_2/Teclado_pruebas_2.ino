@@ -15,11 +15,12 @@ void loop() {
   sprite.setCursor(0, 0);
   sprite.setTextColor(TFT_BLUE, TFT_RED);
   sprite.setTextSize(3);
+  sprite.print((String)sprite.textWidth(&c) + "   " + (String)sprite.fontHeight());
   int CursorX = (sprite.width() / 2) - (sprite.textWidth(&c, 1) / 2);
   int CursorY = (sprite.height() / 2) - (sprite.fontHeight() / 2);
   sprite.setCursor(CursorX, CursorY);
   sprite.print((String)c);
   sprite.pushSprite(0, 0);
   sprite.deleteSprite();
-  delay(1000);
+  delay(3000);
 }

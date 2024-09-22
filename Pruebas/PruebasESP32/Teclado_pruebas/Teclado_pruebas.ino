@@ -1,23 +1,34 @@
 #include <TFT_eSPI.h>
 
-const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };
-bool btnStatus[6];
-bool btnPrevStatus[6] = { false, false, false, false, false, false };
+const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };  //Up, Down, Left, Right, Enter, Back
+bool btnStatus[6] = { false, false, false, false, false, false };
 
 
-char BasicKeys[4][10] = {
+char basicKeys[4][10] = {
   { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
   { 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\t' },
-  { ' ', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ' ', '\t' },
+  { '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '\0', '\t' },
   { '\0', ' ', '.', '\0', '\t', '\t', '\t', '\t', '\t', '\t' }
 };
 
-char keys[] = {
-  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
-  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
-  ' ', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ' ',
-  ' ', ' ', '.', ' '
+char capitalKeys[4][10] = {
+  { 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P' },
+  { 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '\t' },
+  { '\0', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '\0', '\t' },
+  { '\0', ' ', '.', '\0', '\t', '\t', '\t', '\t', '\t', '\t' }
 };
+
+char numberSymbolKeys[4][10] = {
+  { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' },
+  { '@', '#', '$', '_', '&', '+', '*', '\t', '\t', '\t' },
+  { '\0', '!', '=', ':', '\0', '\t', '\t', '\t', '\t', '\t' },
+  { '\0', ' ', '.', '\0', '\t', '\t', '\t', '\t', '\t', '\t' }
+};
+
+enum KeyboardType { BK,
+                    CK,
+                    NSK,
+                    Unknown };
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
@@ -28,17 +39,17 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   setBackground();
-  displayEnterText("& ! + : # * _ $ = @ . oiwhfuHLALFWCHUwloh123456789012345678901234567890123457890123456789012345678901234567890123456789009876543211234567890987654123456789012345678900000000000");
+  displayEnterText(basicKeys, "& ! + : # * _ $ = @ . oiwhfuHLALFWCHUwloh123456789012345678901234567890123457890123456789012345678901234567890123456789009876543211234567890987654123456789012345678900000000000", 0, 0);
 }
 
 void loop() {
+  setBackground();
   delay(1000);
 }
 
 void initPins() {
   for (int i = 0; i < 6; i++) {
     pinMode(btnPins[i], INPUT_PULLDOWN);
-    attachInterrupt(digitalPinToInterrupt(btnPins[i]), readBtns, CHANGE);
   }
 }
 
@@ -50,7 +61,6 @@ void setBackground() {
   //tft.fillRectVGradient(0, 0, tft.width(), tft.height(), convertRGBtoRGB565(130, 0, 0), TFT_BLACK);
   tft.fillScreen(TFT_BLACK);
 }
-
 
 void resetBtns() {
   for (int i = 0; i < 6; i++) {
@@ -64,14 +74,54 @@ void readBtns() {
   }
 }
 
-bool checkBtnsStatus() {
-  for (int i = 0; i < 6; i++) {
-    if (btnStatus[i]) return true;
+KeyboardType identifyArray(char (*keys)[10]) {
+  if (keys == basicKeys) {
+    return BK;
+  } else if (keys == capitalKeys) {
+    return CK;
+  } else if (keys == numberSymbolKeys) {
+    return NSK;
+  } else {
+    return Unknown;
   }
-  return false;
 }
 
-void displayEnterText(String str) {
+void displayEnterText(char Keys[][10], String str, int posX, int posY) {
+  KeyboardType keyboardType = identifyArray(Keys);
+
+  displayEditableText(str);
+  displayCharSelectedKeyboard(Keys, posX, posY);
+  bool textConfirmed = false;
+  while (!btnStatus[4] && !textConfirmed) {
+    readBtns();
+    if (btnStatus[0]) posY--;
+    if (btnStatus[1]) posY++;
+    if (btnStatus[2]) posX--;
+    if (btnStatus[3]) posX++;
+    checkPositionsKeyboard(Keys, &posX, &posY);
+    if (btnStatus[5]) {
+      switch (keyboardType) {
+        case BK:
+          Serial.println("Using basicKeys");
+          break;
+        case CK:
+          Serial.println("Using CapitalKeys");
+          break;
+        case NSK:
+          Serial.println("Using NumberSymbolKeys");
+          break;
+        default:
+          Serial.println("Unknown array");
+          break;
+      }
+      textConfirmed = true;
+    }
+    displayCharSelectedKeyboard(Keys, posX, posY);
+    delay(300);
+  }
+}
+
+void displayEditableText(String str) {
   tft.fillRect(4, 4, tft.width() - 8, (34 * 4) + 2, TFT_DARKGREY);
   tft.fillRect(5, 5, tft.width() - 10, 34 * 4, TFT_BLACK);
   sprite.setColorDepth(8);
@@ -84,15 +134,41 @@ void displayEnterText(String str) {
   sprite.fillRect(sprite.getCursorX(), sprite.getCursorY() - 4, 8, 20, TFT_WHITE);  //Select final position from text
   sprite.pushSprite(15, 15);
   sprite.deleteSprite();
-  delay(1000);
-
-  Serial.println((String)keyboardCharSelected(BasicKeys, 0, 0));
 }
-char keyboardCharSelected(char Keys[][10], int positionX, int positionY) {
+
+void checkPositionsKeyboard(char Keys[][10], int *posX, int *posY) {
+  if (*posY < 0) *posY = 3;
+  if (*posY > 3) *posY = 0;
+  if (*posX > (countkeysInRow(Keys, *posY) - 1)) *posX = 0;
+  if (*posX < 0) *posX = (countkeysInRow(Keys, *posY) - 1);
+}
+
+int countKeysSpacesInRow(char Keys[][10], int row) {
+  int keysInRow = 0;
+  int additionalKeys = 0;
+  while ((Keys[row][keysInRow] != '\t') && keysInRow < 10) {
+    keysInRow++;
+    if (Keys[row][keysInRow] == ' ') {
+      additionalKeys = 4;
+    }
+  }
+  return keysInRow + additionalKeys;
+}
+
+
+int countkeysInRow(char Keys[][10], int row) {
+  int keysInRow = 0;
+  while (Keys[row][keysInRow] != '\t' && keysInRow < 10) {
+    keysInRow++;
+  }
+  return keysInRow;
+}
+
+void displayCharSelectedKeyboard(char Keys[][10], int positionX, int positionY) {
   int keyHeight = 42;
   sprite.setColorDepth(8);
   sprite.createSprite(tft.width(), (keyHeight * 4));
-  sprite.fillSprite(TFT_RED);
+  sprite.fillSprite(TFT_WHITE);
 
   TFT_eSprite keySprite = TFT_eSprite(&tft);
   keySprite.setColorDepth(8);
@@ -101,62 +177,34 @@ char keyboardCharSelected(char Keys[][10], int positionX, int positionY) {
   int currentPositionY = 0;
   for (int i = 0; i < 4; i++) {
     int currentPositionX = 0;
-    int columns = 0;
-    while ((Keys[i][columns] != '\t') && columns < 10) { columns++; };
-    int keyWidth = sprite.width() / columns;
-    for (int j = 0; j < columns; j++) {
+    int keysInRow = countKeysSpacesInRow(Keys, i);
+    int keyWidth = sprite.width() / keysInRow;
+    for (int j = 0; j < keysInRow; j++) {
+      int currentKeyWidth = keyWidth;
       keySprite.createSprite(keyWidth, keyHeight);
+      if (Keys[i][j] == ' ') {
+        currentKeyWidth *= 5;
+        keySprite.deleteSprite();
+        keySprite.createSprite(currentKeyWidth, keyHeight);
+      }
       keySprite.fillSprite(TFT_WHITE);
-      keySprite.setTextColor(TFT_BLUE);
+      if ((i == positionY) && (j == positionX)) {
+        keySprite.setTextColor(TFT_BLACK);
+      } else {
+        keySprite.fillRect(1, 1, currentKeyWidth - 2, keyHeight - 2, TFT_BLACK);
+        keySprite.setTextColor(TFT_WHITE);
+      }
       keySprite.setTextSize(4);
-      keySprite.fillRect(1, 1, keyWidth - 2, keyHeight - 2, TFT_BLACK);
-      int textPositionWidth = (keySprite.width()/2) - (keySprite.textWidth(&Keys[i][j],1)/2);
-      int textPositionHeight = (keySprite.height()/2) - (keySprite.fontHeight()/2);
+      int textPositionWidth = (keySprite.width() / 2) - (keySprite.textWidth(String(Keys[i][j])) / 2);
+      int textPositionHeight = (keySprite.height() / 2) - (keySprite.fontHeight() / 2);
       keySprite.setCursor(textPositionWidth, textPositionHeight);
       keySprite.print(Keys[i][j]);
       keySprite.pushToSprite(&sprite, currentPositionX, currentPositionY);
       keySprite.deleteSprite();
-      currentPositionX += keyWidth;
+      currentPositionX += currentKeyWidth;
     }
-    sprite.pushSprite(0, 200);
     currentPositionY += keyHeight;
-    delay(1000);
-  }
-  /*
-  for (int i = 0; i < 10; i++) {
-    sprite.setCursor((keyWidth * i) + 1, currentPositionY + 1);
-    sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), keyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
-    sprite.print(String(keys[i]));
-  }
-  // Line 2 & 3
-  currentPositionY += keyHeight;
-  keyWidth = sprite.width() / 9;
-  for (int i = 0; i < 9; i++) {
-    sprite.setCursor((keyWidth * i) + 1, currentPositionY + 1);
-    sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), keyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
-    sprite.print(String(keys[i + 10]));
-    sprite.setCursor((keyWidth * i) + 1, currentPositionY + keyHeight + 1);
-    sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), keyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
-    sprite.print(String(keys[i + 19]));
-  }
-  // Line F4
-  currentPositionY += keyHeight * 2;
-  int currentPositionX = 0;
-  for (int i = 0; i < 4; i++) {
-    sprite.setCursor((currentPositionX) + 1, currentPositionY + 1);
-    if (i == 1) {
-      int spaceKeyWidth = keyWidth * 6;
-      sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), spaceKeyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
-      sprite.print(String(keys[i + 28]));
-      currentPositionX += spaceKeyWidth;
-    } else {
-      sprite.fillRect(sprite.getCursorX(), sprite.getCursorY(), keyWidth - 2, keyHeight - 2, TFT_BLACK);  //Select final position from text
-      sprite.print(String(keys[i + 28]));
-      currentPositionX += keyWidth;
-    }
   }
   sprite.pushSprite(0, 200);
-  */
   sprite.deleteSprite();
-  return 'A';
 }
