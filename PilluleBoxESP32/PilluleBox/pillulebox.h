@@ -9,10 +9,19 @@
 #include "Base64.h"
 
 
+enum KeyboardType { BK,
+                    CK,
+                    NSK,
+                    Unknown };
+
 // Funciones
 void initPins();
 void resetBtns();
 void readBtns();
+KeyboardType identifyArray(char (*keys)[10]);
+void checkPositionsKeyboard(char Keys[][10], int *posX, int *posY);
+int countKeysSpacesInRow(char Keys[][10], int row);
+int countkeysInRow(char Keys[][10], int row);
 void conectar(String ssid, String password);
 void reconectar();
 String esperarBuffer();
@@ -30,6 +39,9 @@ String base64_encode(uint8_t *data, size_t length);
 
 // UI
 void setBackground(int b);
+String waitEnterText(char Keys[][10], String str, int posX, int posY, int initialPosY);
+void displayEditableText(String str, int initialPosY);
+void displayCharSelectedKeyboard(char Keys[][10], int positionX, int positionY, int initialPosY);
 void menuUI();
 void logInUI();
 void dispenserUI();
@@ -38,19 +50,15 @@ void dispenserUI();
 bool logIn(String username_email, String password);
 
 // Variables globales
-extern const int UpBtn;
-extern bool UpStatus;
-extern const int DownBtn;
-extern bool DownStatus;
-extern const int LeftBtn;
-extern bool LeftStatus;
-extern const int RightBtn;
-extern bool RightStatus;
-extern const int EnterBtn;
-extern bool EnterStatus;
-extern const int BackBtn;
-extern bool BackStatus;
+extern const int btnPins[6];
+extern bool btnCurrentStatus[6];
+extern bool prevBtnStatus[6];
+extern bool textConfirmed;
+extern char basicKeys[4][10];
+extern char capitalKeys[4][10];
+extern char numberSymbolKeys[4][10];
 extern TFT_eSPI tft;
+extern TFT_eSprite sprite;
 extern String inputString;
 extern boolean stringComplete;
 extern int Index;

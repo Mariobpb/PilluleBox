@@ -9,37 +9,67 @@
 #include <esp_random.h>
 
 void initPins() {
-  pinMode(UpBtn, INPUT_PULLDOWN);
-  pinMode(DownBtn, INPUT_PULLDOWN);
-  pinMode(LeftBtn, INPUT_PULLDOWN);
-  pinMode(RightBtn, INPUT_PULLDOWN);
-  pinMode(EnterBtn, INPUT_PULLDOWN);
-  pinMode(BackBtn, INPUT_PULLDOWN);
-
-  attachInterrupt(digitalPinToInterrupt(UpBtn), readBtns, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(DownBtn), readBtns, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LeftBtn), readBtns, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(RightBtn), readBtns, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(EnterBtn), readBtns, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(BackBtn), readBtns, CHANGE);
+  for (int i = 0; i < 6; i++) {
+    pinMode(btnPins[i], INPUT_PULLDOWN);
+  }
 }
 
 void resetBtns() {
-  UpStatus = false;
-  DownStatus = false;
-  LeftStatus = false;
-  RightStatus = false;
-  EnterStatus = false;
-  BackStatus = false;
+  for (int i = 0; i < 6; i++) {
+    btnCurrentStatus[i] = false;
+  }
 }
 
 void readBtns() {
-  UpStatus = digitalRead(UpBtn);
-  DownStatus = digitalRead(DownBtn);
-  LeftStatus = digitalRead(LeftBtn);
-  RightStatus = digitalRead(RightBtn);
-  EnterStatus = digitalRead(EnterBtn);
-  BackStatus = digitalRead(BackBtn);
+  for (int i = 0; i < 6; i++) {
+    bool currentStatus = digitalRead(btnPins[i]);
+    if (currentStatus && !prevBtnStatus[i]) {
+      btnCurrentStatus[i] = true;
+    } else {
+      btnCurrentStatus[i] = false;
+    }
+    prevBtnStatus[i] = currentStatus; // Updates PreviousStatus
+  }
+}
+
+KeyboardType identifyArray(char (*keys)[10]) {
+  if (keys == basicKeys) {
+    return BK;
+  } else if (keys == capitalKeys) {
+    return CK;
+  } else if (keys == numberSymbolKeys) {
+    return NSK;
+  } else {
+    return Unknown;
+  }
+}
+
+void checkPositionsKeyboard(char Keys[][10], int *posX, int *posY) {
+  if (*posY < 0) *posY = 3;
+  if (*posY > 3) *posY = 0;
+  if (*posX > (countkeysInRow(Keys, *posY) - 1)) *posX = 0;
+  if (*posX < 0) *posX = (countkeysInRow(Keys, *posY) - 1);
+}
+
+int countKeysSpacesInRow(char Keys[][10], int row) {
+  int keysInRow = 0;
+  int additionalKeys = 0;
+  while ((Keys[row][keysInRow] != '\t') && keysInRow < 10) {
+    keysInRow++;
+    if (Keys[row][keysInRow] == ' ') {
+      additionalKeys = 4;
+    }
+  }
+  return keysInRow + additionalKeys;
+}
+
+
+int countkeysInRow(char Keys[][10], int row) {
+  int keysInRow = 0;
+  while (Keys[row][keysInRow] != '\t' && keysInRow < 10) {
+    keysInRow++;
+  }
+  return keysInRow;
 }
 
 void conectar(String ssid, String password) {
@@ -99,15 +129,11 @@ void reconectar() {
   delay(2000);
   if (NumRed > 0) {
     String ssid = WiFi.SSID(NumRed - 1);
-
-    Serial.println("\nIngrese la contraseña:");
     setBackground(1);
     tft.setCursor(0, 20);
     tft.println("Ingrese la contraseña:");
-
-    String password = esperarStringSerial();
-    Serial.println("Contraseña ingresada: " + password);
-
+    String password = waitEnterText(basicKeys, "", 0, 0, 100);
+    if(password == "\0") return;
     conectar(ssid, password);
   }
   else {

@@ -31,11 +31,27 @@ void setup() {
 }
 
 void loop() {
-  menuUI();
-  if ((WiFi.status() == WL_CONNECTED)) {  //Check the current connection status
-    
-  } else {
-    
+  String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
+  Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
+  listaOpciones.setTextSize(4);
+  int seleccion = listaOpciones.seleccionarLista();
+  switch (seleccion) {
+    case -1:
+      break;
+    case 1:
+      reconectar();
+      break;
+    case 2:
+      logInUI();
+      break;
+    case 3:
+      dispenserUI();
+      break;
+    case 4:
+      setBackground(1);
+      tft.setCursor(0, 50);
+      tft.println("Dirección MAC: " + WiFi.macAddress());
+      delay(3000);
+      break;
   }
-  delay(1000);
 }

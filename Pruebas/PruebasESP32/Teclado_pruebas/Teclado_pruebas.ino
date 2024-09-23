@@ -1,12 +1,9 @@
 #include <TFT_eSPI.h>
 
 const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };  //Up, Down, Left, Right, Enter, Back
-bool btnStatus[6] = { false, false, false, false, false, false };
+bool btnCurrentStatus[6] = { false, false, false, false, false, false };
 bool prevBtnStatus[6] = { false, false, false, false, false, false };
 bool textConfirmed;
-
-#define MAX_TEXT_LENGTH 100
-
 
 char basicKeys[4][10] = {
   { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
@@ -51,7 +48,7 @@ void loop() {
   tft.setCursor(0, 0);
   tft.setTextSize(5);
   tft.setTextColor(TFT_WHITE, TFT_RED);
-  String str = displayEnterText(basicKeys, "Enter text", 0, 0);
+  String str = waitEnterText(basicKeys, "Enter text", 0, 0);
   tft.print("Texto confirmado: " + str);
   delay(3000);
 }
@@ -71,21 +68,15 @@ void setBackground() {
   tft.fillScreen(TFT_BLACK);
 }
 
-void resetBtns() {
-  for (int i = 0; i < 6; i++) {
-    btnStatus[i] = false;
-  }
-}
-
 void readBtns() {
   for (int i = 0; i < 6; i++) {
     bool currentStatus = digitalRead(btnPins[i]);
 
     // Solo actúa cuando el estado cambia de no presionado a presionado
     if (currentStatus && !prevBtnStatus[i]) {
-      btnStatus[i] = true;  // El botón acaba de ser presionado
+      btnCurrentStatus[i] = true;  // El botón acaba de ser presionado
     } else {
-      btnStatus[i] = false;  // No hacer nada si el botón sigue presionado
+      btnCurrentStatus[i] = false;  // No hacer nada si el botón sigue presionado
     }
 
     prevBtnStatus[i] = currentStatus;  // Actualiza el estado anterior
@@ -104,7 +95,7 @@ KeyboardType identifyArray(char (*keys)[10]) {
   }
 }
 
-String displayEnterText(char Keys[][10], String str, int posX, int posY) {
+String waitEnterText(char Keys[][10], String str, int posX, int posY) {
   char(*currentKeys)[10] = Keys;
   bool exitLoop = false;
   KeyboardType keyboardType = identifyArray(currentKeys);
@@ -116,15 +107,15 @@ String displayEnterText(char Keys[][10], String str, int posX, int posY) {
     delay(50);
 
     readBtns();
-    if (btnStatus[0]) posY--;  // Up
-    if (btnStatus[1]) posY++;  // Down
-    if (btnStatus[2]) posX--;  // Left
-    if (btnStatus[3]) posX++;  // Right
-    if (btnStatus[5]) return "\0";
+    if (btnCurrentStatus[0]) posY--;  // Up
+    if (btnCurrentStatus[1]) posY++;  // Down
+    if (btnCurrentStatus[2]) posX--;  // Left
+    if (btnCurrentStatus[3]) posX++;  // Right
+    if (btnCurrentStatus[5]) return "\0";
 
     checkPositionsKeyboard(currentKeys, &posX, &posY);
 
-    if (btnStatus[4]) {  // Botón Backspace o selección
+    if (btnCurrentStatus[4]) {  // Botón Backspace o selección
       switch (keyboardType) {
         case BK:  // Basic Keys
           if (posX == 0 && posY == 2) {
