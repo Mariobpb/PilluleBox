@@ -3,7 +3,7 @@
 const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };  //Up, Down, Left, Right, Enter, Back
 bool btnStatus[6] = { false, false, false, false, false, false };
 bool prevBtnStatus[6] = { false, false, false, false, false, false };
-bool textConfirmed = false;
+bool textConfirmed;
 
 #define MAX_TEXT_LENGTH 100
 
@@ -43,12 +43,17 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   setBackground();
-  displayEnterText(basicKeys, "Enter text", 0, 0);
 }
 
 void loop() {
+
   setBackground();
-  delay(1000);
+  tft.setCursor(0, 0);
+  tft.setTextSize(5);
+  tft.setTextColor(TFT_WHITE, TFT_RED);
+  String str = displayEnterText(basicKeys, "Enter text", 0, 0);
+  tft.print("Texto confirmado: " + str);
+  delay(3000);
 }
 
 void initPins() {
@@ -99,7 +104,7 @@ KeyboardType identifyArray(char (*keys)[10]) {
   }
 }
 
-void displayEnterText(char Keys[][10], char *str, int posX, int posY) {
+String displayEnterText(char Keys[][10], String str, int posX, int posY) {
   char(*currentKeys)[10] = Keys;
   bool exitLoop = false;
   KeyboardType keyboardType = identifyArray(currentKeys);
@@ -107,25 +112,25 @@ void displayEnterText(char Keys[][10], char *str, int posX, int posY) {
   displayEditableText(str);
 
   while (!exitLoop && !textConfirmed) {
-    displayCharSelectedKeyboard(currentKeys, posX, posY);  // Muestra el teclado
+    displayCharSelectedKeyboard(currentKeys, posX, posY);
     delay(50);
 
-    readBtns();                // Lee los botones
+    readBtns();
     if (btnStatus[0]) posY--;  // Up
     if (btnStatus[1]) posY++;  // Down
     if (btnStatus[2]) posX--;  // Left
     if (btnStatus[3]) posX++;  // Right
-    if (btnStatus[5]) return;
+    if (btnStatus[5]) return "\0";
 
-    checkPositionsKeyboard(currentKeys, &posX, &posY);  // Ajusta las posiciones
+    checkPositionsKeyboard(currentKeys, &posX, &posY);
 
     if (btnStatus[4]) {  // Botón Backspace o selección
       switch (keyboardType) {
-        case BK:
+        case BK:  // Basic Keys
           if (posX == 0 && posY == 2) {
             posX = 0;
             posY = 0;
-            currentKeys = capitalKeys;  // Cambia a teclas mayúsculas
+            currentKeys = capitalKeys;
             keyboardType = CK;
           } else if (posX == 0 && posY == 3) {
             posX = 0;
@@ -133,70 +138,55 @@ void displayEnterText(char Keys[][10], char *str, int posX, int posY) {
             currentKeys = numberSymbolKeys;
             keyboardType = NSK;
           } else if (posX == 8 && posY == 2) {
-            if (strlen(str) > 0) {
-              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
-              displayEditableText(str);
-            }
-          } else if (posX == 3 && posY == 3) {
-            textConfirmed = true;  // Confirma el texto
-            exitLoop = true;
-          } else {
-            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
-              str[strlen(str)] = currentKeys[posY][posX];  // Añade el carácter
-              str[strlen(str) + 1] = '\0';                 // Asegura el terminador nulo
-              displayEditableText(str);
-            }
-          }
-          break;
-
-        case CK:
-          if (posX == 0 && posY == 2) {
-            posX = 0;
-            posY = 0;
-            currentKeys = basicKeys;  // Cambia a teclas básicas
-            keyboardType = BK;
-          } else if (posX == 0 && posY == 3) {
-            posX = 0;
-            posY = 0;
-            currentKeys = numberSymbolKeys;  // Cambia a teclas numéricas/símbolos
-            keyboardType = NSK;
-          } else if (posX == 8 && posY == 2) {
-            if (strlen(str) > 0) {
-              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
-              displayEditableText(str);
-            }
+            str.remove(str.length() - 1);
+            displayEditableText(str);
           } else if (posX == 3 && posY == 3) {
             textConfirmed = true;
             exitLoop = true;
           } else {
-            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
-              str[strlen(str)] = currentKeys[posY][posX];
-              str[strlen(str) + 1] = '\0';
-              displayEditableText(str);
-            }
+            str.concat(currentKeys[posY][posX]);
+            displayEditableText(str);
           }
           break;
 
-        case NSK:
+        case CK:  // Capital Keys
+          if (posX == 0 && posY == 2) {
+            posX = 0;
+            posY = 0;
+            currentKeys = basicKeys;
+            keyboardType = BK;
+          } else if (posX == 0 && posY == 3) {
+            posX = 0;
+            posY = 0;
+            currentKeys = numberSymbolKeys;
+            keyboardType = NSK;
+          } else if (posX == 8 && posY == 2) {
+            str.remove(str.length() - 1);
+            displayEditableText(str);
+          } else if (posX == 3 && posY == 3) {
+            textConfirmed = true;
+            exitLoop = true;
+          } else {
+            str.concat(currentKeys[posY][posX]);
+            displayEditableText(str);
+          }
+          break;
+
+        case NSK:  // Number/Symbol Keys
           if (posX == 0 && posY == 3) {
             posX = 0;
             posY = 0;
             currentKeys = basicKeys;
             keyboardType = BK;
           } else if (posX == 4 && posY == 2) {
-            if (strlen(str) > 0) {
-              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
-              displayEditableText(str);
-            }
+            str.remove(str.length() - 1);
+            displayEditableText(str);
           } else if (posX == 3 && posY == 3) {
             textConfirmed = true;
             exitLoop = true;
           } else {
-            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
-              str[strlen(str)] = currentKeys[posY][posX];
-              str[strlen(str) + 1] = '\0';
-              displayEditableText(str);
-            }
+            str.concat(currentKeys[posY][posX]);
+            displayEditableText(str);
           }
           break;
 
@@ -205,13 +195,8 @@ void displayEnterText(char Keys[][10], char *str, int posX, int posY) {
       }
     }
   }
-
-  // Al confirmar el texto
-  tft.setTextColor(TFT_WHITE, TFT_RED);
-  tft.setCursor(0, 0);
-  tft.print("Texto confirmado: ");
-  tft.print(str);
-  delay(1000);
+  textConfirmed = false;
+  return str;
 }
 
 void displayEditableText(String str) {
