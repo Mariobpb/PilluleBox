@@ -2,6 +2,10 @@
 
 const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };  //Up, Down, Left, Right, Enter, Back
 bool btnStatus[6] = { false, false, false, false, false, false };
+bool prevBtnStatus[6] = { false, false, false, false, false, false };
+bool textConfirmed = false;
+
+#define MAX_TEXT_LENGTH 100
 
 
 char basicKeys[4][10] = {
@@ -20,8 +24,8 @@ char capitalKeys[4][10] = {
 
 char numberSymbolKeys[4][10] = {
   { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' },
-  { '@', '#', '$', '_', '&', '+', '*', '\t', '\t', '\t' },
-  { '\0', '!', '=', ':', '\0', '\t', '\t', '\t', '\t', '\t' },
+  { '@', '#', '$', '_', '&', '+', '\t', '\t', '\t', '\t' },
+  { '*', '!', '=', ':', '\0', '\t', '\t', '\t', '\t', '\t' },
   { '\0', ' ', '.', '\0', '\t', '\t', '\t', '\t', '\t', '\t' }
 };
 
@@ -39,7 +43,7 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   setBackground();
-  displayEnterText(basicKeys, "& ! + : # * _ $ = @ . oiwhfuHLALFWCHUwloh123456789012345678901234567890123457890123456789012345678901234567890123456789009876543211234567890987654123456789012345678900000000000", 0, 0);
+  displayEnterText(basicKeys, "Enter text", 0, 0);
 }
 
 void loop() {
@@ -70,7 +74,16 @@ void resetBtns() {
 
 void readBtns() {
   for (int i = 0; i < 6; i++) {
-    btnStatus[i] = digitalRead(btnPins[i]);
+    bool currentStatus = digitalRead(btnPins[i]);
+
+    // Solo actúa cuando el estado cambia de no presionado a presionado
+    if (currentStatus && !prevBtnStatus[i]) {
+      btnStatus[i] = true;  // El botón acaba de ser presionado
+    } else {
+      btnStatus[i] = false;  // No hacer nada si el botón sigue presionado
+    }
+
+    prevBtnStatus[i] = currentStatus;  // Actualiza el estado anterior
   }
 }
 
@@ -86,39 +99,119 @@ KeyboardType identifyArray(char (*keys)[10]) {
   }
 }
 
-void displayEnterText(char Keys[][10], String str, int posX, int posY) {
-  KeyboardType keyboardType = identifyArray(Keys);
+void displayEnterText(char Keys[][10], char *str, int posX, int posY) {
+  char(*currentKeys)[10] = Keys;
+  bool exitLoop = false;
+  KeyboardType keyboardType = identifyArray(currentKeys);
 
   displayEditableText(str);
-  displayCharSelectedKeyboard(Keys, posX, posY);
-  bool textConfirmed = false;
-  while (!btnStatus[4] && !textConfirmed) {
-    readBtns();
-    if (btnStatus[0]) posY--;
-    if (btnStatus[1]) posY++;
-    if (btnStatus[2]) posX--;
-    if (btnStatus[3]) posX++;
-    checkPositionsKeyboard(Keys, &posX, &posY);
-    if (btnStatus[5]) {
+
+  while (!exitLoop && !textConfirmed) {
+    displayCharSelectedKeyboard(currentKeys, posX, posY);  // Muestra el teclado
+    delay(50);
+
+    readBtns();                // Lee los botones
+    if (btnStatus[0]) posY--;  // Up
+    if (btnStatus[1]) posY++;  // Down
+    if (btnStatus[2]) posX--;  // Left
+    if (btnStatus[3]) posX++;  // Right
+    if (btnStatus[5]) return;
+
+    checkPositionsKeyboard(currentKeys, &posX, &posY);  // Ajusta las posiciones
+
+    if (btnStatus[4]) {  // Botón Backspace o selección
       switch (keyboardType) {
         case BK:
-          Serial.println("Using basicKeys");
+          if (posX == 0 && posY == 2) {
+            posX = 0;
+            posY = 0;
+            currentKeys = capitalKeys;  // Cambia a teclas mayúsculas
+            keyboardType = CK;
+          } else if (posX == 0 && posY == 3) {
+            posX = 0;
+            posY = 0;
+            currentKeys = numberSymbolKeys;
+            keyboardType = NSK;
+          } else if (posX == 8 && posY == 2) {
+            if (strlen(str) > 0) {
+              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
+              displayEditableText(str);
+            }
+          } else if (posX == 3 && posY == 3) {
+            textConfirmed = true;  // Confirma el texto
+            exitLoop = true;
+          } else {
+            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
+              str[strlen(str)] = currentKeys[posY][posX];  // Añade el carácter
+              str[strlen(str) + 1] = '\0';                 // Asegura el terminador nulo
+              displayEditableText(str);
+            }
+          }
           break;
+
         case CK:
-          Serial.println("Using CapitalKeys");
+          if (posX == 0 && posY == 2) {
+            posX = 0;
+            posY = 0;
+            currentKeys = basicKeys;  // Cambia a teclas básicas
+            keyboardType = BK;
+          } else if (posX == 0 && posY == 3) {
+            posX = 0;
+            posY = 0;
+            currentKeys = numberSymbolKeys;  // Cambia a teclas numéricas/símbolos
+            keyboardType = NSK;
+          } else if (posX == 8 && posY == 2) {
+            if (strlen(str) > 0) {
+              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
+              displayEditableText(str);
+            }
+          } else if (posX == 3 && posY == 3) {
+            textConfirmed = true;
+            exitLoop = true;
+          } else {
+            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
+              str[strlen(str)] = currentKeys[posY][posX];
+              str[strlen(str) + 1] = '\0';
+              displayEditableText(str);
+            }
+          }
           break;
+
         case NSK:
-          Serial.println("Using NumberSymbolKeys");
+          if (posX == 0 && posY == 3) {
+            posX = 0;
+            posY = 0;
+            currentKeys = basicKeys;
+            keyboardType = BK;
+          } else if (posX == 4 && posY == 2) {
+            if (strlen(str) > 0) {
+              str[strlen(str) - 1] = '\0';  // Elimina el último carácter
+              displayEditableText(str);
+            }
+          } else if (posX == 3 && posY == 3) {
+            textConfirmed = true;
+            exitLoop = true;
+          } else {
+            if (strlen(str) < MAX_TEXT_LENGTH - 1) {
+              str[strlen(str)] = currentKeys[posY][posX];
+              str[strlen(str) + 1] = '\0';
+              displayEditableText(str);
+            }
+          }
           break;
+
         default:
-          Serial.println("Unknown array");
           break;
       }
-      textConfirmed = true;
     }
-    displayCharSelectedKeyboard(Keys, posX, posY);
-    delay(300);
   }
+
+  // Al confirmar el texto
+  tft.setTextColor(TFT_WHITE, TFT_RED);
+  tft.setCursor(0, 0);
+  tft.print("Texto confirmado: ");
+  tft.print(str);
+  delay(1000);
 }
 
 void displayEditableText(String str) {
