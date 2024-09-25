@@ -31,7 +31,7 @@ void setup() {
 }
 
 void loop() {
-  String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
+  String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address"};
   Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
   listaOpciones.setTextSize(4);
   int seleccion = listaOpciones.seleccionarLista();

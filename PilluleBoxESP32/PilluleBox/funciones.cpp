@@ -117,8 +117,7 @@ void conectar(String ssid, String password) {
     delay(1000);
     return;
   }
-  tft.print("Se ha conectado al wifi exitosamente\nIP: ");
-  Serial.print("\nSe ha conectado al wifi exitosamente\nIP: ");
+  tft.print("Conectadp exitosamente\nIP: ");
   escribirCadenaEnEEPROM(dirSSID, ssid.c_str(), bufferSize);
   escribirCadenaEnEEPROM(dirPASSWORD, password.c_str(), bufferSize);
   Serial.println(WiFi.localIP());
@@ -126,7 +125,6 @@ void conectar(String ssid, String password) {
 
 void reconectar() {
   int NumRed = seleccionarRed();
-  delay(2000);
   if (NumRed > 0) {
     String ssid = WiFi.SSID(NumRed - 1);
     setBackground(1);
