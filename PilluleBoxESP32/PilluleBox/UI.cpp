@@ -4,7 +4,7 @@
 void menuUI() {
   String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
   Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
-  listaOpciones.setTextSize(4);
+  listaOpciones.setTextSize(3);
   int seleccion = listaOpciones.seleccionarLista();
   switch (seleccion) {
     case -1:
@@ -62,13 +62,6 @@ int Lista::seleccionarLista() {
   tft.setTextSize(textSize);
 
   int itemSelected = 1;
-  /*
-  if (stringComplete) {
-    Serial.println("Cadena recibida: " + inputString);
-    inputString = "";
-    stringComplete = false;
-  }
-  */
   do {
     tft.setCursor(0, tft.height() - 40);
     tft.setTextColor(TFT_RED, TFT_BLACK);
@@ -127,6 +120,7 @@ int Lista::seleccionarLista() {
 }
 
 String waitEnterText(char Keys[][10], String str, int posX, int posY, int initialPosY) {
+  setBackground(1);
   char(*currentKeys)[10] = Keys;
   bool exitLoop = false;
   KeyboardType keyboardType = identifyArray(currentKeys);

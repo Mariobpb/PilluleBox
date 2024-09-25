@@ -73,10 +73,9 @@ int countkeysInRow(char Keys[][10], int row) {
 }
 
 void conectar(String ssid, String password) {
-  // Desconecta WiFi si ya está conectado
+  // Disconnects WiFi if it is already connected
   WiFi.disconnect(true);
 
-  // Espera un momento para que la desconexión tenga lugar
   delay(1000);
 
   WiFi.begin(ssid.c_str(), password.c_str());
@@ -198,7 +197,6 @@ int seleccionarRed() {
     for (int i = 0; i < numRedes; i++) {
       l[i] = WiFi.SSID(i);
     }
-    tft.println("\nRedes disponibles:");
     Serial.println("\nRedes disponibles:");
 
     Lista lista(l, numRedes);
