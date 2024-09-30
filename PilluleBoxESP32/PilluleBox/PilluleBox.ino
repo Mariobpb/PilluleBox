@@ -20,7 +20,9 @@ void setup() {
 
   tft.init();
   tft.setRotation(0);
-  tft.fillScreen(TFT_BLUE);
+  tft.fillScreen(TFT_BLACK);
+
+  sprite.setColorDepth(8);
 
   char ssidEEPROM[bufferSize + 1];
   char passwordEEPROM[bufferSize + 1];

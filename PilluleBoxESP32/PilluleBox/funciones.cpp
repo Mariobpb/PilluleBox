@@ -217,7 +217,6 @@ int seleccionarRed() {
   }
   int numRedes = WiFi.scanComplete();
   setBackground(1);
-  tft.setCursor(0, 20);
   if (numRedes < 1) {
     tft.println("Sin redes disponibles");
     return -1;
@@ -226,11 +225,12 @@ int seleccionarRed() {
     for (int i = 0; i < numRedes; i++) {
       l[i] = WiFi.SSID(i);
     }
-    tft.setCursor(0, 0);
+    tft.setCursor(0, 20);
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(2);
+    delay(1000);
     tft.println("Redes disponibles:");
-
+    delay(1000);
     Lista lista(l, numRedes);
     int sprPosY = tft.getCursorY() + tft.fontHeight();
     lista.setPositionY(sprPosY);
