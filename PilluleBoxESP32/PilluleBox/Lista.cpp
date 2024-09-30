@@ -15,3 +15,11 @@ Lista::~Lista() {
 void Lista::setTextSize(int size) {
   this->textSize = size;
 }
+
+void Lista::setHeight(int spriteHeight) {
+  this->spriteHeight = spriteHeight;
+}
+
+void Lista::setPositionY(int spritePosY) {
+  this->spritePosY = spritePosY;
+}

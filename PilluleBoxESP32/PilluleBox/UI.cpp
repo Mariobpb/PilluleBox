@@ -2,28 +2,6 @@
 #include <TFT_eSPI.h>
 
 void menuUI() {
-  String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
-  Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
-  listaOpciones.setTextSize(3);
-  int seleccion = listaOpciones.seleccionarLista();
-  switch (seleccion) {
-    case -1:
-      break;
-    case 1:
-      reconectar();
-      break;
-    case 2:
-      logInUI();
-      break;
-    case 3:
-      dispenserUI();
-      break;
-    case 4:
-      setBackground(1);
-      tft.println("Dirección MAC: " + WiFi.macAddress());
-      break;
-  }
-  delay(5000);
 }
 
 void logInUI() {
@@ -56,75 +34,42 @@ void logInUI() {
 void dispenserUI() {
 }
 
-int Lista::seleccionarLista() {
-  int itemsToShow = 10;
-  int startIndex = 0;
-  tft.setTextSize(textSize);
+void Lista::dibujarLista() {
+  sprite.createSprite(tft.width(), spriteHeight);
+  sprite.fillSprite(TFT_BLACK);
+  sprite.setCursor(0, 0);
+  sprite.setTextSize(textSize);
 
-  int itemSelected = 1;
-  do {
-    tft.setCursor(0, tft.height() - 40);
-    tft.setTextColor(TFT_RED, TFT_BLACK);
-    tft.print(btnCurrentStatus[5]);
-    if (btnCurrentStatus[5]) {
-      return -1;
+  for (int i = 0; i < itemsToShow && (i + startIndex) < length; i++) {
+    int currentIndex = i + startIndex;
+    if ((currentIndex + 1) == itemSelected) {
+      sprite.setTextColor(textSelectedColor, textSelectedBackgroundColor);
+    } else {
+      sprite.setTextColor(textColor);
     }
 
-    setBackground(1);
-    tft.setCursor(0, 20);
-    if (btnCurrentStatus[0]) itemSelected--;
-    if (btnCurrentStatus[1]) itemSelected++;
+    sprite.print(currentIndex + 1);
+    sprite.print(": ");
+    sprite.println(list[currentIndex]);
+  }
 
-    if (itemSelected < 1) itemSelected = length;
-    else if (itemSelected > length) itemSelected = 1;
-
-    if (itemSelected <= startIndex) startIndex = itemSelected - 1;
-    if (itemSelected > startIndex + itemsToShow) startIndex = itemSelected - itemsToShow;
-
-    startIndex = max(0, min(startIndex, length - itemsToShow));
-
-    for (int i = 0; i < itemsToShow && (i + startIndex) < length; i++) {
-      int currentIndex = i + startIndex;
-      if ((currentIndex + 1) == itemSelected) {
-        tft.setTextColor(textSelectedColor, textSelectedBackgroundColor);
-      } else {
-        tft.setTextColor(textColor);
-      }
-
-      tft.print(currentIndex + 1);
-      Serial.print(currentIndex + 1);
-
-      Serial.print(": ");
-      tft.print(": ");
-
-      Serial.println(list[currentIndex]);
-      tft.println(list[currentIndex]);
-    }
-
-    if (startIndex > 0) {
-      tft.setCursor(tft.width() - 20, 0);
-      tft.print("^");
-    }
-    if (startIndex + itemsToShow < length) {
-      tft.setCursor(tft.width() - 20, tft.height() - 20);
-      tft.print("v");
-    }
-    resetBtns();
-    while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
-      readBtns();
-      delay(50);
-    };
-  } while (!btnCurrentStatus[4]);
-
-  return itemSelected;
+  if (startIndex > 0) {
+    sprite.setCursor(sprite.width() - 20, 0);
+    sprite.print("^");
+  }
+  if (startIndex + itemsToShow < length) {
+    sprite.setCursor(sprite.width() - 20, sprite.height() - 20);
+    sprite.print("v");
+  }
+  // Mostrar el sprite en la pantalla
+  sprite.pushSprite(0, spritePosY);
+  sprite.deleteSprite();
 }
 
 String waitEnterText(char Keys[][10], String str, int posX, int posY, int initialPosY) {
-  setBackground(1);
   char(*currentKeys)[10] = Keys;
   bool exitLoop = false;
   KeyboardType keyboardType = identifyArray(currentKeys);
-
   displayEditableText(str, initialPosY);
 
   while (!exitLoop && !textConfirmed) {

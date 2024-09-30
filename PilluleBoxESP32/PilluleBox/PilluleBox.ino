@@ -7,6 +7,9 @@
 char ssidBuffer[bufferSize];
 char passwordBuffer[bufferSize];
 
+String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
+Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
+
 
 void setup() {
   initPins();
@@ -17,7 +20,7 @@ void setup() {
 
   tft.init();
   tft.setRotation(0);
-  tft.fillScreen(TFT_BLACK);
+  tft.fillScreen(TFT_BLUE);
 
   char ssidEEPROM[bufferSize + 1];
   char passwordEEPROM[bufferSize + 1];
@@ -26,14 +29,15 @@ void setup() {
   leerCadenaDesdeEEPROM(dirPASSWORD, passwordEEPROM, bufferSize);
   Serial.println("Dato leído desde la memoria flash:\nSSID: " + String(ssidEEPROM) + "\nPASSWORD: " + String(passwordEEPROM));
   if (!memoriaVacia(dirSSID, bufferSize)) {
-    conectar(ssidEEPROM, passwordEEPROM);
+    //conectar(ssidEEPROM, passwordEEPROM);
   }
 }
 
 void loop() {
-  String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address"};
-  Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
-  listaOpciones.setTextSize(4);
+  setBackground(1);
+  listaOpciones.setTextSize(3);
+  listaOpciones.setPositionY(30);
+  listaOpciones.setHeight(170);
   int seleccion = listaOpciones.seleccionarLista();
   switch (seleccion) {
     case -1:
@@ -49,8 +53,7 @@ void loop() {
       break;
     case 4:
       setBackground(1);
-      tft.setCursor(0, 50);
-      tft.println("Dirección MAC: " + WiFi.macAddress());
+      tft.println("Direccion MAC: " + WiFi.macAddress());
       delay(3000);
       break;
   }

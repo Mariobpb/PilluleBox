@@ -28,7 +28,7 @@ void readBtns() {
     } else {
       btnCurrentStatus[i] = false;
     }
-    prevBtnStatus[i] = currentStatus; // Updates PreviousStatus
+    prevBtnStatus[i] = currentStatus;  // Updates PreviousStatus
   }
 }
 
@@ -44,7 +44,7 @@ KeyboardType identifyArray(char (*keys)[10]) {
   }
 }
 
-void checkPositionsKeyboard(char Keys[][10], int *posX, int *posY) {
+void checkPositionsKeyboard(char Keys[][10], int* posX, int* posY) {
   if (*posY < 0) *posY = 3;
   if (*posY > 3) *posY = 0;
   if (*posX > (countkeysInRow(Keys, *posY) - 1)) *posX = 0;
@@ -70,6 +70,36 @@ int countkeysInRow(char Keys[][10], int row) {
     keysInRow++;
   }
   return keysInRow;
+}
+
+void Lista::actualizarSeleccion(int direccion) {
+  itemSelected += direccion;
+  if (itemSelected < 1) itemSelected = length;
+  else if (itemSelected > length) itemSelected = 1;
+
+  if (itemSelected <= startIndex) startIndex = itemSelected - 1;
+  if (itemSelected > startIndex + itemsToShow) startIndex = itemSelected - itemsToShow;
+
+  startIndex = max(0, min(startIndex, length - itemsToShow));
+}
+
+int Lista::seleccionarLista() {
+  do {
+    dibujarLista();
+
+    resetBtns();
+    while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
+      readBtns();
+      delay(50);
+    };
+
+    if (btnCurrentStatus[0]) actualizarSeleccion(-1);
+    if (btnCurrentStatus[1]) actualizarSeleccion(1);
+    if (btnCurrentStatus[5]) return -1;  // Salir si se presiona el botón de retorno
+
+  } while (!btnCurrentStatus[4]);
+
+  return itemSelected;
 }
 
 void conectar(String ssid, String password) {
@@ -128,13 +158,13 @@ void reconectar() {
     String ssid = WiFi.SSID(NumRed - 1);
     setBackground(1);
     tft.setCursor(0, 20);
-    tft.println("Ingrese la contraseña:");
-    String password = waitEnterText(basicKeys, "", 0, 0, 100);
-    if(password == "\0") return;
+    tft.setTextSize(2);
+    tft.println("Ingrese la contrasena:");
+    String password = waitEnterText(basicKeys, "", 0, 0, tft.getCursorY() + tft.fontHeight());
+    if (password == "\0") return;
     conectar(ssid, password);
-  }
-  else {
-    menuUI();
+  } else {
+    return;
   }
 }
 
@@ -189,7 +219,6 @@ int seleccionarRed() {
   setBackground(1);
   tft.setCursor(0, 20);
   if (numRedes < 1) {
-    Serial.println("\nNo se encontraron redes disponibles.");
     tft.println("Sin redes disponibles");
     return -1;
   } else {
@@ -197,9 +226,16 @@ int seleccionarRed() {
     for (int i = 0; i < numRedes; i++) {
       l[i] = WiFi.SSID(i);
     }
-    Serial.println("\nRedes disponibles:");
+    tft.setCursor(0, 0);
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(2);
+    tft.println("Redes disponibles:");
 
     Lista lista(l, numRedes);
+    int sprPosY = tft.getCursorY() + tft.fontHeight();
+    lista.setPositionY(sprPosY);
+    lista.setHeight(tft.height() - sprPosY);
+    //lista.setHeight(200));
     return lista.seleccionarLista();
   }
 }
@@ -210,6 +246,7 @@ void setBackground(int b) {
       tft.fillRectVGradient(0, 0, tft.width(), tft.height(), convertRGBtoRGB565(130, 0, 0), TFT_BLACK);
       break;
     case 2:
+      tft.fillScreen(TFT_BLACK);
       break;
   }
 }
@@ -280,6 +317,7 @@ String encryptPassword(String password) {
 
   return encoded;
 }
+
 String base64_encode(uint8_t* data, size_t length) {
   static const char* base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   String encoded;

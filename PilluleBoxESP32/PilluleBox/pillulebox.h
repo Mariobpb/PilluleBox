@@ -76,18 +76,27 @@ extern char passwordBuffer[bufferSize];  // Asignar memoria para passwordBuffer
 // Clases
 class Lista {
 private:
-  int textSize = 3;
-  uint16_t textColor = TFT_WHITE;
-  uint16_t textSelectedColor = TFT_WHITE;
-  uint16_t textSelectedBackgroundColor = convertRGBtoRGB565(0, 30, 150);
-  String* list;
-  int length;
+    int textSize = 3;
+    uint16_t textColor = TFT_WHITE;
+    uint16_t textSelectedColor = TFT_WHITE;
+    uint16_t textSelectedBackgroundColor = convertRGBtoRGB565(0, 30, 150);
+    String* list;
+    int spritePosY = 0;
+    int spriteHeight = tft.height();
+    int length;
+    int itemSelected = 1;
+    int startIndex = 0;
+    int itemsToShow = 10;
 
 public:
-  Lista(String list[], int length);
-  ~Lista();
-  int seleccionarLista();
-  void setTextSize(int size);
+    Lista(String list[], int length);
+    ~Lista();
+    int seleccionarLista();
+    void setTextSize(int size);
+    void setHeight(int height);
+    void setPositionY(int spritePosY);
+    void dibujarLista();
+    void actualizarSeleccion(int direccion);
 };
 
 
