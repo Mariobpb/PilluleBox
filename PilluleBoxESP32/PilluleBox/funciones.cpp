@@ -211,7 +211,7 @@ int seleccionarRed() {
   tft.print("Escaneando redes ");
   int i = 0;
   while (WiFi.scanComplete() <= 0 && i < 11) {
-    delay(1000);
+    delay(600);
     i++;
     tft.print(".");
   }
@@ -228,9 +228,7 @@ int seleccionarRed() {
     tft.setCursor(0, 20);
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(2);
-    delay(1000);
     tft.println("Redes disponibles:");
-    delay(1000);
     Lista lista(l, numRedes);
     int sprPosY = tft.getCursorY() + tft.fontHeight();
     lista.setPositionY(sprPosY);

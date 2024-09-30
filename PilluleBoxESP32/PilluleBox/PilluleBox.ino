@@ -7,8 +7,11 @@
 char ssidBuffer[bufferSize];
 char passwordBuffer[bufferSize];
 
-String l[] = { "Wi-Fi", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
-Lista listaOpciones(l, sizeof(l) / sizeof(l[0]));
+String WiFiConnectedList[] = { "Conectarse a\notra red", "Iniciar Sesion", "Visualizar contenido", "MAC Address" };
+Lista OptionsWiFiConnected(WiFiConnectedList, sizeof(WiFiConnectedList) / sizeof(WiFiConnectedList[0]));
+
+String WiFiDisconnectedList[] = { "Conectarse a\nred", "Visualizar contenido", "MAC Address" };
+Lista OptionsWiFiDisconnected(WiFiDisconnectedList, sizeof(WiFiDisconnectedList) / sizeof(WiFiDisconnectedList[0]));
 
 
 void setup() {
@@ -31,32 +34,55 @@ void setup() {
   leerCadenaDesdeEEPROM(dirPASSWORD, passwordEEPROM, bufferSize);
   Serial.println("Dato leído desde la memoria flash:\nSSID: " + String(ssidEEPROM) + "\nPASSWORD: " + String(passwordEEPROM));
   if (!memoriaVacia(dirSSID, bufferSize)) {
-    //conectar(ssidEEPROM, passwordEEPROM);
+    conectar(ssidEEPROM, passwordEEPROM);
   }
 }
 
 void loop() {
   setBackground(1);
-  listaOpciones.setTextSize(3);
-  listaOpciones.setPositionY(30);
-  listaOpciones.setHeight(170);
-  int seleccion = listaOpciones.seleccionarLista();
-  switch (seleccion) {
-    case -1:
-      break;
-    case 1:
-      reconectar();
-      break;
-    case 2:
-      logInUI();
-      break;
-    case 3:
-      dispenserUI();
-      break;
-    case 4:
-      setBackground(1);
-      tft.println("Direccion MAC: " + WiFi.macAddress());
-      delay(3000);
-      break;
+  if (WiFi.status() == WL_CONNECTED) {
+    OptionsWiFiConnected.setTextSize(3);
+    OptionsWiFiConnected.setPositionY(30);
+    OptionsWiFiConnected.setHeight(170);
+    int seleccion = OptionsWiFiConnected.seleccionarLista();
+    switch (seleccion) {
+      case -1:
+        break;
+      case 1:
+        reconectar();
+        break;
+      case 2:
+        logInUI();
+        break;
+      case 3:
+        dispenserUI();
+        break;
+      case 4:
+        setBackground(1);
+        tft.println("Direccion MAC: " + WiFi.macAddress());
+        delay(3000);
+        break;
+    }
+  }
+  else {
+    OptionsWiFiDisconnected.setTextSize(3);
+    OptionsWiFiDisconnected.setPositionY(30);
+    OptionsWiFiDisconnected.setHeight(170);
+    int seleccion = OptionsWiFiDisconnected.seleccionarLista();
+    switch (seleccion) {
+      case -1:
+        break;
+      case 1:
+        reconectar();
+        break;
+      case 2:
+        dispenserUI();
+        break;
+      case 3:
+        setBackground(1);
+        tft.println("Direccion MAC: " + WiFi.macAddress());
+        delay(3000);
+        break;
+    }
   }
 }
