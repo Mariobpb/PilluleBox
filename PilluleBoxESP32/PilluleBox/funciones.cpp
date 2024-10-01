@@ -113,21 +113,9 @@ void conectar(String ssid, String password) {
   setBackground(1);
   tft.setTextColor(TFT_WHITE);
   tft.setCursor(0, 20);
-  tft.setTextSize(2);
+  tft.setTextSize(3);
   tft.print("Conectando a :\n");
-  tft.setTextSize(3);
   tft.print(ssid);
-  Serial.print("\n\nConectando a : |");
-  Serial.print(ssid);
-
-  tft.setTextSize(2);
-  tft.setCursor(0, 100);
-  tft.print("Contrasena :\n");
-  tft.setTextSize(3);
-  tft.print(password);
-  Serial.print("|\nContrasena: |");
-  Serial.print(password);
-  Serial.println("|");
 
   int tiempo = 0;
   tft.setCursor(0, 250);
@@ -135,21 +123,19 @@ void conectar(String ssid, String password) {
     delay(500);
     tft.setTextSize(2);
     tft.print(".");
-    Serial.print(".");
     tiempo++;
   }
-  tft.setTextColor(TFT_RED);
+  tft.setTextColor(TFT_WHITE);
   tft.setCursor(0, 300);
+  tft.setTextSize(4);
   if (tiempo == 30) {
     tft.print("Conexión Fallida");
-    Serial.println("Conexion Fallida");
-    delay(1000);
     return;
   }
-  tft.print("Conectadp exitosamente\nIP: ");
+  tft.print("Conectado\nexitosamente");
   escribirCadenaEnEEPROM(dirSSID, ssid.c_str(), bufferSize);
   escribirCadenaEnEEPROM(dirPASSWORD, password.c_str(), bufferSize);
-  Serial.println(WiFi.localIP());
+  delay(1000);
 }
 
 void reconectar() {

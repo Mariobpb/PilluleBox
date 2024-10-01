@@ -5,30 +5,116 @@ void menuUI() {
 }
 
 void logInUI() {
-
   setBackground(1);
-  tft.setCursor(0, 20);
-  tft.println("Username:");
-  String username_email = esperarStringSerial();
-  tft.setTextSize(3);
-  tft.println(username_email);
-  tft.setTextSize(4);
-  tft.println("\nPassword:");
-  String password = esperarStringSerial();
-  tft.setTextSize(3);
-  tft.println(password);
-  String encryptedPassword = encryptPassword(password);
-  tft.setTextSize(1);
-  tft.println(encryptedPassword);
-  tft.setTextSize(4);
-  tft.setCursor(0, 300);
-  tft.setTextColor(TFT_BLUE);
-  if (logIn(username_email, encryptedPassword)) {
-    tft.println("usuario autenticado :)");
-  } else {
-    tft.println("Error de autenticacion :(");
+  bool accountConfirmed = false;
+
+  String username_email = "";
+  String password = "";
+  int selectedField = 0;  // 0: username, 1: password, 2: confirm button
+
+  while (!accountConfirmed) {
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(10, 20);
+    tft.println("Username:");
+    tft.setCursor(10, 130);
+    tft.println("Password:");
+
+    sprite.createSprite(tft.width() - 20, 40);
+
+    // Username
+    sprite.fillSprite(selectedField == 0 ? TFT_BLUE : TFT_BLACK);
+    sprite.setTextColor(TFT_WHITE);
+    sprite.setTextSize(2);
+    sprite.setCursor(5, 10);
+    sprite.print(username_email);
+    sprite.pushSprite(10, 45);
+
+    // Password
+    sprite.fillSprite(selectedField == 1 ? TFT_BLUE : TFT_BLACK);
+    sprite.setTextColor(TFT_WHITE);
+    sprite.setTextSize(2);
+    sprite.setCursor(5, 10);
+    String maskedPassword = "";
+    for (int i = 0; i < password.length(); i++) {
+      maskedPassword += "*";
+    }
+    sprite.print(maskedPassword);
+    sprite.pushSprite(10, 155);
+
+    // Confirmation
+    sprite.fillSprite(selectedField == 2 ? TFT_BLUE : TFT_GREEN);
+    sprite.setTextColor(selectedField == 2 ? TFT_WHITE : TFT_BLACK);
+    sprite.setTextSize(2);
+    sprite.setCursor(30, 12);
+    sprite.print("Confirmar");
+    sprite.pushSprite(10, 300);
+
+    sprite.deleteSprite();
+
+    readBtns();
+
+    if (btnCurrentStatus[0]) {  // Up
+      selectedField = (selectedField - 1 + 3) % 3;
+    }
+    if (btnCurrentStatus[1]) {  // Down
+      selectedField = (selectedField + 1) % 3;
+    }
+
+    if (btnCurrentStatus[4]) {  // Enter
+
+      switch (selectedField) {
+        case 0:
+          username_email = waitEnterText(basicKeys, username_email, 0, 0, 65);
+          break;
+        case 1:
+          password = waitEnterText(basicKeys, password, 0, 0, 65);
+          break;
+        case 2:
+          if (username_email.length() > 0 && password.length() > 0) {
+            String encryptedPassword = encryptPassword(password);
+            tft.setTextSize(3);
+            tft.setTextColor(TFT_WHITE);
+            tft.setCursor(10, tft.height()-(tft.fontHeight()*2));
+            tft.print("Autenticando...");
+            if (logIn(username_email, encryptedPassword)) {
+              accountConfirmed = true;
+              setBackground(3);
+              tft.setCursor(10, 120);
+              tft.setTextColor(TFT_GREEN);
+              tft.setTextSize(2);
+              tft.println("Usuario\nautenticado :)");
+            } else {
+              setBackground(2);
+              tft.setCursor(10, 120);
+              tft.setTextColor(TFT_RED);
+              tft.setTextSize(3);
+              tft.println("Error de\nautenticacion :(");
+              delay(2000);
+              setBackground(1);
+            }
+          } else {
+            tft.fillScreen(TFT_BLACK);
+            tft.setCursor(10, 120);
+            tft.setTextColor(TFT_YELLOW);
+            tft.setTextSize(3);
+            tft.println("Favor de completar\nambos campos");
+            delay(2000);
+            setBackground(1);
+          }
+          break;
+      }
+    }
+
+    if (btnCurrentStatus[5]) {  // Back
+      btnCurrentStatus[5] = !btnCurrentStatus[5];
+      return;
+    }
+
+    delay(50);
   }
-  delay(20000);
+
+  delay(2000);
 }
 
 void dispenserUI() {
@@ -81,7 +167,11 @@ String waitEnterText(char Keys[][10], String str, int posX, int posY, int initia
     if (btnCurrentStatus[1]) posY++;  // Down
     if (btnCurrentStatus[2]) posX--;  // Left
     if (btnCurrentStatus[3]) posX++;  // Right
-    if (btnCurrentStatus[5]) return "\0";
+    if (btnCurrentStatus[5]) {
+      btnCurrentStatus[5] = !btnCurrentStatus[5];
+      setBackground(1);
+      return "\0";
+    }
 
     checkPositionsKeyboard(currentKeys, &posX, &posY);
 
@@ -157,6 +247,7 @@ String waitEnterText(char Keys[][10], String str, int posX, int posY, int initia
     }
   }
   textConfirmed = false;
+  setBackground(1);
   return str;
 }
 

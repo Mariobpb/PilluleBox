@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class CryptoStr {
     private static final String ALGORITHM = "AES";
     private static final String SECRET_KEY_ALGORITHM = "AES";
-    private static final byte[] SECRET_KEY_BYTES = "yourSecretKeyBytes".getBytes(); // Reemplaza con tus bytes de clave secreta
+    private static final byte[] SECRET_KEY_BYTES = "yourSecretKeyBytes".getBytes();
 
     public static String encrypt(String plainText) throws Exception {
         SecretKey secretKey = generateSecretKey();

@@ -35,15 +35,26 @@ void setup() {
   Serial.println("Dato leído desde la memoria flash:\nSSID: " + String(ssidEEPROM) + "\nPASSWORD: " + String(passwordEEPROM));
   if (!memoriaVacia(dirSSID, bufferSize)) {
     conectar(ssidEEPROM, passwordEEPROM);
+    if(logIn("Mariobpb", "Z9aGo7irv4s8ZyNhWSsDFQ==")){
+      tft.fillScreen(TFT_GREEN);
+      delay(3000);
+    } else {
+      tft.fillScreen(TFT_RED);
+      delay(3000);
+    }
   }
 }
 
 void loop() {
   setBackground(1);
   if (WiFi.status() == WL_CONNECTED) {
+    tft.setCursor(0, 20);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE);
+    tft.println("Conectado a:\n" + WiFi.SSID() + "\n");
     OptionsWiFiConnected.setTextSize(3);
-    OptionsWiFiConnected.setPositionY(30);
-    OptionsWiFiConnected.setHeight(170);
+    OptionsWiFiConnected.setPositionY(tft.getCursorY());
+    OptionsWiFiConnected.setHeight(180);
     int seleccion = OptionsWiFiConnected.seleccionarLista();
     switch (seleccion) {
       case -1:
