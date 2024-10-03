@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
+const cron = require('node-cron');
 
 const app = express();
 app.use(express.json());
@@ -344,6 +345,19 @@ app.patch('/registros/:id', (req, res) => {
 });
 */
 
+function cleanupExpiredTokens() {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const query = 'DELETE FROM tokens WHERE token_exp <= ?';
+  
+  connection.query(query, [currentTimestamp], (err, result) => {
+    if (err) {
+      console.error('Error al limpiar tokens expirados:', err);
+    } else {
+      console.log(`Se eliminaron ${result.affectedRows} tokens expirados.`);
+    }
+  });
+}
+
 function decryptPassword(encryptedPassword) {
   const Secret_Key = "1234567890123456";
   const IV = "iughvnbaklsvvkhj";
@@ -354,6 +368,11 @@ function decryptPassword(encryptedPassword) {
   decrypted += decipher.final('utf8');
   return decrypted;
 }
+
+cron.schedule('0 * * * *', () => {
+  console.log('Ejecutando limpieza de tokens expirados...');
+  cleanupExpiredTokens();
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
