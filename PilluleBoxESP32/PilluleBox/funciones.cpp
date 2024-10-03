@@ -63,7 +63,6 @@ int countKeysSpacesInRow(char Keys[][10], int row) {
   return keysInRow + additionalKeys;
 }
 
-
 int countkeysInRow(char Keys[][10], int row) {
   int keysInRow = 0;
   while (Keys[row][keysInRow] != '\t' && keysInRow < 10) {
@@ -72,7 +71,7 @@ int countkeysInRow(char Keys[][10], int row) {
   return keysInRow;
 }
 
-void Lista::actualizarSeleccion(int direccion) {
+void Lista::updateSelection(int direccion) {
   itemSelected += direccion;
   if (itemSelected < 1) itemSelected = length;
   else if (itemSelected > length) itemSelected = 1;
@@ -83,9 +82,9 @@ void Lista::actualizarSeleccion(int direccion) {
   startIndex = max(0, min(startIndex, length - itemsToShow));
 }
 
-int Lista::seleccionarLista() {
+int Lista::selectItemFromList() {
   do {
-    dibujarLista();
+    drawList();
 
     resetBtns();
     while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
@@ -93,8 +92,8 @@ int Lista::seleccionarLista() {
       delay(50);
     };
 
-    if (btnCurrentStatus[0]) actualizarSeleccion(-1);
-    if (btnCurrentStatus[1]) actualizarSeleccion(1);
+    if (btnCurrentStatus[0]) updateSelection(-1);
+    if (btnCurrentStatus[1]) updateSelection(1);
     if (btnCurrentStatus[5]) return -1;  // Salir si se presiona el botón de retorno
 
   } while (!btnCurrentStatus[4]);
@@ -102,7 +101,7 @@ int Lista::seleccionarLista() {
   return itemSelected;
 }
 
-void conectar(String ssid, String password) {
+void connectWiFi(String ssid, String password) {
   // Disconnects WiFi if it is already connected
   WiFi.disconnect(true);
 
@@ -133,13 +132,13 @@ void conectar(String ssid, String password) {
     return;
   }
   tft.print("Conectado\nexitosamente");
-  escribirCadenaEnEEPROM(dirSSID, ssid.c_str(), bufferSize);
-  escribirCadenaEnEEPROM(dirPASSWORD, password.c_str(), bufferSize);
+  writeStringInEEPROM(dirSSID, ssid.c_str(), wifiBufferSize);
+  writeStringInEEPROM(dirPASSWORD, password.c_str(), wifiBufferSize);
   delay(1000);
 }
 
-void reconectar() {
-  int NumRed = seleccionarRed();
+void reconnectWiFi() {
+  int NumRed = selectNetwork();
   if (NumRed > 0) {
     String ssid = WiFi.SSID(NumRed - 1);
     setBackground(1);
@@ -148,20 +147,20 @@ void reconectar() {
     tft.println("Ingrese la contrasena:");
     String password = waitEnterText(basicKeys, "", 0, 0, tft.getCursorY() + tft.fontHeight());
     if (password == "\0") return;
-    conectar(ssid, password);
+    connectWiFi(ssid, password);
   } else {
     return;
   }
 }
 
-void leerCadenaDesdeEEPROM(int direccion, char* cadena, int longitud) {
-  for (int i = 0; i < longitud; i++) {
-    cadena[i] = EEPROM.read(direccion + i);
+void readStringfromEEPROM(int address, char* str, int length) {
+  for (int i = 0; i < length; i++) {
+    str[i] = EEPROM.read(address + i);
   }
-  cadena[longitud] = '\0';  // Agrega el carácter nulo al final de la cadena
+  str[length] = '\0';  // Agrega el carácter nulo al final de la cadena
 }
 
-bool memoriaVacia(int direccion, int longitud) {
+bool emptyDirFlash(int direccion, int longitud) {
   for (int i = 0; i < longitud; i++) {
     if (EEPROM.read(direccion + i) != 0xFF) {
       return false;  // No está vacía
@@ -170,19 +169,19 @@ bool memoriaVacia(int direccion, int longitud) {
   return true;  // Está vacía
 }
 
-bool stringToBool(String value) {
-  int intValue = value.toInt();
-  return intValue != 0;
-}
-
-void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud) {
+void writeStringInEEPROM(int direccion, const char* cadena, int longitud) {
   for (int i = 0; i < longitud; i++) {
     EEPROM.write(direccion + i, cadena[i]);
   }
   EEPROM.commit();
 }
 
-int seleccionarRed() {
+bool stringToBool(String value) {
+  int intValue = value.toInt();
+  return intValue != 0;
+}
+
+int selectNetwork() {
   WiFi.disconnect(true);
   WiFi.scanDelete();  // Borrar la caché de escaneo
 
@@ -220,7 +219,7 @@ int seleccionarRed() {
     lista.setPositionY(sprPosY);
     lista.setHeight(tft.height() - sprPosY);
     //lista.setHeight(200));
-    return lista.seleccionarLista();
+    return lista.selectItemFromList();
   }
 }
 
@@ -262,6 +261,7 @@ void serialEvent() {
   }
 }
 
+/*
 String esperarStringSerial() {
   String res;
   while (!stringComplete) {
@@ -277,6 +277,7 @@ String esperarStringSerial() {
   stringComplete = false;
   return res;
 }
+*/
 
 String encryptPassword(String password) {
   byte key[16];

@@ -72,7 +72,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '1m' // Expiración "w" : semanas, "m" : minutos
+        expiresIn: '2w' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);
@@ -107,7 +107,12 @@ app.post('/validate_token', (req, res) => {
   const { token } = req.body;
   console.log("\nValidando token: " + token);
 
-  const query = 'SELECT id, token_exp FROM tokens WHERE token = ? AND token_exp > ?';
+  const query = `
+    SELECT t.id, t.token_exp, u.username, u.email
+    FROM tokens t
+    JOIN user u ON t.user = u.id
+    WHERE t.token = ? AND t.token_exp > ?
+  `;
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
   const currentDate = new Date(currentTimestamp * 1000);
@@ -115,18 +120,24 @@ app.post('/validate_token', (req, res) => {
   connection.query(query, [token, currentTimestamp], (err, results) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ error: 'Error al verificar el token' });
+      res.status(500).json({ validated: false, error: 'Error al verificar el token' });
       return;
     }
     if (results.length > 0) {
       const expirationDate = new Date(results[0].token_exp * 1000);
+      const username = results[0].username;
+      const email = results[0].email;
 
       console.log("Token válido");
       console.log("Fecha actual:", currentDate.toLocaleString());
       console.log("Fecha de expiración:", expirationDate.toLocaleString());
       console.log("Tiempo restante:", Math.floor((expirationDate - currentDate) / 1000) + " segundos");
 
-      res.json({ validated: true });
+      res.json({
+        validated: true,
+        username: username,
+        email: email
+      });
     } else {
       console.log("Token inválido o expirado");
       console.log("Fecha actual:", currentDate.toLocaleString());

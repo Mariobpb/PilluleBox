@@ -22,18 +22,18 @@ KeyboardType identifyArray(char (*keys)[10]);
 void checkPositionsKeyboard(char Keys[][10], int *posX, int *posY);
 int countKeysSpacesInRow(char Keys[][10], int row);
 int countkeysInRow(char Keys[][10], int row);
-void conectar(String ssid, String password);
-void reconectar();
+void connectWiFi(String ssid, String password);
+void reconnectWiFi();
 String esperarBuffer();
-void leerCadenaDesdeEEPROM(int direccion, char* cadena, int longitud);
-bool memoriaVacia(int direccion, int longitud);
+void readStringfromEEPROM(int direccion, char* cadena, int longitud);
+bool emptyDirFlash(int direccion, int longitud);
 bool stringToBool(String value);
-void escribirCadenaEnEEPROM(int direccion, const char* cadena, int longitud);
-int seleccionarRed();
+void writeStringInEEPROM(int direccion, const char* cadena, int longitud);
+int selectNetwork();
 uint16_t convertRGBtoRGB565(uint8_t r, uint8_t g, uint8_t b);
 String generateSecretKey();
 void serialEvent();
-String esperarStringSerial();
+//String esperarStringSerial();
 String encryptPassword(String password);
 String base64_encode(uint8_t *data, size_t length);
 
@@ -48,6 +48,7 @@ void dispenserUI();
 
 //Solicitudes
 bool logIn(String username_email, String password);
+bool validateToken(const char* token);
 
 // Variables globales
 extern const int btnPins[6];
@@ -63,15 +64,16 @@ extern String inputString;
 extern boolean stringComplete;
 extern int Index;
 extern const char* apiUrl;
+extern const int dirTOKEN;
 extern const int dirPASSWORD;
 extern const int dirSSID;
-const int bufferSize = 64;
+extern const int wifiBufferSize;
+extern const int tokenBufferSize;
 extern AESLib aesLib;
 extern const char* Secret_Key;
 extern const char* IV;
-
-extern char ssidBuffer[bufferSize];      // Asignar memoria para ssidBuffer
-extern char passwordBuffer[bufferSize];  // Asignar memoria para passwordBuffer
+extern String username;
+extern char tokenEEPROM[256 + 1];
 
 // Clases
 class Lista {
@@ -91,12 +93,12 @@ private:
 public:
     Lista(String list[], int length);
     ~Lista();
-    int seleccionarLista();
+    int selectItemFromList();
     void setTextSize(int size);
     void setHeight(int height);
     void setPositionY(int spritePosY);
-    void dibujarLista();
-    void actualizarSeleccion(int direccion);
+    void drawList();
+    void updateSelection(int direccion);
 };
 
 

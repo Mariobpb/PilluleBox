@@ -79,7 +79,7 @@ void logInUI() {
             tft.print("Autenticando...");
             if (logIn(username_email, encryptedPassword)) {
               accountConfirmed = true;
-              setBackground(3);
+              setBackground(2);
               tft.setCursor(10, 120);
               tft.setTextColor(TFT_GREEN);
               tft.setTextSize(2);
@@ -120,7 +120,7 @@ void logInUI() {
 void dispenserUI() {
 }
 
-void Lista::dibujarLista() {
+void Lista::drawList() {
   sprite.createSprite(tft.width(), spriteHeight);
   sprite.fillSprite(TFT_BLACK);
   sprite.setCursor(0, 0);
