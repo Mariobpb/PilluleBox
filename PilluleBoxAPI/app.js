@@ -73,7 +73,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '2w' // Expiración "w" : semanas, "m" : minutos
+        expiresIn: '1w' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);

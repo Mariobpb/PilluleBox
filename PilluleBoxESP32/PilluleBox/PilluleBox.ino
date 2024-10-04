@@ -104,6 +104,7 @@ void loop() {
       }
     }
   } else {
+    setBackground(1);
     tft.setCursor(0, 20);
     OptionsWiFiDisconnected.setTextSize(3);
     OptionsWiFiDisconnected.setPositionY(30);
