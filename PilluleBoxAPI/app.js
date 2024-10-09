@@ -58,8 +58,8 @@ app.post('/validate_mac', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const { username_email, password, secretKey } = req.body;
-  console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
+  const { username_email, password, secretKey, mac_address } = req.body;
+  console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey + " | MAC: " + mac_address);
 
   // Imprimir contraseñas desencriptadas
   const decryptedPasswordApp = decryptPassword(password);
@@ -89,6 +89,19 @@ app.post('/login', (req, res) => {
     if (results.length > 0) {
       console.log("\nUsuario autenticado");
       const id = results[0].id;
+
+      if(mac_address) {
+        const updateQuery = 'UPDATE dispenser SET user_id = ? WHERE mac = ?';
+        connection.query(updateQuery, [id, mac_address], (updateErr) => {
+          if (updateErr) {
+            console.error(updateErr);
+            return res.status(500).json({ error: 'Error al actualizar el dispenser' });
+          }
+          console.log("Login exitoso y dispenser actualizado");
+        });
+    }
+
+      // Generación de token
       const payload = {
         username_email,
         password
@@ -126,7 +139,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/validate_token', (req, res) => {
-  const { token } = req.body;
+  const { token, mac_address } = req.body;
   console.log("\nValidando token: " + token);
 
   const query = `
@@ -161,6 +174,16 @@ app.post('/validate_token', (req, res) => {
         email: email
       });
     } else {
+      if(mac_address) {
+        const updateQuery = 'UPDATE dispenser SET user_id = NULL WHERE mac = ?';
+        connection.query(updateQuery, [ mac_address], (updateErr) => {
+          if (updateErr) {
+            console.error(updateErr);
+            return res.status(500).json({ error: 'Error al actualizar el dispenser' });
+          }
+          console.log("Login exitoso y dispenser actualizado");
+        });
+    }
       console.log("Token inválido o expirado");
       console.log("Fecha actual:", currentDate.toLocaleString());
       res.status(401).json({ validated: false, error: 'Token inválido o expirado' });

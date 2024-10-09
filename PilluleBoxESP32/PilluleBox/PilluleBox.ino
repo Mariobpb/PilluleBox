@@ -16,6 +16,7 @@ Lista OptionsLogedOut(logedOutList, sizeof(logedOutList) / sizeof(logedOutList[0
 
 
 void setup() {
+  EEPROM.write(dirMacAuth, 0);
   initPins();
   Serial.begin(115200);
   EEPROM.begin(512);
