@@ -36,6 +36,27 @@ connection.connect((err) => {
   console.log('Conectado a la base de datos MySQL');
 });
 
+app.post('/validate_mac', (req, res) => {
+  const { mac_address } = req.body;
+  console.log("Validando dirección MAC: " + mac_address);
+
+  const query = 'SELECT * FROM dispenser WHERE mac = ?';
+  connection.query(query, [mac_address], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error al verificar dispositivo' });
+      return;
+    }
+    if (results.length > 0) {
+      res.json({ validated: true, message: 'Dispositivo autorizado' });
+      console.log("Dispositivo autorizado");
+    } else {
+      res.status(401).json({ validated: false, error: 'Dispositivo no autorizado' });
+      console.log("Dispositivo no autorizado");
+    }
+  });
+});
+
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey } = req.body;
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey);
@@ -73,7 +94,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '1w' // Expiración "w" : semanas, "m" : minutos
+        expiresIn: '1m' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);

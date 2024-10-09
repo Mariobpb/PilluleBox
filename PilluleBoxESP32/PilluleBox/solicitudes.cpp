@@ -2,6 +2,53 @@
 
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <EEPROM.h>
+
+bool validateMacAddress() {
+  if (EEPROM.read(dirMacAuth) == 1) {
+    return true;
+  }
+
+  String mac_address = WiFi.macAddress();
+
+  HTTPClient http;
+  String url = String(apiUrl) + "/validate_mac";
+
+  StaticJsonDocument<200> doc;
+  doc["mac_address"] = mac_address;
+
+  String jsonString;
+  serializeJson(doc, jsonString);
+
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  int httpResponseCode = http.POST(jsonString);
+
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    StaticJsonDocument<300> responseDoc;
+    DeserializationError error = deserializeJson(responseDoc, response);
+
+    if (!error && responseDoc.containsKey("validated")) {
+      bool isValidated = responseDoc["validated"].as<bool>();
+      if (isValidated) {
+        EEPROM.write(dirMacAuth, 1);
+        EEPROM.commit();
+      }
+      return isValidated;
+    }
+  } else {
+    setBackground(1);
+    tft.setCursor(0, tft.height() / 2);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_YELLOW);
+    tft.println("Error de conexion. Usando autorizacion previa.");
+    delay(3000);
+    return (EEPROM.read(dirMacAuth) == 1);
+  }
+
+  return false;
+}
 
 bool logIn(String username_email, String password) {
   HTTPClient http;
@@ -45,19 +92,19 @@ bool logIn(String username_email, String password) {
 bool validateToken(const char* token) {
   HTTPClient http;
   String url = String(apiUrl) + "/validate_token";
-  
+
   StaticJsonDocument<200> doc;
   doc["token"] = token;
-  
+
   String jsonString;
   serializeJson(doc, jsonString);
-  
+
   http.begin(url);
   http.addHeader("Content-Type", "application/json");
   int httpResponseCode = http.POST(jsonString);
 
   setBackground(2);
-  tft.setCursor(0, tft.height()/2);
+  tft.setCursor(0, tft.height() / 2);
   tft.setTextSize(3);
   tft.setTextColor(TFT_RED);
 
@@ -65,13 +112,13 @@ bool validateToken(const char* token) {
     String response = http.getString();
     StaticJsonDocument<300> responseDoc;
     DeserializationError error = deserializeJson(responseDoc, response);
-    
+
     if (error) {
       tft.println("Error de JSON: " + String(error.c_str()));
       delay(3000);
       return false;
     }
-    
+
     if (responseDoc.containsKey("validated")) {
       if (responseDoc["validated"].as<bool>()) {
         username = responseDoc["username"].as<String>();
@@ -100,6 +147,7 @@ bool validateToken(const char* token) {
   }
 }
 
+/*
 void postReg(bool led, String fecha, String hora) {
   HTTPClient http;
   http.begin(apiUrl);
@@ -124,3 +172,4 @@ void postReg(bool led, String fecha, String hora) {
 
   http.end();
 }
+*/

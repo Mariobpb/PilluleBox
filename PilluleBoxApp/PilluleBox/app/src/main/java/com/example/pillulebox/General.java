@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class General {
     private static final String Secret_Key = "1234567890123456"; // Secret Key (16 bytes)
     private static final String IV = "iughvnbaklsvvkhj"; // initialization vector (16 bytes)
-    private static final String BASE_URL = "http://192.168.43.234:8080/";
+    private static final String BASE_URL = "http://192.168.100.14:8080/";
     public static final String Archivo = "PilluleBoxPrefs";
     public static final String Key = "AuthToken";
     public static String encryptPassword(String password) throws Exception {

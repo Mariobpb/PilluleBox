@@ -132,8 +132,8 @@ void connectWiFi(String ssid, String password) {
     return;
   }
   tft.print("Conectado\nexitosamente");
-  writeStringInEEPROM(dirSSID, ssid.c_str(), wifiBufferSize);
-  writeStringInEEPROM(dirPASSWORD, password.c_str(), wifiBufferSize);
+  writeStringInEEPROM(dirSSID, ssid.c_str(), wifiEEPROMSize);
+  writeStringInEEPROM(dirPASSWORD, password.c_str(), wifiEEPROMSize);
   delay(1000);
 }
 
@@ -249,7 +249,7 @@ String generateSecretKey() {
 
   return String(key);
 }
-
+/*
 void serialEvent() {
   while (Serial.available()) {
     char inChar = (char)Serial.read();
@@ -261,7 +261,6 @@ void serialEvent() {
   }
 }
 
-/*
 String esperarStringSerial() {
   String res;
   while (!stringComplete) {

@@ -1,6 +1,6 @@
 #include "pillulebox.h"
 
-const int btnPins[6] = { 4, 5, 6, 7, 15, 16 };  //Up, Down, Left, Right, Enter, Back
+const int btnPins[6] = { 15, 5, 6, 4, 7, 16 };  //Up, Down, Left, Right, Enter, Back
 bool btnCurrentStatus[6] = { false, false, false, false, false, false };
 bool prevBtnStatus[6] = { false, false, false, false, false, false };
 bool textConfirmed;
@@ -28,15 +28,16 @@ char numberSymbolKeys[4][10] = {
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
-extern String inputString = "";
-extern boolean stringComplete = false;
-int Index = 0;
-const char* apiUrl = "http://192.168.43.234:8080";
+//extern String inputString = "";
+//extern boolean stringComplete = false;
+const char* apiUrl = "http://192.168.100.14:8080";
 const int dirTOKEN = 128;
 const int dirPASSWORD = 64;
 const int dirSSID = 0;
-const int wifiBufferSize = 64;
+const int dirMacAuth = 384;
+const int wifiEEPROMSize = 64;
 const int tokenBufferSize = 256;
+const int macAuthEEPROMSize = 1;
 AESLib aesLib;
 const char* Secret_Key = "1234567890123456"; // 16 bytes
 const char* IV = "iughvnbaklsvvkhj"; // 16 bytes

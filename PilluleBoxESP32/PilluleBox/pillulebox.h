@@ -32,7 +32,7 @@ void writeStringInEEPROM(int direccion, const char* cadena, int longitud);
 int selectNetwork();
 uint16_t convertRGBtoRGB565(uint8_t r, uint8_t g, uint8_t b);
 String generateSecretKey();
-void serialEvent();
+//void serialEvent();
 //String esperarStringSerial();
 String encryptPassword(String password);
 String base64_encode(uint8_t *data, size_t length);
@@ -47,6 +47,7 @@ void logInUI();
 void dispenserUI();
 
 //Solicitudes
+bool validateMacAddress();
 bool logIn(String username_email, String password);
 bool validateToken(const char* token);
 
@@ -60,15 +61,16 @@ extern char capitalKeys[4][10];
 extern char numberSymbolKeys[4][10];
 extern TFT_eSPI tft;
 extern TFT_eSprite sprite;
-extern String inputString;
-extern boolean stringComplete;
-extern int Index;
+//extern String inputString;
+//extern boolean stringComplete;
 extern const char* apiUrl;
 extern const int dirTOKEN;
 extern const int dirPASSWORD;
 extern const int dirSSID;
-extern const int wifiBufferSize;
+extern const int dirMacAuth;
+extern const int wifiEEPROMSize;
 extern const int tokenBufferSize;
+extern const int macAuthEEPROMSize;
 extern AESLib aesLib;
 extern const char* Secret_Key;
 extern const char* IV;

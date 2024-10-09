@@ -28,13 +28,13 @@ void setup() {
 
   sprite.setColorDepth(8);
 
-  char ssidEEPROM[wifiBufferSize + 1];
-  char passwordEEPROM[wifiBufferSize + 1];
+  char ssidEEPROM[wifiEEPROMSize + 1];
+  char passwordEEPROM[wifiEEPROMSize + 1];
 
   readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
-  readStringfromEEPROM(dirSSID, ssidEEPROM, wifiBufferSize);
-  readStringfromEEPROM(dirPASSWORD, passwordEEPROM, wifiBufferSize);
-  if (!emptyDirFlash(dirSSID, wifiBufferSize)) {
+  readStringfromEEPROM(dirSSID, ssidEEPROM, wifiEEPROMSize);
+  readStringfromEEPROM(dirPASSWORD, passwordEEPROM, wifiEEPROMSize);
+  if (!emptyDirFlash(dirSSID, wifiEEPROMSize)) {
     connectWiFi(ssidEEPROM, passwordEEPROM);
   }
 }
@@ -42,66 +42,75 @@ void setup() {
 void loop() {
   tft.setTextSize(2);
   if (WiFi.status() == WL_CONNECTED) {
-    if (!emptyDirFlash(dirTOKEN, tokenBufferSize)){
-      readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
-    }
-    if (validateToken(tokenEEPROM)) {
-      setBackground(1);
-      tft.setTextColor(TFT_WHITE);
-      tft.setCursor(0, 20);
-      tft.setTextColor(TFT_BLUE);
-      tft.println("Bienvenido " + username + "\n");
-      tft.setTextColor(TFT_WHITE);
-      tft.println("WiFi:\n" + WiFi.SSID() + "\n");
-      OptionsLogedIn.setTextSize(3);
-      OptionsLogedIn.setPositionY(tft.getCursorY());
-      OptionsLogedIn.setHeight(180);
-      int seleccion = OptionsLogedIn.selectItemFromList();
-      switch (seleccion) {
-        case -1:
-          break;
-        case 1:
-          reconnectWiFi();
-          break;
-        case 2:
-          writeStringInEEPROM(dirTOKEN, "", tokenBufferSize);
-          break;
-        case 3:
-          dispenserUI();
-          break;
-        case 4:
-          setBackground(1);
-          tft.println("Direccion MAC: " + WiFi.macAddress());
-          delay(3000);
-          break;
+    if (validateMacAddress()) {
+      if (!emptyDirFlash(dirTOKEN, tokenBufferSize)) {
+        readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
+      }
+      if (validateToken(tokenEEPROM)) {
+        setBackground(1);
+        tft.setTextColor(TFT_WHITE);
+        tft.setCursor(0, 20);
+        tft.setTextColor(TFT_BLUE);
+        tft.println("Bienvenido " + username + "\n");
+        tft.setTextColor(TFT_WHITE);
+        tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+        OptionsLogedIn.setTextSize(3);
+        OptionsLogedIn.setPositionY(tft.getCursorY());
+        OptionsLogedIn.setHeight(180);
+        int seleccion = OptionsLogedIn.selectItemFromList();
+        switch (seleccion) {
+          case -1:
+            break;
+          case 1:
+            reconnectWiFi();
+            break;
+          case 2:
+            writeStringInEEPROM(dirTOKEN, "", tokenBufferSize);
+            break;
+          case 3:
+            dispenserUI();
+            break;
+          case 4:
+            setBackground(1);
+            tft.println("Direccion MAC: " + WiFi.macAddress());
+            delay(3000);
+            break;
+        }
+      } else {
+        setBackground(1);
+        tft.setTextColor(TFT_WHITE);
+        tft.setCursor(0, 20);
+        tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+        OptionsLogedOut.setTextSize(3);
+        OptionsLogedOut.setPositionY(tft.getCursorY());
+        OptionsLogedOut.setHeight(180);
+        int seleccion = OptionsLogedOut.selectItemFromList();
+        switch (seleccion) {
+          case -1:
+            break;
+          case 1:
+            reconnectWiFi();
+            break;
+          case 2:
+            logInUI();
+            break;
+          case 3:
+            dispenserUI();
+            break;
+          case 4:
+            setBackground(1);
+            tft.println("Direccion MAC: " + WiFi.macAddress());
+            delay(3000);
+            break;
+        }
       }
     } else {
-      setBackground(1);
-      tft.setTextColor(TFT_WHITE);
-      tft.setCursor(0, 20);
-      tft.println("WiFi:\n" + WiFi.SSID() + "\n");
-      OptionsLogedOut.setTextSize(3);
-      OptionsLogedOut.setPositionY(tft.getCursorY());
-      OptionsLogedOut.setHeight(180);
-      int seleccion = OptionsLogedOut.selectItemFromList();
-      switch (seleccion) {
-        case -1:
-          break;
-        case 1:
-          reconnectWiFi();
-          break;
-        case 2:
-          logInUI();
-          break;
-        case 3:
-          dispenserUI();
-          break;
-        case 4:
-          setBackground(1);
-          tft.println("Direccion MAC: " + WiFi.macAddress());
-          delay(3000);
-          break;
-      }
+      setBackground(2);
+      tft.setCursor(0, tft.height()/2);
+      tft.setTextSize(3);
+      tft.setTextColor(TFT_RED);
+      tft.print("Dispositivo no\nautorizado");
+      while(true);
     }
   } else {
     setBackground(1);
