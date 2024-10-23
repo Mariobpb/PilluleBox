@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-10-2024 a las 18:44:02
+-- Tiempo de generación: 23-10-2024 a las 19:08:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -81,7 +81,7 @@ CREATE TABLE `dispenser` (
 --
 
 INSERT INTO `dispenser` (`mac`, `user_id`, `dispenser_name`, `context`) VALUES
-('30:30:F9:72:22:8C', NULL, 'Unnamed', NULL);
+('30:30:F9:72:22:8C', 14, 'Unnamed', NULL);
 
 -- --------------------------------------------------------
 
@@ -152,9 +152,13 @@ CREATE TABLE `tokens` (
 --
 
 INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
-(17, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjc5MzUyNTMsImV4cCI6MTcyOTE0NDg1M30.aBMpPGEHmc4pTvUUUpppYpSugjFrq5BCBKZ-iPxehWM', 1729144853),
-(18, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjc5MzU0NjYsImV4cCI6MTcyOTE0NTA2Nn0.Qpo73t5mQjZQ3v_ZcxLHFTZz6AYkRd9mKe9XNpUZj3g', 1729145066),
-(19, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjc5MzU1MDMsImV4cCI6MTcyOTE0NTEwM30.O5pS-tbCtog1eKXgFWwlbpkXYld5CYLmn7L7uEJXkx8', 1729145103);
+(28, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk1Njk0MTcsImV4cCI6MTczMDE3NDIxN30.H1l1BkB0SFQGSttfmeai_X4YN6EcMWKudOO6dQRq7IE', 1730174217),
+(30, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2NTY4MjEsImV4cCI6MTczMDI2MTYyMX0.eMkrT-IUqMU4xMJzWOUNrYU27kBP9RU22cbk2BLuRSs', 1730261621),
+(31, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTU5NzgsImV4cCI6MTczMDMwMDc3OH0.bCm8xNNVrmRsS_qpMO6Q3qoSNz8mwQMj73mfqmMsc4w', 1730300778),
+(32, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTYwNjEsImV4cCI6MTczMDMwMDg2MX0.sADbZrvu1ZSJaMAa_hUPYugVnNgCrU8ehMolQ_AP7n8', 1730300861),
+(33, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTYxMzIsImV4cCI6MTczMDMwMDkzMn0.PCAS9gHOXytv5Bqbz-OBv1HQ0LNOAhfsCq1KU1Zpgak', 1730300932),
+(34, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTgxMTQsImV4cCI6MTczMDMwMjkxNH0.qJQKLGQ57W_mpyZ8UVQh6Yd7TKWVmzexT2JdPskXgug', 1730302914),
+(35, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTkxNTQsImV4cCI6MTczMDMwMzk1NH0.pLfJcxU7-A0oYtsJmya9W9tXrasIeSiJr8zW6S9CLuU', 1730303954);
 
 -- --------------------------------------------------------
 
@@ -261,7 +265,7 @@ ALTER TABLE `codes`
 -- AUTO_INCREMENT de la tabla `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT de la tabla `user`

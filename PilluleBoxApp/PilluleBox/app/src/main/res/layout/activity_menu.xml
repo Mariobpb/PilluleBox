@@ -1,90 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LogInActivity"
-    android:background="@drawable/background1"
-    android:orientation="vertical">
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"
-        />
-    <androidx.appcompat.widget.LinearLayoutCompat
+    tools:context=".MenuActivity">
+
+    <!-- El contenido principal de tu actividad -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginVertical="20dp"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_gravity="left"
-            android:text="Dispensador seleccionado:"
-            android:textSize="24dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/dispenser_number"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/corners2"
-            android:padding="5dp"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:text="Dispensador ######"
-            android:textSize="28dp"
-            android:textColor="#000000"/>
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="20dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/background1"
             android:orientation="vertical"
-            android:background="@drawable/corners3">
-            <Button
-                android:id="@+id/token_validation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="40dp"
-                android:backgroundTint="#ffffff"
-                android:text="Validar Token"
-                android:textSize="28dp"/>
-            <Button
-                android:id="@+id/schedule_mode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="40dp"
-                android:backgroundTint="#ffffff"
-                android:text="Modos de horario"
-                android:textSize="28dp"/>
-            <Button
-                android:id="@+id/actions_history"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="40dp"
-                android:backgroundTint="#ffffff"
-                android:text="Historial de acciones"
-                android:textSize="28dp"/>
-            <Button
-                android:id="@+id/schedule_assignment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginVertical="40dp"
-                android:backgroundTint="#ffffff"
-                android:text="Asignar horario"
-                android:textSize="28dp"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_gravity="left"
+                    android:text="Dispensador seleccionado:"
+                    android:textSize="24dp"
+                    android:textColor="#000000"/>
+                <TextView
+                    android:id="@+id/dispenser_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/corners2"
+                    android:padding="5dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:text="Dispensador ######"
+                    android:textSize="28dp"
+                    android:textColor="#000000"/>
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="20dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/corners3">
+                    <Button
+                        android:id="@+id/token_validation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="40dp"
+                        android:backgroundTint="#ffffff"
+                        android:text="Validar Token"
+                        android:textSize="28dp"/>
+                    <Button
+                        android:id="@+id/schedule_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="40dp"
+                        android:backgroundTint="#ffffff"
+                        android:text="Modos de horario"
+                        android:textSize="28dp"/>
+                    <Button
+                        android:id="@+id/actions_history"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="40dp"
+                        android:backgroundTint="#ffffff"
+                        android:text="Historial de acciones"
+                        android:textSize="28dp"/>
+                    <Button
+                        android:id="@+id/schedule_assignment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginVertical="40dp"
+                        android:backgroundTint="#ffffff"
+                        android:text="Asignar horario"
+                        android:textSize="28dp"/>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+                <ImageButton
+                    android:id="@+id/logout_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/log_out_icon"
+                    android:layout_gravity="end"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
         </androidx.appcompat.widget.LinearLayoutCompat>
-        <ImageButton
-            android:id="@+id/logout_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/log_out_icon"
-            android:layout_gravity="end"/>
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/nav_header"
+        >
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_dispensers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="176dp"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </com.google.android.material.navigation.NavigationView>
+
+</androidx.drawerlayout.widget.DrawerLayout>

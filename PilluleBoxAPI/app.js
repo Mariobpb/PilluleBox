@@ -107,7 +107,7 @@ app.post('/login', (req, res) => {
         password
       };
       const options = {
-        expiresIn: '1m' // Expiración "w" : semanas, "m" : minutos
+        expiresIn: '1w' // Expiración "w" : semanas, "m" : minutos
       };
       const token = jwt.sign(payload, secretKey, options);
       const decodedToken = jwt.decode(token);
@@ -326,6 +326,23 @@ app.post('/validateCode', (req, res) => {
     }
   });
 });
+
+app.get('/user_dispensers', authMiddleware, (req, res) => {
+  const userId = req.userId;
+  const macQuery = 'SELECT mac FROM dispenser WHERE user_id = ?';
+  
+  connection.query(macQuery, [userId], (err, macResults) => {
+    if (err) {
+      console.error('Error al obtener las direcciones MAC:', err);
+      return res.status(500).json({ error: 'Error al obtener las direcciones MAC' });
+    }
+    
+    const macAddresses = macResults.map(row => row.mac);
+    console.log("Enviando dispensers")
+    res.json({ macAddresses });
+  });
+});
+
 /*
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM user';
@@ -388,6 +405,45 @@ app.patch('/registros/:id', (req, res) => {
   });
 });
 */
+
+function validateToken(token) {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT user
+      FROM tokens
+      WHERE token = ? AND token_exp > ?
+    `;
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
+    connection.query(query, [token, currentTimestamp], (err, results) => {
+      if (err) {
+        console.error('Error al validar el token:', err);
+        reject(new Error('Error al validar el token'));
+      } else if (results.length === 0) {
+        reject(new Error('Token inválido o expirado'));
+      } else {
+        resolve(results[0].user);
+      }
+    });
+  });
+}
+
+function authMiddleware(req, res, next) {
+  const token = req.headers['authorization'];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Token no proporcionado' });
+  }
+
+  validateToken(token)
+    .then(userId => {
+      req.userId = userId;
+      next();
+    })
+    .catch(error => {
+      res.status(401).json({ error: error.message });
+    });
+}
 
 function cleanupExpiredTokens() {
   const currentTimestamp = Math.floor(Date.now() / 1000);
