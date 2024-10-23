@@ -3,7 +3,6 @@ package com.example.pillulebox;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -15,13 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import AsyncTasks.GetUserDispensersTask;
 
-import com.example.pillulebox.adapters.MacAddressAdapter;
+import com.example.pillulebox.adapters.DispenserAdapter;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import AsyncTasks.CallbackValidations;
+import Classes.Dispenser;
 
 public class MenuActivity extends AppCompatActivity implements CallbackValidations {
     private static final String TAG = "MenuActivity"; // Tag para los logs
@@ -80,8 +80,8 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         dispensersList.setLayoutManager(layoutManager);
 
         // Inicializar con una lista vacía
-        List<String> emptyList = new ArrayList<>();
-        MacAddressAdapter adapter = new MacAddressAdapter(emptyList);
+        List<Dispenser> emptyList = new ArrayList<>();
+        DispenserAdapter adapter = new DispenserAdapter(emptyList);
         dispensersList.setAdapter(adapter);
 
         Log.d(TAG, "setupRecyclerView: RecyclerView configurado exitosamente");
