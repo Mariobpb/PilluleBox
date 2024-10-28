@@ -95,7 +95,7 @@ public class GetUserDispensersTask extends AsyncTask<Void, Void, List<Dispenser>
     protected void onPostExecute(List<Dispenser> dispensers) {
         if (dispensers != null && !dispensers.isEmpty()) {
             Log.d(TAG, "Configurando adapter con " + dispensers.size() + " dispensadores");
-            DispenserAdapter adapter = new DispenserAdapter(dispensers);
+            DispenserAdapter adapter = new DispenserAdapter(context, dispensers);
             recyclerView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
         } else {

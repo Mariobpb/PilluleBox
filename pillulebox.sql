@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-10-2024 a las 19:08:21
+-- Tiempo de generación: 28-10-2024 a las 17:34:32
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -81,7 +81,27 @@ CREATE TABLE `dispenser` (
 --
 
 INSERT INTO `dispenser` (`mac`, `user_id`, `dispenser_name`, `context`) VALUES
-('30:30:F9:72:22:8C', 14, 'Unnamed', NULL);
+('30:30:F9:72:22:8C', 14, 'Casa 3', 4),
+('A1:B2:C3:D4:E5:F6', 14, 'Casa 1', 2),
+('A2:B3:C4:D5:E6:F7', 13, 'Casa 1', 2),
+('A3:B4:C5:D6:E7:F8', 13, 'Unnamed', NULL),
+('A4:B5:C6:D7:E8:F9', 18, 'Unnamed', NULL),
+('B2:C3:D4:E5:F6:A1', 14, 'Unnamed', NULL),
+('B3:C4:D5:E6:F7:A2', 14, 'Casa 2', 1),
+('B4:C5:D6:E7:F8:A3', 18, 'Unnamed', NULL),
+('B5:C6:D7:E8:F9:A4', 13, 'Unnamed', NULL),
+('C3:D4:E5:F6:A1:B2', 13, 'Unnamed', NULL),
+('C4:D5:E6:F7:A2:B3', 14, 'Unnamed', 3),
+('C5:D6:E7:F8:A3:B4', 18, 'Casa 2', NULL),
+('D4:E5:F6:A1:B2:C3', 18, 'Unnamed', NULL),
+('D5:E6:F7:A2:B3:C4', 14, 'Unnamed', NULL),
+('D6:E7:F8:A3:B4:C5', 14, 'Unnamed', 1),
+('E5:F6:A1:B2:C3:D4', 13, 'Unnamed', NULL),
+('E6:F7:A2:B3:C4:D5', 13, 'Unnamed', NULL),
+('E7:F8:A3:B4:C5:D6', 13, 'Unnamed', NULL),
+('F6:A1:B2:C3:D4:E5', 13, 'Unnamed', NULL),
+('F7:A2:B3:C4:D5:E6', NULL, 'Unnamed', NULL),
+('F8:A3:B4:C5:D6:E7', NULL, 'Unnamed', NULL);
 
 -- --------------------------------------------------------
 
@@ -158,7 +178,14 @@ INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
 (32, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTYwNjEsImV4cCI6MTczMDMwMDg2MX0.sADbZrvu1ZSJaMAa_hUPYugVnNgCrU8ehMolQ_AP7n8', 1730300861),
 (33, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTYxMzIsImV4cCI6MTczMDMwMDkzMn0.PCAS9gHOXytv5Bqbz-OBv1HQ0LNOAhfsCq1KU1Zpgak', 1730300932),
 (34, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTgxMTQsImV4cCI6MTczMDMwMjkxNH0.qJQKLGQ57W_mpyZ8UVQh6Yd7TKWVmzexT2JdPskXgug', 1730302914),
-(35, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTkxNTQsImV4cCI6MTczMDMwMzk1NH0.pLfJcxU7-A0oYtsJmya9W9tXrasIeSiJr8zW6S9CLuU', 1730303954);
+(35, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk2OTkxNTQsImV4cCI6MTczMDMwMzk1NH0.pLfJcxU7-A0oYtsJmya9W9tXrasIeSiJr8zW6S9CLuU', 1730303954),
+(36, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjM3MjksImV4cCI6MTczMDU2ODUyOX0.6ur2sRwCIWUJttBRqi-dglY7N8kk9AyN0bMcndF6UCo', 1730568529),
+(37, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjQxMDIsImV4cCI6MTczMDU2ODkwMn0.PiNafQbj2zdNMZ9jfugrXPo06-9bDndYytInL-vTrZc', 1730568902),
+(38, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjQzODQsImV4cCI6MTczMDU2OTE4NH0.r8PRbtcmntfpXJSiRAkBa4xm0emLqo642n7HvyomSK4', 1730569184),
+(39, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjQ5NzQsImV4cCI6MTczMDU2OTc3NH0.ZX8E3e-LGjBUfnrMM9SQMxlmUpZ6YyvqUCzJM_kRXjY', 1730569774),
+(40, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjUyMTcsImV4cCI6MTczMDU3MDAxN30.D0AVNsN_MDxcN49Nb39S7rPfm8bIt_6Q7D4DB3AzWvE', 1730570017),
+(41, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3MzAwOTI0ODQsImV4cCI6MTczMDY5NzI4NH0.BmE7uFb5rbMg_ln7cJ9kMBM8iha084oqnrD7eklSfjE', 1730697284),
+(42, 18, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1tbW0iLCJwYXNzd29yZCI6InN5MDZaRXFka1VlSUxKMVR3WHdkNUE9PSIsImlhdCI6MTczMDA5MzkyNywiZXhwIjoxNzMwNjk4NzI3fQ.90bmTiTA-otL84QO9n8nQBWT2gj4t9QzRl_ahySzpIg', 1730698727);
 
 -- --------------------------------------------------------
 
@@ -178,8 +205,6 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `password`, `email`) VALUES
-(1, 'Usuario2', '2mWaW52IW2RPNgFOG4lSAnsvZWTcB9PKn1lDhGL8BbddqPWiFk0Baz99SjaW9NfvGFkzhc1+TNih\n20k/X9wyzQ==\n', 'micorreo1234@ceti.mx'),
-(3, 'User123', 'ese6yW0mS+ZFjC5hO6Fqzw==\n', 'correo'),
 (13, 'Mario1', 'jqG3VVLew/ni7g6nSAEWAQ==', 'mariobpb27@gmail.com'),
 (14, 'M2', 'XvG8TMNcG8N7ekZwbjcYyQ==', 'marioxd2708@gmail.com'),
 (18, 'Mmmm', 'sy06ZEqdkUeILJ1TwXwd5A==', 'a20100335@ceti.mx');
@@ -265,7 +290,7 @@ ALTER TABLE `codes`
 -- AUTO_INCREMENT de la tabla `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `user`

@@ -329,17 +329,17 @@ app.post('/validateCode', (req, res) => {
 
 app.get('/user_dispensers', authMiddleware, (req, res) => {
   const userId = req.userId;
-  const query = 'SELECT mac, dispenser_name FROM dispenser WHERE user_id = ?';
+  const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
   
-  connection.query(query, [userId], (err, macResults) => {
+  connection.query(query, [userId], (err, dispenserResults) => {
     if (err) {
-      console.error('Error al obtener las direcciones MAC:', err);
-      return res.status(500).json({ error: 'Error al obtener las direcciones MAC' });
+      console.error('Error al obtener la información de los dispensadores:', err);
+      return res.status(500).json({ error: 'Error al obtener la información de los dispensadores:' });
     }
     
-    const macAddresses = macResults.map(row => row.mac);
-    const names = macResults.map(row => row.dispenser_name);
-    const contexts = macResults.map(row => row.context);
+    const macAddresses = dispenserResults.map(row => row.mac);
+    const names = dispenserResults.map(row => row.dispenser_name);
+    const contexts = dispenserResults.map(row => row.context);
     console.log("Enviando dispensers")
     res.json({ macAddresses: macAddresses,  names: names, contexts: contexts});
   });

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import Classes.Dispenser;
 
 public class MenuActivity extends AppCompatActivity implements CallbackValidations {
     private static final String TAG = "MenuActivity"; // Tag para los logs
+    private TextView dispenserSelectedName;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private RecyclerView dispensersList;
@@ -41,17 +43,18 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         setSupportActionBar(toolbar);
         setupNavigationDrawer();
         setupRecyclerView();
+        updateSelectedDispenserNameFromPreferences();
         loadUserDispensers();
         setupListeners();
     }
 
     private void initializeViews() {
+        dispenserSelectedName = findViewById(R.id.dispenser_name);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         validateToken = findViewById(R.id.token_validation);
         logout = findViewById(R.id.logout_button);
         toolbar = findViewById(R.id.toolbar);
-        // Encontrar el RecyclerView directamente en el NavigationView
         dispensersList = navigationView.findViewById(R.id.rv_dispensers);
     }
 
@@ -81,12 +84,22 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
 
         // Inicializar con una lista vacía
         List<Dispenser> emptyList = new ArrayList<>();
-        DispenserAdapter adapter = new DispenserAdapter(emptyList);
+        DispenserAdapter adapter = new DispenserAdapter(this, emptyList);
         dispensersList.setAdapter(adapter);
 
         Log.d(TAG, "setupRecyclerView: RecyclerView configurado exitosamente");
     }
 
+    private void updateSelectedDispenserNameFromPreferences() {
+        Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(this);
+        updateSelectedDispenserName(selectedDispenser != null ? selectedDispenser.getName() : null);
+    }
+
+    public void updateSelectedDispenserName(String name) {
+        if (dispenserSelectedName != null) {
+            dispenserSelectedName.setText(name != null ? name : "Sin seleccionar");
+        }
+    }
     private void loadUserDispensers() {
         Log.d(TAG, "loadUserDispensers: Intentando cargar dispensadores del usuario");
         String token = General.getToken(this);
@@ -116,7 +129,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
 
         logout.setOnClickListener(v -> {
             Log.d(TAG, "onClick: Cerrando sesión");
-            General.deleteToken(this);
+            General.clearAllPreferences(this);
             Intent intent = new Intent(MenuActivity.this, LogInActivity.class);
             startActivity(intent);
             finish();
@@ -146,6 +159,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
             General.toastMessage("Autenticación exitosa", this);
         } else {
             General.toastMessage("Autenticación fallida", this);
+            General.clearAllPreferences(this);
         }
     }
 }
