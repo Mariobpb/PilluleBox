@@ -63,6 +63,15 @@
                     android:orientation="vertical"
                     android:background="@drawable/corners3">
                     <Button
+                        android:id="@+id/token_validation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="40dp"
+                        android:backgroundTint="#ffffff"
+                        android:text="Validar Token"
+                        android:textSize="28dp"/>
+                    <Button
                         android:id="@+id/schedule_mode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

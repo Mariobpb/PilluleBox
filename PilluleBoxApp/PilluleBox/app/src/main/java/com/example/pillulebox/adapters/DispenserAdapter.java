@@ -41,19 +41,17 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
         Dispenser dispenser = dispensers.get(position);
         holder.macAddressText.setText(dispenser.getMac());
         holder.nameText.setText(dispenser.getName());
-        holder.contextText.setText(dispenser.getContextDispenser() == -1 ? "Unknown" : String.valueOf(dispenser.getContextDispenser()));
+        holder.contextText.setText(dispenser.getContextDispenser() == 0 ? "Unknown" : String.valueOf(dispenser.getContextDispenser()));
 
-        // Configurar el click listener para cada item
         holder.itemView.setOnClickListener(v -> {
             saveSelectedDispenser(dispenser);
             notifyDataSetChanged();
         });
 
-        // Marcar el item seleccionado
         if (isDispenserSelected(dispenser)) {
-            holder.itemView.setBackgroundResource(R.color.selected_item_color);
+            holder.itemView.setBackgroundResource(R.drawable.corners1);
         } else {
-            holder.itemView.setBackgroundResource(android.R.color.transparent);
+            holder.itemView.setBackgroundResource(R.drawable.corners4);
         }
     }
 

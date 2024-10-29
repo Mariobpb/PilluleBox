@@ -3,6 +3,7 @@ package com.example.pillulebox;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -56,6 +57,35 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         logout = findViewById(R.id.logout_button);
         toolbar = findViewById(R.id.toolbar);
         dispensersList = navigationView.findViewById(R.id.rv_dispensers);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflar el menú de la toolbar
+        getMenuInflater().inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Manejar los clicks en los items del menú
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            // Manejar click en Configuración
+            General.toastMessage("Configuración seleccionada", this);
+            return true;
+        } else if (id == R.id.action_profile) {
+            // Manejar click en Perfil
+            General.toastMessage("Perfil seleccionado", this);
+            return true;
+        } else if (id == R.id.action_help) {
+            // Manejar click en Ayuda
+            General.toastMessage("Ayuda seleccionada", this);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupNavigationDrawer() {

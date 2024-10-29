@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-10-2024 a las 17:34:32
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Tiempo de generación: 29-10-2024 a las 02:28:50
+-- Versión del servidor: 10.4.24-MariaDB
+-- Versión de PHP: 8.1.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,11 +30,11 @@ SET time_zone = "+00:00";
 CREATE TABLE `basic_mode` (
   `id` int(11) NOT NULL,
   `cell_id` int(11) DEFAULT NULL,
-  `med_name` varchar(30) DEFAULT NULL,
+  `medicine_name` varchar(30) DEFAULT NULL,
   `morn_range` tinyint(4) DEFAULT NULL,
   `aftn_range` tinyint(4) DEFAULT NULL,
   `night_range` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -46,8 +46,21 @@ CREATE TABLE `cell` (
   `id` int(11) NOT NULL,
   `mac_dispenser` char(17) DEFAULT NULL,
   `num_cell` tinyint(4) DEFAULT NULL,
-  `status` enum('vacio','disponible','advertencia','requerido') DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `status_cell` enum('vacio','disponible','advertencia','requerido') DEFAULT 'vacio'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `cell`
+--
+
+INSERT INTO `cell` (`id`, `mac_dispenser`, `num_cell`, `status_cell`) VALUES
+(15, '11:11:11:11:11:11', 1, 'vacio'),
+(16, '11:11:11:11:11:11', 2, 'vacio'),
+(17, '11:11:11:11:11:11', 3, 'vacio'),
+(18, '11:11:11:11:11:11', 4, 'vacio'),
+(19, '11:11:11:11:11:11', 5, 'vacio'),
+(20, '11:11:11:11:11:11', 6, 'vacio'),
+(21, '11:11:11:11:11:11', 7, 'vacio');
 
 -- --------------------------------------------------------
 
@@ -61,7 +74,7 @@ CREATE TABLE `codes` (
   `email` varchar(50) DEFAULT NULL,
   `creation_date` char(23) DEFAULT NULL,
   `expiration_date` datetime(3) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -72,36 +85,52 @@ CREATE TABLE `codes` (
 CREATE TABLE `dispenser` (
   `mac` char(17) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `dispenser_name` varchar(30) DEFAULT NULL,
-  `context` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `dispenser_name` varchar(30) DEFAULT 'Unnamed',
+  `context` tinyint(4) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `dispenser`
 --
 
 INSERT INTO `dispenser` (`mac`, `user_id`, `dispenser_name`, `context`) VALUES
+('11:11:11:11:11:11', NULL, 'Unnamed', 0),
 ('30:30:F9:72:22:8C', 14, 'Casa 3', 4),
 ('A1:B2:C3:D4:E5:F6', 14, 'Casa 1', 2),
 ('A2:B3:C4:D5:E6:F7', 13, 'Casa 1', 2),
-('A3:B4:C5:D6:E7:F8', 13, 'Unnamed', NULL),
-('A4:B5:C6:D7:E8:F9', 18, 'Unnamed', NULL),
-('B2:C3:D4:E5:F6:A1', 14, 'Unnamed', NULL),
+('A3:B4:C5:D6:E7:F8', 13, 'Unnamed', 0),
+('A4:B5:C6:D7:E8:F9', 18, 'Unnamed', 0),
+('B2:C3:D4:E5:F6:A1', 14, 'Unnamed', 0),
 ('B3:C4:D5:E6:F7:A2', 14, 'Casa 2', 1),
-('B4:C5:D6:E7:F8:A3', 18, 'Unnamed', NULL),
-('B5:C6:D7:E8:F9:A4', 13, 'Unnamed', NULL),
-('C3:D4:E5:F6:A1:B2', 13, 'Unnamed', NULL),
+('B4:C5:D6:E7:F8:A3', 18, 'Unnamed', 0),
+('B5:C6:D7:E8:F9:A4', 13, 'Unnamed', 0),
+('C3:D4:E5:F6:A1:B2', 13, 'Unnamed', 0),
 ('C4:D5:E6:F7:A2:B3', 14, 'Unnamed', 3),
-('C5:D6:E7:F8:A3:B4', 18, 'Casa 2', NULL),
-('D4:E5:F6:A1:B2:C3', 18, 'Unnamed', NULL),
-('D5:E6:F7:A2:B3:C4', 14, 'Unnamed', NULL),
+('C5:D6:E7:F8:A3:B4', 18, 'Casa 2', 0),
+('D4:E5:F6:A1:B2:C3', 18, 'Unnamed', 0),
+('D5:E6:F7:A2:B3:C4', 14, 'Unnamed', 0),
 ('D6:E7:F8:A3:B4:C5', 14, 'Unnamed', 1),
-('E5:F6:A1:B2:C3:D4', 13, 'Unnamed', NULL),
-('E6:F7:A2:B3:C4:D5', 13, 'Unnamed', NULL),
-('E7:F8:A3:B4:C5:D6', 13, 'Unnamed', NULL),
-('F6:A1:B2:C3:D4:E5', 13, 'Unnamed', NULL),
-('F7:A2:B3:C4:D5:E6', NULL, 'Unnamed', NULL),
-('F8:A3:B4:C5:D6:E7', NULL, 'Unnamed', NULL);
+('E5:F6:A1:B2:C3:D4', 13, 'Unnamed', 0),
+('E6:F7:A2:B3:C4:D5', 13, 'Unnamed', 0),
+('E7:F8:A3:B4:C5:D6', 13, 'Unnamed', 0),
+('F6:A1:B2:C3:D4:E5', 13, 'Unnamed', 0),
+('F7:A2:B3:C4:D5:E6', NULL, 'Unnamed', 0),
+('F8:A3:B4:C5:D6:E7', NULL, 'Unnamed', 0);
+
+--
+-- Disparadores `dispenser`
+--
+DELIMITER $$
+CREATE TRIGGER `after_dispenser_insert` AFTER INSERT ON `dispenser` FOR EACH ROW BEGIN
+    DECLARE i INT DEFAULT 1;
+    
+    WHILE i <= 7 DO
+        INSERT INTO cell (mac_dispenser, num_cell) VALUES (NEW.mac, i);
+        SET i = i + 1;
+    END WHILE;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -118,7 +147,7 @@ CREATE TABLE `history` (
   `date_consumption` date DEFAULT NULL,
   `time_consumption` time DEFAULT NULL,
   `reason` varchar(128) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -129,7 +158,7 @@ CREATE TABLE `history` (
 CREATE TABLE `sequential_mode` (
   `id` int(11) NOT NULL,
   `cell_id` int(11) DEFAULT NULL,
-  `med_name` varchar(30) DEFAULT NULL,
+  `medicine_name` varchar(30) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `start_time` time DEFAULT NULL,
   `end_date` date DEFAULT NULL,
@@ -138,7 +167,7 @@ CREATE TABLE `sequential_mode` (
   `limit_times_consumption` tinyint(4) DEFAULT NULL,
   `affected_periods` tinyint(1) DEFAULT NULL,
   `current_times_consumption` tinyint(4) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -149,10 +178,10 @@ CREATE TABLE `sequential_mode` (
 CREATE TABLE `single_mode` (
   `id` int(11) NOT NULL,
   `cell_id` int(11) DEFAULT NULL,
-  `med_name` varchar(30) DEFAULT NULL,
+  `medicine_name` varchar(30) DEFAULT NULL,
   `date` date DEFAULT NULL,
   `time` time DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -165,7 +194,7 @@ CREATE TABLE `tokens` (
   `user` int(11) DEFAULT NULL,
   `token` text DEFAULT NULL,
   `token_exp` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `tokens`
@@ -185,7 +214,10 @@ INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
 (39, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjQ5NzQsImV4cCI6MTczMDU2OTc3NH0.ZX8E3e-LGjBUfnrMM9SQMxlmUpZ6YyvqUCzJM_kRXjY', 1730569774),
 (40, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3Mjk5NjUyMTcsImV4cCI6MTczMDU3MDAxN30.D0AVNsN_MDxcN49Nb39S7rPfm8bIt_6Q7D4DB3AzWvE', 1730570017),
 (41, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3MzAwOTI0ODQsImV4cCI6MTczMDY5NzI4NH0.BmE7uFb5rbMg_ln7cJ9kMBM8iha084oqnrD7eklSfjE', 1730697284),
-(42, 18, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1tbW0iLCJwYXNzd29yZCI6InN5MDZaRXFka1VlSUxKMVR3WHdkNUE9PSIsImlhdCI6MTczMDA5MzkyNywiZXhwIjoxNzMwNjk4NzI3fQ.90bmTiTA-otL84QO9n8nQBWT2gj4t9QzRl_ahySzpIg', 1730698727);
+(42, 18, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1tbW0iLCJwYXNzd29yZCI6InN5MDZaRXFka1VlSUxKMVR3WHdkNUE9PSIsImlhdCI6MTczMDA5MzkyNywiZXhwIjoxNzMwNjk4NzI3fQ.90bmTiTA-otL84QO9n8nQBWT2gj4t9QzRl_ahySzpIg', 1730698727),
+(43, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3MzAxMzU2NzUsImV4cCI6MTczMDc0MDQ3NX0.XgptBqk1iTZQirzjcOgToQcuoiWRKegXYzlEC_EWvHg', 1730740475),
+(44, 18, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik1tbW0iLCJwYXNzd29yZCI6InN5MDZaRXFka1VlSUxKMVR3WHdkNUE9PSIsImlhdCI6MTczMDEzOTU0MSwiZXhwIjoxNzMwNzQ0MzQxfQ.OYGoFU8iU7tXCRY2lM1BhjwnXwXb0tfga6Amf-duwEU', 1730744341),
+(45, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3MzAxNDYzNTgsImV4cCI6MTczMDc1MTE1OH0.WffV4aUxfnBU9aPuA8ENv0gQLFwLyrIxHbhGWQiRlUM', 1730751158);
 
 -- --------------------------------------------------------
 
@@ -198,7 +230,7 @@ CREATE TABLE `user` (
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `user`
@@ -254,14 +286,14 @@ ALTER TABLE `history`
 --
 ALTER TABLE `sequential_mode`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `cell_id` (`cell_id`);
+  ADD KEY `sequential_mode_cell_id` (`cell_id`);
 
 --
 -- Indices de la tabla `single_mode`
 --
 ALTER TABLE `single_mode`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `cell_id` (`cell_id`);
+  ADD KEY `single_mode_cell_id` (`cell_id`);
 
 --
 -- Indices de la tabla `tokens`
@@ -281,6 +313,12 @@ ALTER TABLE `user`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `cell`
+--
+ALTER TABLE `cell`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
 -- AUTO_INCREMENT de la tabla `codes`
 --
 ALTER TABLE `codes`
@@ -290,7 +328,7 @@ ALTER TABLE `codes`
 -- AUTO_INCREMENT de la tabla `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT de la tabla `user`
@@ -306,13 +344,13 @@ ALTER TABLE `user`
 -- Filtros para la tabla `basic_mode`
 --
 ALTER TABLE `basic_mode`
-  ADD CONSTRAINT `basic_mode_ibfk_1` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`);
+  ADD CONSTRAINT `basic_mode_cell_id` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `cell`
 --
 ALTER TABLE `cell`
-  ADD CONSTRAINT `mac_dispenser` FOREIGN KEY (`mac_dispenser`) REFERENCES `dispenser` (`mac`);
+  ADD CONSTRAINT `mac_dispenser` FOREIGN KEY (`mac_dispenser`) REFERENCES `dispenser` (`mac`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `dispenser`
@@ -332,13 +370,13 @@ ALTER TABLE `history`
 -- Filtros para la tabla `sequential_mode`
 --
 ALTER TABLE `sequential_mode`
-  ADD CONSTRAINT `sequential_mode_ibfk_1` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`);
+  ADD CONSTRAINT `sequential_mode_cell_id` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `single_mode`
 --
 ALTER TABLE `single_mode`
-  ADD CONSTRAINT `single_mode_ibfk_1` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`);
+  ADD CONSTRAINT `single_mode_cell_id` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `tokens`

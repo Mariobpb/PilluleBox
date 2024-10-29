@@ -64,9 +64,9 @@ public class GetUserDispensersTask extends AsyncTask<Void, Void, List<Dispenser>
                 for (int i = 0; i < macArray.length(); i++) {
                     String mac = macArray.getString(i);
                     String name = namesArray.getString(i);
-                    int context = -1;
+                    int context = 0;
 
-                    if (!contextsArray.isNull(i)) {
+                    if (!contextsArray.isNull(i) && contextsArray.getInt(i) != 0) {
                         context = contextsArray.getInt(i);
                     }
 
