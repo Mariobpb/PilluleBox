@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Classes.Dispenser;
+import Models.Dispenser;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

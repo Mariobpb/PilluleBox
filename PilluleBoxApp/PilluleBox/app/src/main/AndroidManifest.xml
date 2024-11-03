@@ -16,6 +16,9 @@
         android:theme="@style/Theme.PilluleBox"
         tools:targetApi="31">
         <activity
+            android:name=".ContextActivity"
+            android:exported="false" />
+        <activity
             android:name=".MenuActivity"
             android:exported="false"
             android:parentActivityName=".LogInActivity">

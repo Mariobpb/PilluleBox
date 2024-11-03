@@ -1,4 +1,4 @@
-package Classes;
+package Models;
 
 public class Dispenser {
     private String mac;

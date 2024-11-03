@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
-import Classes.Dispenser;
+import Models.Dispenser;
 
 public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.ViewHolder> {
     private final List<Dispenser> dispensers;
@@ -68,7 +68,7 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
         editor.putString(SELECTED_DISPENSER_KEY, dispenserJson);
         editor.apply();
         if (context instanceof MenuActivity) {
-            ((MenuActivity) context).updateSelectedDispenserName(dispenser.getName());
+            ((MenuActivity) context).onDispenserSelected(dispenser);
         }
     }
 

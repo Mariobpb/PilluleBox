@@ -68,9 +68,7 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
             runOnUiThread(() -> {
                 new SendCodeTask(this).execute(General.generateRandomCode(), email_str);
             });
-        } else {
         }
-
     }
 
     @Override

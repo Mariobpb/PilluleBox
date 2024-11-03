@@ -4,18 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import AsyncTasks.GetUserDispensersTask;
 
+import com.example.pillulebox.Fragments.DispenserSelectedFragment;
+import com.example.pillulebox.Fragments.NoDispenserSelectedFragment;
 import com.example.pillulebox.adapters.DispenserAdapter;
 import com.google.android.material.navigation.NavigationView;
 
@@ -23,17 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import AsyncTasks.CallbackValidations;
-import Classes.Dispenser;
+import Models.Dispenser;
 
 public class MenuActivity extends AppCompatActivity implements CallbackValidations {
-    private static final String TAG = "MenuActivity"; // Tag para los logs
-    private TextView dispenserSelectedName;
+    private static final String TAG = "MenuActivity";
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private RecyclerView dispensersList;
-    private Button validateToken;
     private Toolbar toolbar;
-    private ImageButton logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,51 +41,24 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         setContentView(R.layout.activity_menu);
 
         initializeViews();
-        setSupportActionBar(toolbar);
+        setupToolbar();
         setupNavigationDrawer();
         setupRecyclerView();
         updateSelectedDispenserNameFromPreferences();
         loadUserDispensers();
         setupListeners();
+        updateFragmentBasedOnSelection();
     }
 
     private void initializeViews() {
-        dispenserSelectedName = findViewById(R.id.dispenser_name);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        validateToken = findViewById(R.id.token_validation);
-        logout = findViewById(R.id.logout_button);
         toolbar = findViewById(R.id.toolbar);
         dispensersList = navigationView.findViewById(R.id.rv_dispensers);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflar el menú de la toolbar
-        getMenuInflater().inflate(R.menu.home_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Manejar los clicks en los items del menú
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            // Manejar click en Configuración
-            General.toastMessage("Configuración seleccionada", this);
-            return true;
-        } else if (id == R.id.action_profile) {
-            // Manejar click en Perfil
-            General.toastMessage("Perfil seleccionado", this);
-            return true;
-        } else if (id == R.id.action_help) {
-            // Manejar click en Ayuda
-            General.toastMessage("Ayuda seleccionada", this);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     private void setupNavigationDrawer() {
@@ -100,6 +73,32 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         toggle.syncState();
     }
 
+    private void updateFragmentBasedOnSelection() {
+        Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(this);
+        Fragment fragment;
+
+        if (selectedDispenser == null) {
+            Log.d(TAG, "Dispensador no seleccionado");
+            fragment = new NoDispenserSelectedFragment();
+        } else {
+            Log.d(TAG, "Dispensador seleccionado");
+            fragment = new DispenserSelectedFragment();
+        }
+
+        // Realizar la transacción del fragment
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container_menu, fragment)
+                .commit();
+    }
+
+    public void onDispenserSelected(Dispenser dispenser) {
+        updateFragmentBasedOnSelection();
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
     private void setupRecyclerView() {
         Log.d(TAG, "setupRecyclerView: Configurando RecyclerView");
 
@@ -107,12 +106,9 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
             Log.e(TAG, "setupRecyclerView: RecyclerView no encontrado");
             return;
         }
-
-        // Configurar el layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         dispensersList.setLayoutManager(layoutManager);
 
-        // Inicializar con una lista vacía
         List<Dispenser> emptyList = new ArrayList<>();
         DispenserAdapter adapter = new DispenserAdapter(this, emptyList);
         dispensersList.setAdapter(adapter);
@@ -126,10 +122,13 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     }
 
     public void updateSelectedDispenserName(String name) {
+        /*
         if (dispenserSelectedName != null) {
             dispenserSelectedName.setText(name != null ? name : "Sin seleccionar");
         }
+        */
     }
+
     private void loadUserDispensers() {
         Log.d(TAG, "loadUserDispensers: Intentando cargar dispensadores del usuario");
         String token = General.getToken(this);
@@ -156,14 +155,30 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
             Log.d(TAG, "onNavigationItemSelected: Item seleccionado: " + item.getTitle());
             return true;
         });
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_menu, menu);
+        return true;
+    }
 
-        logout.setOnClickListener(v -> {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.menu_history) {
+            General.toastMessage("Historial", this);
+            return true;
+        } else if (id == R.id.menu_logout) {
             Log.d(TAG, "onClick: Cerrando sesión");
             General.clearAllPreferences(this);
             Intent intent = new Intent(MenuActivity.this, LogInActivity.class);
             startActivity(intent);
             finish();
-        });
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     // CallbackValidations

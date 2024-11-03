@@ -1,13 +1,8 @@
 package AsyncTasks;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.widget.TextView;
 
 import com.example.pillulebox.General;
-import com.example.pillulebox.LogInActivity;
-import com.example.pillulebox.MenuActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

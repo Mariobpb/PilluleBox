@@ -3,4 +3,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="selected_item_color">#E0E0E0</color>
+
+    <!-- Estados principales (fondo) -->
+    <color name="cell_empty">#ff2b3d</color>
+    <color name="cell_available">#04f000</color>
+    <color name="cell_single_mode">#af4dfa</color>
+    <color name="cell_sequential_mode">#8fe9ff</color>
+    <color name="cell_basic_mode">#f5cb4e</color>
+
+    <!-- Estados secundarios (bordes) -->
+    <color name="cell_required">#b00600</color>
+    <color name="cell_warning">#ffe600</color>
 </resources>

@@ -13,12 +13,12 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import Classes.Dispenser;
+import Models.Dispenser;
 
 public class General {
     private static final String Secret_Key = "1234567890123456";
     private static final String IV = "iughvnbaklsvvkhj";
-    private static final String BASE_URL = "http://192.168.137.84:8080/";
+    private static final String BASE_URL = "http://192.168.100.14:8080/";
     public static final String Archivo = "PilluleBoxPrefs";
     public static final String Key = "AuthToken";
     private static final String SELECTED_DISPENSER_KEY = "SelectedDispenser";
