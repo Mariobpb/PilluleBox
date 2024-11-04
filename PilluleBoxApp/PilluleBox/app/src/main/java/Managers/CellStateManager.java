@@ -22,14 +22,14 @@ public class CellStateManager {
     public static void updateCellState(View cellView, int primaryState, int secondaryState, Context context) {
         GradientDrawable shape = (GradientDrawable) cellView.getBackground();
 
-        int backgroundColor = getPrimaryStateColor(primaryState, context);
+        int backgroundColor = getMainStateColor(primaryState, context);
         shape.setColor(backgroundColor);
 
         int borderColor = getSecondaryStateColor(secondaryState, context);
-        shape.setStroke(4, borderColor);
+        shape.setStroke(10, borderColor);
     }
 
-    private static int getPrimaryStateColor(int state, Context context) {
+    private static int getMainStateColor(int state, Context context) {
         switch (state) {
             case STATE_AVAILABLE:
                 return ContextCompat.getColor(context, R.color.cell_available);
@@ -40,8 +40,9 @@ public class CellStateManager {
             case STATE_BASIC_MODE:
                 return ContextCompat.getColor(context, R.color.cell_basic_mode);
             case STATE_EMPTY:
-            default:
                 return ContextCompat.getColor(context, R.color.cell_empty);
+            default:
+                return ContextCompat.getColor(context, R.color.white);
         }
     }
 

@@ -21,7 +21,7 @@ import Models.Dispenser;
 public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.ViewHolder> {
     private final List<Dispenser> dispensers;
     private final Context context;
-    private static final String SELECTED_DISPENSER_KEY = "SelectedDispenser";
+    public static final String SELECTED_DISPENSER_KEY = "SelectedDispenser";
 
     public DispenserAdapter(Context context, List<Dispenser> dispensers) {
         this.context = context;

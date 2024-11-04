@@ -12,10 +12,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.pillulebox.ContextActivity;
+import com.example.pillulebox.General;
 import com.example.pillulebox.R;
 import com.example.pillulebox.adapters.DispenserAdapter;
 
+import java.util.Date;
+import java.util.List;
+
+import AsyncTasks.GetDispenserCellsTask;
 import Managers.CellStateManager;
+import Models.Cell;
 import Models.Dispenser;
 
 public class DispenserSelectedFragment extends Fragment {
@@ -62,8 +68,7 @@ public class DispenserSelectedFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_dispenser_selected, container, false);
         initializeViews(view);
         setupListeners();
-        updateDispenserInfo();
-        updateAllCells();
+        loadDispenserInfo();
 
         return view;
     }
@@ -82,12 +87,59 @@ public class DispenserSelectedFragment extends Fragment {
         defineContextButton = view.findViewById(R.id.define_context_button);
     }
 
-    public void updateDispenserInfo() {
+    public void loadDispenserInfo() {
         Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(requireContext());
         if (selectedDispenser != null) {
             dispenserName.setText(selectedDispenser.getName());
             dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ? "Unknown" : "#" + String.valueOf(selectedDispenser.getContextDispenser()));
+            String token = General.getToken(requireContext());
+            new GetDispenserCellsTask(requireContext(), token, selectedDispenser.getMac(),
+                    new GetDispenserCellsTask.CellsCallback() {
+                        @Override
+                        public void onCellsLoaded(List<Cell> cells) {
+                            updateCells(cells);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            General.toastMessage(error, requireContext());
+                        }
+                    }).execute();
         }
+    }
+
+    private void updateCells(List<Cell> cells) {
+        for (Cell cellInfo : cells) {
+            int cellIndex = cellInfo.getNumCell() - 1;
+            if (cellIndex >= 0 && cellIndex < cell.length) {
+                CellStateManager.updateCellState(cell[cellIndex], defineMainColorCell(cellInfo), defineSecondaryColorCell(cellInfo), getContext());
+            }
+        }
+    }
+
+
+    private int defineMainColorCell(Cell cellInfo) {
+        if (cellInfo.getSingleModeId() != null) return 2;
+        if (cellInfo.getSequentialModeId() != null) return 3;
+        if (cellInfo.getBasicModeId() != null) return 4;
+        if (cellInfo.getCurrentMedicineDate() != null) return 1;
+        return 0;
+    }
+
+    private int defineSecondaryColorCell(Cell cellInfo) {
+        if (cellInfo.getCurrentMedicineDate() != null && isSevenDaysAgo(cellInfo.getCurrentMedicineDate())) return 2;
+        if ((cellInfo.getSingleModeId() != null || cellInfo.getSequentialModeId() != null || cellInfo.getBasicModeId() != null)&&(cellInfo.getCurrentMedicineDate() == null)) return 1;
+        return 0;
+    }
+
+    private boolean isSevenDaysAgo(Date date) {
+        if (date == null) {
+            return false;
+        }
+        Date currentDate = new Date();
+        long diffInMillies = currentDate.getTime() - date.getTime();
+        long diffInDays = diffInMillies / (86400000);
+        return diffInDays >= 7;
     }
 
     private void setupListeners() {
@@ -96,10 +148,12 @@ public class DispenserSelectedFragment extends Fragment {
             startActivity(intent);
         });
     }
-
+    /*
     private void updateAllCells() {
         for (int i = 0; i < cell.length; i++) {
-            CellStateManager.updateCellState(cell[i], 2, 3, getContext());
+            CellStateManager.updateCellState(cell[i], -1, 2, getContext());
         }
     }
+
+     */
 }

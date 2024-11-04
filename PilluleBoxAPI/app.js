@@ -327,25 +327,6 @@ app.post('/validateCode', (req, res) => {
   });
 });
 
-app.get('/user_dispensers', authMiddleware, (req, res) => {
-  const userId = req.userId;
-  const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
-  
-  connection.query(query, [userId], (err, dispenserResults) => {
-    if (err) {
-      console.error('Error al obtener la información de los dispensadores:', err);
-      return res.status(500).json({ error: 'Error al obtener la información de los dispensadores:' });
-    }
-    
-    const macAddresses = dispenserResults.map(row => row.mac);
-    const names = dispenserResults.map(row => row.dispenser_name);
-    const contexts = dispenserResults.map(row => row.context);
-    console.log("Enviando dispensers")
-    res.json({ macAddresses: macAddresses,  names: names, contexts: contexts});
-  });
-});
-
-
 app.post('/update_dispenser_context', authMiddleware, (req, res) => {
   const { mac_address, context } = req.body;
   const userId = req.userId;
@@ -375,6 +356,58 @@ app.post('/update_dispenser_context', authMiddleware, (req, res) => {
     });
   });
 });
+
+app.get('/user_dispensers', authMiddleware, (req, res) => {
+  const userId = req.userId;
+  const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
+  
+  connection.query(query, [userId], (err, dispenserResults) => {
+    if (err) {
+      console.error('Error al obtener la información de los dispensadores:', err);
+      return res.status(500).json({ error: 'Error al obtener la información de los dispensadores:' });
+    }
+    
+    const macAddresses = dispenserResults.map(row => row.mac);
+    const names = dispenserResults.map(row => row.dispenser_name);
+    const contexts = dispenserResults.map(row => row.context);
+    console.log("Enviando dispensers")
+    res.json({ macAddresses: macAddresses,  names: names, contexts: contexts});
+  });
+});
+
+app.get('/dispenser_cells/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+    }
+    const cellsQuery = `
+      SELECT id, mac_dispenser, num_cell, current_medicine_date, 
+             single_mode_id, sequential_mode_id, basic_mode_id
+      FROM cell 
+      WHERE mac_dispenser = ?
+      ORDER BY num_cell`;
+
+    connection.query(cellsQuery, [macAddress], (cellsErr, cellsResults) => {
+      if (cellsErr) {
+        console.error('Error al obtener las celdas:', cellsErr);
+        return res.status(500).json({ error: 'Error al obtener las celdas' });
+      }
+      
+      res.json(cellsResults);
+    });
+  });
+});
+
+
+
 
 /*
 app.get('/users', (req, res) => {

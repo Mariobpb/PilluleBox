@@ -1,6 +1,8 @@
 package com.example.pillulebox.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -15,6 +17,7 @@ import com.example.pillulebox.General;
 import com.example.pillulebox.MenuActivity;
 import com.example.pillulebox.R;
 import com.example.pillulebox.adapters.DispenserAdapter;
+import com.google.gson.Gson;
 
 import AsyncTasks.UpdateDispenserContextTask;
 import Models.Dispenser;
@@ -80,12 +83,27 @@ public class ContextResultFragment extends Fragment implements UpdateDispenserCo
         }
     }
 
-    @Override
     public void onContextUpdateSuccess() {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
                 statusText.setText("¡Contexto actualizado correctamente!");
                 returnButton.setVisibility(View.VISIBLE);
+
+                // Actualizar el dispensador en SharedPreferences antes de regresar
+                Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(getContext());
+                if (selectedDispenser != null) {
+                    // Actualizar el contexto del dispensador
+                    selectedDispenser.setContextDispenser(contextId);
+
+                    // Guardar el dispensador actualizado
+                    SharedPreferences prefs = requireContext()
+                            .getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+                    Gson gson = new Gson();
+                    String dispenserJson = gson.toJson(selectedDispenser);
+                    prefs.edit()
+                            .putString(DispenserAdapter.SELECTED_DISPENSER_KEY, dispenserJson)
+                            .apply();
+                }
             });
         }
     }
