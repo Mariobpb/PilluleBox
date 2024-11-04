@@ -2,6 +2,7 @@ package AsyncTasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.example.pillulebox.General;
@@ -23,6 +24,7 @@ public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
     private final CallbackValidations callback;
     private final Context context;
     private final TextView error;
+    private String errorMessage;
 
     public ValidateFieldsTask(Context context, CallbackValidations callback, TextView error) {
         this.context = context;
@@ -40,7 +42,8 @@ public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
             jsonBody.put("username", username);
             jsonBody.put("email", email);
         } catch (JSONException e) {
-            e.printStackTrace();
+            errorMessage = "Error al procesar la solicitud";
+            return false;
         }
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonBody.toString());
@@ -53,20 +56,28 @@ public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
         try {
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
+
             JSONObject jsonObject = new JSONObject(responseBody);
             if (response.isSuccessful()) {
                 if (jsonObject.has("validated") && jsonObject.getBoolean("validated")) {
-                    error.setText("");
+                    error.post(() -> error.setText(""));
                     return true;
                 } else {
-                    error.setText(jsonObject.getString("error"));
+                    final String errorText = jsonObject.getString("error");
+                    error.post(() -> error.setText(errorText));
                 }
             } else {
-                error.setText(jsonObject.getString("error"));
+                final String errorText = jsonObject.getString("error");
+                error.post(() -> error.setText(errorText));
             }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-            General.toastMessage(e.getMessage().toString(), context);
+        } catch (IOException e) {
+            error.post(() -> error.setText("Error de conexión con el servidor"));
+            Log.e("ValidateFieldsTask", "Error de conexión", e);
+            return false;
+        } catch (JSONException e) {
+            error.post(() -> error.setText("Error al procesar la respuesta del servidor"));
+            Log.e("ValidateFieldsTask", "Error al procesar JSON", e);
+            return false;
         }
 
         return false;
@@ -74,6 +85,9 @@ public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean success) {
+        if (!success && errorMessage != null) {
+            General.toastMessage(errorMessage, context);
+        }
         if (callback != null) {
             callback.onFieldsValidated(success);
         }

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import AsyncTasks.CallbackValidations;
+import AsyncTasks.ValidateTokenTask;
 import Models.Dispenser;
 
 public class MenuActivity extends AppCompatActivity implements CallbackValidations {
@@ -39,6 +40,11 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        String token = General.getToken(this);
+        if (token != null) {
+            new ValidateTokenTask(this).execute(token);
+        }
 
         initializeViews();
         setupToolbar();
@@ -201,10 +207,12 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     public void onTokenValidated(boolean success) {
         Log.d(TAG, "onTokenValidated: " + success);
         if (success) {
-            General.toastMessage("Autenticación exitosa", this);
         } else {
             General.toastMessage("Autenticación fallida", this);
             General.clearAllPreferences(this);
+            Intent intent = new Intent(this, LogInActivity.class);
+            this.startActivity(intent);
+            finish();
         }
     }
 }

@@ -2,30 +2,44 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/question_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_height="150dp"
+        android:textAlignment="gravity"
+        android:textColor="@android:color/black"
         android:textSize="20sp"
-        android:textAlignment="center"
-        android:textColor="@android:color/black"/>
+        android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/answer_a_button"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp"
-        android:textSize="16sp"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/answer_b_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:textSize="16sp"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/answer_a_button"
+            android:layout_width="150dp"
+            android:layout_height="120dp"
+            android:background="@drawable/corners4"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/answer_b_button"
+            android:layout_width="150dp"
+            android:layout_height="120dp"
+            android:background="@drawable/corners4"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="16sp" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

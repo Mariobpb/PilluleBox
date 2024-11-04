@@ -345,6 +345,37 @@ app.get('/user_dispensers', authMiddleware, (req, res) => {
   });
 });
 
+
+app.post('/update_dispenser_context', authMiddleware, (req, res) => {
+  const { mac_address, context } = req.body;
+  const userId = req.userId;
+
+  // Primero verificamos que el dispensador pertenezca al usuario
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [mac_address, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    // Si el dispensador pertenece al usuario, actualizamos el contexto
+    const updateQuery = 'UPDATE dispenser SET context = ? WHERE mac = ?';
+    connection.query(updateQuery, [context, mac_address], (updateErr) => {
+      if (updateErr) {
+        console.error('Error al actualizar el contexto:', updateErr);
+        return res.status(500).json({ error: 'Error al actualizar el contexto' });
+      }
+      
+      console.log(`Contexto actualizado para dispensador ${mac_address}: ${context}`);
+      res.json({ message: 'Contexto actualizado correctamente' });
+    });
+  });
+});
+
 /*
 app.get('/users', (req, res) => {
   const query = 'SELECT * FROM user';

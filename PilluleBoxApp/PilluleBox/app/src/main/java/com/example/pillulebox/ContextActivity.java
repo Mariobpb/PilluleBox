@@ -10,15 +10,18 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.pillulebox.Fragments.ContextResultFragment;
+import com.example.pillulebox.Fragments.QuestionFragment;
 import com.example.pillulebox.Fragments.QuestionnaireFragment;
 import com.example.pillulebox.adapters.DispenserAdapter;
 
 import Models.Answer;
 import Models.Dispenser;
 
-public class ContextActivity extends AppCompatActivity {
+public class ContextActivity extends AppCompatActivity implements QuestionFragment.OnAnswerSelectedListener {
     private Toolbar toolbar;
     private QuestionnaireFragment questionnaireFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,25 +42,25 @@ public class ContextActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
     @Override
     public void onAnswerSelected(Answer answer) {
         if (answer.getContextId() != null) {
-            // La respuesta define un contexto final
-            finishQuestionnaire(answer.getContextId());
+            showContextResult(answer.getContextId());
         } else {
-            // Continuar con la siguiente pregunta
-            questionnaireFragment.showQuestion(answer.getNextQuestionId());
+            questionnaireFragment.handleAnswer(true, answer.getNextQuestionId(), null);
         }
     }
 
-    public void finishQuestionnaire(int context) {
-        Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(this);
-        if (selectedDispenser != null) {
-            selectedDispenser.setContextDispenser(context);
-            // Aquí deberías agregar la lógica para guardar el contexto en tu base de datos
-        }
-        finish();
+
+    private void showContextResult(int contextId) {
+        ContextResultFragment resultFragment = ContextResultFragment.newInstance(contextId);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container_context, resultFragment)
+                .commit();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

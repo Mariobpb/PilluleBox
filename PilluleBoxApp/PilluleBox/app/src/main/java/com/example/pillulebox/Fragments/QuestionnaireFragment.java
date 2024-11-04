@@ -34,9 +34,7 @@ public class QuestionnaireFragment extends Fragment {
         }
     }
     public void handleAnswer(boolean answer, int nextQuestionId, Integer contextIfEnd) {
-        if (contextIfEnd != null) {
-            ((ContextActivity) requireActivity()).finishQuestionnaire(contextIfEnd);
-        } else {
+        if (contextIfEnd == null) {
             currentQuestionId = nextQuestionId;
             showQuestion(nextQuestionId);
         }

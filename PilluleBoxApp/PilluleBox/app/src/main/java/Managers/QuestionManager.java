@@ -64,7 +64,7 @@ public class QuestionManager {
         questions.put(4, new Question(4, "¿Usted tiene la capacidad de movimiento para consumir los medicamentos y confirmar su consumo de manera física?", answer4A, answer4B));
 
         Answer answer5A = new Answer(
-                "La persona que portará el dispositivo móvil.",
+                "El portador del dispositivo móvil.",
                 null, 3
         );
         Answer answer5B = new Answer(
@@ -74,7 +74,7 @@ public class QuestionManager {
         questions.put(5, new Question(5, "¿Quién será la persona que estará en presencia con la persona la mayoría del tiempo para ayudar con su consumo y confirmación del mismo de manera física?", answer5A, answer5B));
 
         Answer answer6A = new Answer(
-                "La persona que portará el dispositivo móvil.",
+                "El portador del dispositivo móvil.",
                 null, 3
         );
         Answer answer6B = new Answer(

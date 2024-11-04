@@ -2,6 +2,7 @@ package com.example.pillulebox;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,7 +44,6 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
             username_str = username.getText().toString();
             email_str = email.getText().toString();
             password_str = password.getText().toString();
-            General.toastMessage("Campos: '"+username_str+"' : '"+email_str+"' : '"+password_str+"'", SignUpActivity.this);
             if(validateFields(username_str, email_str, password_str)){
                 try {
                     new ValidateFieldsTask(this, this, error).execute(username_str, email_str);
