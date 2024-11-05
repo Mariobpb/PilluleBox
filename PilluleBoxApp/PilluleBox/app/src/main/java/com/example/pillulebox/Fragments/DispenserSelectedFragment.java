@@ -67,6 +67,7 @@ public class DispenserSelectedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dispenser_selected, container, false);
         initializeViews(view);
+        restartCells();
         setupListeners();
         loadDispenserInfo();
 
@@ -84,14 +85,14 @@ public class DispenserSelectedFragment extends Fragment {
         for (int i = 0; i < cell.length; i++) {
             cell[i] = view.findViewById(cellIds[i]);
         }
-        defineContextButton = view.findViewById(R.id.define_context_button);
+        defineContextButton = view.findViewById(R.id.define_context_button_menu);
     }
 
     public void loadDispenserInfo() {
         Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(requireContext());
         if (selectedDispenser != null) {
             dispenserName.setText(selectedDispenser.getName());
-            dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ? "Unknown" : "#" + String.valueOf(selectedDispenser.getContextDispenser()));
+            dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ? "Favor de definir el contexto" : "");
             String token = General.getToken(requireContext());
             new GetDispenserCellsTask(requireContext(), token, selectedDispenser.getMac(),
                     new GetDispenserCellsTask.CellsCallback() {
@@ -105,6 +106,12 @@ public class DispenserSelectedFragment extends Fragment {
                             General.toastMessage(error, requireContext());
                         }
                     }).execute();
+        }
+    }
+
+    private void restartCells() {
+        for (int i = 0; i < 14; i++) {
+            CellStateManager.updateCellState(cell[i], -1, 0, getContext());
         }
     }
 

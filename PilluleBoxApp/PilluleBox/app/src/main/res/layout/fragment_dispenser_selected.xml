@@ -16,42 +16,14 @@
         android:textSize="35dp"
         android:textStyle="bold" />
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <TextView
+        android:id="@+id/tv_dispenser_context_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Contexto: "
-            android:textColor="@color/black"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/tv_dispenser_context_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="0"
-            android:textColor="@color/black"
-            android:textSize="20dp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/define_context_button"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/corners4"
-            android:backgroundTint="@null"
-            android:paddingHorizontal="10dp"
-            android:text="Definir contexto" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        android:layout_gravity="center_horizontal"
+        android:text="Favor de definir el contexto"
+        android:textColor="#ff0000"
+        android:textSize="15dp" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -196,5 +168,33 @@
                 android:background="@drawable/cell_state"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/assign_schedules_button_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/corners4"
+            android:backgroundTint="@null"
+            android:paddingHorizontal="10dp"
+            android:text="Asignar horarios" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/define_context_button_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/corners4"
+            android:backgroundTint="@null"
+            android:paddingHorizontal="10dp"
+            android:text="Definir contexto" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>
