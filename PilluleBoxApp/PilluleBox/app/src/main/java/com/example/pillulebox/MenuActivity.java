@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import AsyncTasks.GetUserDispensersTask;
 
+import com.example.pillulebox.adapters.DispenserAdapter;
 import com.example.pillulebox.Fragments.DispenserSelectedFragment;
 import com.example.pillulebox.Fragments.NoDispenserSelectedFragment;
-import com.example.pillulebox.adapters.DispenserAdapter;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
@@ -35,6 +35,17 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     private NavigationView navigationView;
     private RecyclerView dispensersList;
     private Toolbar toolbar;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String token = General.getToken(this);
+        if (token != null) {
+            new ValidateTokenTask(this).execute(token);
+        } else {
+            returnToLogIn();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +73,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         toolbar = findViewById(R.id.toolbar);
         dispensersList = navigationView.findViewById(R.id.rv_dispensers);
     }
+
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -162,6 +174,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
             return true;
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_menu, menu);
@@ -187,6 +200,14 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         return super.onOptionsItemSelected(item);
     }
 
+    private void returnToLogIn() {
+        General.toastMessage("Autenticación fallida", this);
+        General.clearAllPreferences(this);
+        Intent intent = new Intent(this, LogInActivity.class);
+        this.startActivity(intent);
+        finish();
+    }
+
     // CallbackValidations
     @Override
     public void onCodeSent(boolean success) {
@@ -208,11 +229,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         Log.d(TAG, "onTokenValidated: " + success);
         if (success) {
         } else {
-            General.toastMessage("Autenticación fallida", this);
-            General.clearAllPreferences(this);
-            Intent intent = new Intent(this, LogInActivity.class);
-            this.startActivity(intent);
-            finish();
+            returnToLogIn();
         }
     }
 }

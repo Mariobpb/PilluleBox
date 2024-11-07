@@ -7,7 +7,7 @@
     <!-- Estados principales (fondo) -->
     <color name="cell_empty">#adaaaa</color>
     <color name="cell_available">#04f000</color>
-    <color name="cell_single_mode">#af4dfa</color>
+    <color name="cell_single_mode">#c891ff</color>
     <color name="cell_sequential_mode">#8fe9ff</color>
     <color name="cell_basic_mode">#ff9a47</color>
 

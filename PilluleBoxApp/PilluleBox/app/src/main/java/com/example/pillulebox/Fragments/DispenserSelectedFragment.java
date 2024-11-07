@@ -11,10 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+
+import com.example.pillulebox.adapters.DispenserAdapter;
 import com.example.pillulebox.ContextActivity;
 import com.example.pillulebox.General;
 import com.example.pillulebox.R;
-import com.example.pillulebox.adapters.DispenserAdapter;
+import com.example.pillulebox.ScheduleActivity;
+
 
 import java.util.Date;
 import java.util.List;
@@ -28,6 +31,7 @@ public class DispenserSelectedFragment extends Fragment {
     private TextView dispenserName;
     private TextView dispenserContext;
     private AppCompatButton defineContextButton;
+    private AppCompatButton assignScheduleButton;
     private View[] cell = new View[14];
     /*
     private static final String ARG_PARAM1 = "param1";
@@ -86,6 +90,7 @@ public class DispenserSelectedFragment extends Fragment {
             cell[i] = view.findViewById(cellIds[i]);
         }
         defineContextButton = view.findViewById(R.id.define_context_button_menu);
+        assignScheduleButton = view.findViewById(R.id.assign_schedules_button_menu);
     }
 
     public void loadDispenserInfo() {
@@ -152,6 +157,10 @@ public class DispenserSelectedFragment extends Fragment {
     private void setupListeners() {
         defineContextButton.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), ContextActivity.class);
+            startActivity(intent);
+        });
+        assignScheduleButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), ScheduleActivity.class);
             startActivity(intent);
         });
     }

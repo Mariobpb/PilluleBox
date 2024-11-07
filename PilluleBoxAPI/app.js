@@ -407,6 +407,83 @@ app.get('/dispenser_cells/:mac', authMiddleware, (req, res) => {
 });
 
 
+app.get('/single_modes/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+    }
+
+    const query = 'SELECT * FROM single_mode WHERE mac = ?';
+    connection.query(query, [macAddress], (err, modes) => {
+      if (err) {
+        console.error('Error al obtener los modos únicos:', err);
+        return res.status(500).json({ error: 'Error al obtener los modos únicos' });
+      }
+      res.json(modes);
+    });
+  });
+});
+
+app.get('/sequential_modes/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+    }
+
+    const query = 'SELECT * FROM sequential_mode WHERE mac = ?';
+    connection.query(query, [macAddress], (err, modes) => {
+      if (err) {
+        console.error('Error al obtener los modos secuenciales:', err);
+        return res.status(500).json({ error: 'Error al obtener los modos secuenciales' });
+      }
+      res.json(modes);
+    });
+  });
+});
+
+app.get('/basic_modes/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+    }
+
+    const query = 'SELECT * FROM basic_mode WHERE mac = ?';
+    connection.query(query, [macAddress], (err, modes) => {
+      if (err) {
+        console.error('Error al obtener los modos básicos:', err);
+        return res.status(500).json({ error: 'Error al obtener los modos básicos' });
+      }
+      res.json(modes);
+    });
+  });
+});
 
 
 /*

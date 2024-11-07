@@ -3,20 +3,14 @@ package com.example.pillulebox;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.pillulebox.Fragments.ContextResultFragment;
 import com.example.pillulebox.Fragments.QuestionFragment;
 import com.example.pillulebox.Fragments.QuestionnaireFragment;
-import com.example.pillulebox.adapters.DispenserAdapter;
 
 import Models.Answer;
-import Models.Dispenser;
 
 public class ContextActivity extends AppCompatActivity implements QuestionFragment.OnAnswerSelectedListener {
     private Toolbar toolbar;

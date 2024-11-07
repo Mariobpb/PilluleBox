@@ -13,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+
+import com.example.pillulebox.adapters.DispenserAdapter;
 import com.example.pillulebox.General;
 import com.example.pillulebox.MenuActivity;
 import com.example.pillulebox.R;
-import com.example.pillulebox.adapters.DispenserAdapter;
+
 import com.google.gson.Gson;
 
 import AsyncTasks.UpdateDispenserContextTask;
@@ -68,7 +70,7 @@ public class ContextResultFragment extends Fragment implements UpdateDispenserCo
     private void updateDispenserContext() {
         Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(getContext());
         if (selectedDispenser != null) {
-            statusText.setText("Actualizando contexto a: " + contextId);
+            statusText.setText("Actualizando contexto...");
             String token = General.getToken(getContext());
 
             new UpdateDispenserContextTask(
@@ -88,14 +90,9 @@ public class ContextResultFragment extends Fragment implements UpdateDispenserCo
             getActivity().runOnUiThread(() -> {
                 statusText.setText("¡Contexto actualizado correctamente!");
                 returnButton.setVisibility(View.VISIBLE);
-
-                // Actualizar el dispensador en SharedPreferences antes de regresar
                 Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(getContext());
                 if (selectedDispenser != null) {
-                    // Actualizar el contexto del dispensador
                     selectedDispenser.setContextDispenser(contextId);
-
-                    // Guardar el dispensador actualizado
                     SharedPreferences prefs = requireContext()
                             .getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
                     Gson gson = new Gson();
