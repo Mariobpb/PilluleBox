@@ -1,13 +1,16 @@
 package com.example.pillulebox.adapters;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pillulebox.EditScheduleActivity;
 import com.example.pillulebox.R;
 
 import java.util.List;
@@ -33,6 +36,12 @@ public class BasicModeAdapter extends RecyclerView.Adapter<BasicModeAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BasicMode mode = modes.get(position);
         holder.medicineName.setText(mode.getMedicineName());
+        holder.editModeButton.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), EditScheduleActivity.class);
+            intent.putExtra("mode", mode);
+            intent.putExtra("mode_type", "basic");
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -42,10 +51,11 @@ public class BasicModeAdapter extends RecyclerView.Adapter<BasicModeAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView medicineName;
-
+        final Button editModeButton;
         ViewHolder(View view) {
             super(view);
             medicineName = view.findViewById(R.id.medicineName);
+            editModeButton = view.findViewById(R.id.edit_basic_mode_button);
         }
     }
 }

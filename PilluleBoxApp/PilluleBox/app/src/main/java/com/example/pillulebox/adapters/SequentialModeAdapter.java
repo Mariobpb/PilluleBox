@@ -1,14 +1,17 @@
 package com.example.pillulebox.adapters;
 
+import android.content.Intent;
 import android.icu.text.SimpleDateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pillulebox.EditScheduleActivity;
 import com.example.pillulebox.R;
 
 import java.util.List;
@@ -38,6 +41,12 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
         SequentialMode mode = modes.get(position);
         holder.medicineName.setText(mode.getMedicineName());
         holder.startDate.setText(dateFormat.format(mode.getStartDate()));
+        holder.editModeButton.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), EditScheduleActivity.class);
+            intent.putExtra("mode", mode);
+            intent.putExtra("mode_type", "sequential");
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -48,11 +57,13 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView medicineName;
         final TextView startDate;
+        final Button editModeButton;
 
         ViewHolder(View view) {
             super(view);
             medicineName = view.findViewById(R.id.medicineName);
             startDate = view.findViewById(R.id.startDate);
+            editModeButton = view.findViewById(R.id.edit_sequential_mode_button);
         }
     }
 }

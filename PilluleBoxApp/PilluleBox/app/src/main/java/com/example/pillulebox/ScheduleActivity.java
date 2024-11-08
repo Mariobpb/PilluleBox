@@ -39,6 +39,20 @@ public class ScheduleActivity extends AppCompatActivity {
     private static final int SEQUENTIAL_MODE = 2;
     private static final int BASIC_MODE = 3;
     private int currentMode = SINGLE_MODE;
+    protected void onResume() {
+        super.onResume();
+        switch (currentMode) {
+            case SINGLE_MODE:
+                loadSingleModeData();
+                break;
+            case SEQUENTIAL_MODE:
+                loadSequentialModeData();
+                break;
+            case BASIC_MODE:
+                loadBasicModeData();
+                break;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

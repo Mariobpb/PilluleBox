@@ -21,12 +21,7 @@ public class ContextActivity extends AppCompatActivity implements QuestionFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_context);
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
+        setupToolbar();
 
         if (savedInstanceState == null) {
             questionnaireFragment = new QuestionnaireFragment();
@@ -34,6 +29,15 @@ public class ContextActivity extends AppCompatActivity implements QuestionFragme
                     .beginTransaction()
                     .replace(R.id.fragment_container_context, questionnaireFragment)
                     .commit();
+        }
+    }
+
+    private void setupToolbar() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
 

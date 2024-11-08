@@ -485,6 +485,33 @@ app.get('/basic_modes/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.put('/update_single_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { id, medicine_name, dispensing_date } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const updateQuery = 'UPDATE single_mode SET medicine_name = ?, dispensing_date = ? WHERE id = ? AND mac = ?';
+    connection.query(updateQuery, [medicine_name, dispensing_date, id, macAddress], (updateErr) => {
+      if (updateErr) {
+        console.error('Error al actualizar el modo:', updateErr);
+        return res.status(500).json({ error: 'Error al actualizar el modo' });
+      }
+      
+      res.json({ message: 'Modo actualizado correctamente' });
+    });
+  });
+});
 
 /*
 app.get('/users', (req, res) => {
