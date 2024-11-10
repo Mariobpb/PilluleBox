@@ -10,6 +10,7 @@
     <color name="cell_single_mode">#c891ff</color>
     <color name="cell_sequential_mode">#8fe9ff</color>
     <color name="cell_basic_mode">#ff9a47</color>
+    <color name="cell_selected">#0f1ffc</color>
 
     <!-- Estados secundarios (bordes) -->
     <color name="cell_required">#ff0000</color>

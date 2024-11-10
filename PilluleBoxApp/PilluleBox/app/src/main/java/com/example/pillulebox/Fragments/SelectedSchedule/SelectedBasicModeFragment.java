@@ -1,7 +1,9 @@
 package com.example.pillulebox.Fragments.SelectedSchedule;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.pillulebox.AssignCellsActivity;
 import com.example.pillulebox.R;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +54,7 @@ public class SelectedBasicModeFragment extends Fragment {
         TextView morningHourRangeText = view.findViewById(R.id.morning_hour_range);
         TextView afternoonHourRangeText = view.findViewById(R.id.afternoon_hour_range);
         TextView nightHourRangeText = view.findViewById(R.id.night_hour_range);
+        AppCompatButton assignCellsButton = view.findViewById(R.id.assign_cells);
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
@@ -68,6 +72,13 @@ public class SelectedBasicModeFragment extends Fragment {
                 timeFormat.format(mode.getNightStartTime()) : "") + " - " +
                 (mode.getNightEndTime() != null ?
                         timeFormat.format(mode.getNightEndTime()) : ""));
+
+        assignCellsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AssignCellsActivity.class);
+            intent.putExtra("mode", mode);
+            intent.putExtra("mode_type", "basic");
+            startActivity(intent);
+        });
         return view;
     }
 }

@@ -14,6 +14,7 @@ public class CellStateManager {
     public static final int STATE_SINGLE_MODE = 2;
     public static final int STATE_SEQUENTIAL_MODE = 3;
     public static final int STATE_BASIC_MODE = 4;
+    public static final int STATE_SELECTED_CELL = 5;
 
     public static final int SECONDARY_STATE_NONE = 0;
     public static final int SECONDARY_STATE_REQUIRED = 1;
@@ -41,6 +42,8 @@ public class CellStateManager {
                 return ContextCompat.getColor(context, R.color.cell_basic_mode);
             case STATE_EMPTY:
                 return ContextCompat.getColor(context, R.color.cell_empty);
+            case STATE_SELECTED_CELL:
+                return ContextCompat.getColor(context, R.color.cell_selected);
             default:
                 return ContextCompat.getColor(context, R.color.white);
         }

@@ -6,17 +6,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pillulebox.DefineScheduleActivity;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.R;
 
 import java.util.List;
 import java.util.Locale;
 
+import AsyncTasks.Schedules.DeleteSequentialModeTask;
+import AsyncTasks.Schedules.DeleteSingleModeTask;
 import Models.ScheduleModes.SequentialMode;
 
 public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAdapter.ViewHolder> {
@@ -63,6 +68,28 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
             intent.putExtra("mode_type", "sequential");
             v.getContext().startActivity(intent);
         });
+
+        holder.deleteModeButton.setOnClickListener(v -> {
+            DeleteSequentialModeTask deleteTask = new DeleteSequentialModeTask(
+                    v.getContext(),
+                    GeneralInfo.getToken(v.getContext()),
+                    GeneralInfo.getSelectedDispenser(v.getContext()).getMac(),
+                    mode,
+                    new DeleteSequentialModeTask.DeleteCallback() {
+                        @Override
+                        public void onSuccess() {
+                            modes.remove(position);
+                            notifyItemRemoved(position);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(v.getContext(), error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
+            deleteTask.execute();
+        });
     }
 
     @Override
@@ -74,12 +101,13 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
         final TextView medicineName;
         final TextView startDate;
         final Button editModeButton;
-
+        final ImageButton deleteModeButton;
         ViewHolder(View view) {
             super(view);
             medicineName = view.findViewById(R.id.medicine_name);
             startDate = view.findViewById(R.id.startDate);
             editModeButton = view.findViewById(R.id.edit_sequential_mode_button);
+            deleteModeButton = view.findViewById(R.id.delete_sequential_mode_button);
         }
     }
 }

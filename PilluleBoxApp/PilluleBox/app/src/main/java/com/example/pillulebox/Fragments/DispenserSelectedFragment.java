@@ -46,25 +46,12 @@ public class DispenserSelectedFragment extends Fragment {
 
     public static DispenserSelectedFragment newInstance() {
         DispenserSelectedFragment fragment = new DispenserSelectedFragment();
-        /*
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-
-         */
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            /*
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-             */
-        }
     }
 
     @Override
@@ -164,12 +151,4 @@ public class DispenserSelectedFragment extends Fragment {
             startActivity(intent);
         });
     }
-    /*
-    private void updateAllCells() {
-        for (int i = 0; i < cell.length; i++) {
-            CellStateManager.updateCellState(cell[i], -1, 2, getContext());
-        }
-    }
-
-     */
 }

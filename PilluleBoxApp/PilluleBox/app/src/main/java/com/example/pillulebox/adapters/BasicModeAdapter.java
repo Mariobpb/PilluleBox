@@ -6,17 +6,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pillulebox.DefineScheduleActivity;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.R;
 
 import java.util.List;
 import java.util.Locale;
 
+import AsyncTasks.Schedules.DeleteBasicModeTask;
+import AsyncTasks.Schedules.DeleteSingleModeTask;
 import Models.ScheduleModes.BasicMode;
 
 public class BasicModeAdapter extends RecyclerView.Adapter<BasicModeAdapter.ViewHolder> {
@@ -61,6 +66,28 @@ public class BasicModeAdapter extends RecyclerView.Adapter<BasicModeAdapter.View
             intent.putExtra("mode_type", "basic");
             v.getContext().startActivity(intent);
         });
+
+        holder.deleteModeButton.setOnClickListener(v -> {
+            DeleteBasicModeTask deleteTask = new DeleteBasicModeTask(
+                    v.getContext(),
+                    GeneralInfo.getToken(v.getContext()),
+                    GeneralInfo.getSelectedDispenser(v.getContext()).getMac(),
+                    mode,
+                    new DeleteBasicModeTask.DeleteCallback() {
+                        @Override
+                        public void onSuccess() {
+                            modes.remove(position);
+                            notifyItemRemoved(position);
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            Toast.makeText(v.getContext(), error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            );
+            deleteTask.execute();
+        });
     }
 
     @Override
@@ -71,10 +98,12 @@ public class BasicModeAdapter extends RecyclerView.Adapter<BasicModeAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView medicineName;
         final Button editModeButton;
+        final ImageButton deleteModeButton;
         ViewHolder(View view) {
             super(view);
             medicineName = view.findViewById(R.id.medicine_name);
             editModeButton = view.findViewById(R.id.edit_basic_mode_button);
+            deleteModeButton = view.findViewById(R.id.delete_basic_mode_button);
         }
     }
 }

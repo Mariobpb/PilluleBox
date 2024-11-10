@@ -1,7 +1,9 @@
 package com.example.pillulebox.Fragments.SelectedSchedule;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.pillulebox.AssignCellsActivity;
 import com.example.pillulebox.R;
 
 import java.text.SimpleDateFormat;
@@ -56,6 +59,8 @@ public class SelectedSequentialModeFragment extends Fragment {
         TextView currentConsumptionText = view.findViewById(R.id.current_consumptions);
         TextView affectedPeriodsText = view.findViewById(R.id.affected_periods);
 
+        AppCompatButton assignCellsButton = view.findViewById(R.id.assign_cells);
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
@@ -73,6 +78,13 @@ public class SelectedSequentialModeFragment extends Fragment {
         currentConsumptionText.setText(String.valueOf(mode.getCurrentTimesConsumption()));
 
         affectedPeriodsText.setText(mode.isAffectedPeriods() ? "Sí" : "No");
+
+        assignCellsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), AssignCellsActivity.class);
+            intent.putExtra("mode", mode);
+            intent.putExtra("mode_type", "sequential");
+            startActivity(intent);
+        });
 
         return view;
     }

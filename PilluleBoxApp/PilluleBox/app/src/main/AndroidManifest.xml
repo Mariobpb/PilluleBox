@@ -16,6 +16,9 @@
         android:theme="@style/Theme.PilluleBox"
         tools:targetApi="31">
         <activity
+            android:name=".AssignCellsActivity"
+            android:exported="false" />
+        <activity
             android:name=".DefineScheduleActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

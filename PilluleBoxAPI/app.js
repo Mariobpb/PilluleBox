@@ -445,6 +445,66 @@ app.post('/add_sequential_mode/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.post('/add_basic_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { 
+    medicine_name, 
+    morning_start_time,
+    morning_end_time,
+    afternoon_start_time,
+    afternoon_end_time,
+    night_start_time,
+    night_end_time
+  } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const insertQuery = `
+      INSERT INTO basic_mode (
+        mac,
+        medicine_name,
+        morning_start_time,
+        morning_end_time,
+        afternoon_start_time,
+        afternoon_end_time,
+        night_start_time,
+        night_end_time
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    connection.query(insertQuery, [
+      macAddress,
+      medicine_name,
+      morning_start_time,
+      morning_end_time,
+      afternoon_start_time,
+      afternoon_end_time,
+      night_start_time,
+      night_end_time
+    ], (insertErr, result) => {
+      if (insertErr) {
+        console.error('Error al añadir el modo básico:', insertErr);
+        return res.status(500).json({ error: 'Error al añadir el modo básico' });
+      }
+      
+      res.json({ 
+        message: 'Modo básico añadido correctamente',
+        id: result.insertId 
+      });
+    });
+  });
+});
+
 app.get('/user_dispensers', authMiddleware, (req, res) => {
   const userId = req.userId;
   const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
@@ -718,68 +778,90 @@ app.put('/update_basic_mode/:mac', authMiddleware, (req, res) => {
   });
 });
 
-/*
-app.get('/users', (req, res) => {
-  const query = 'SELECT * FROM user';
-  connection.query(query, (err, results) => {
+app.delete('/delete_single_mode/:mac/:id', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const modeId = req.params.id;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al obtener los datos' });
-      return;
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
     }
-    res.json(results);
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const deleteQuery = 'DELETE FROM single_mode WHERE id = ? AND mac = ?';
+    connection.query(deleteQuery, [modeId, macAddress], (deleteErr, result) => {
+      if (deleteErr) {
+        console.error('Error al eliminar el modo:', deleteErr);
+        return res.status(500).json({ error: 'Error al eliminar el modo' });
+      }
+      
+      res.json({ message: 'Modo eliminado correctamente' });
+    });
   });
 });
-*/
-/*
-app.post('/registros', (req, res) => {
-  const { led, fecha, hora } = req.body;
-  const query = 'INSERT INTO Registros (led, fecha, hora) VALUES (?, ?, ?)';
-  connection.query(query, [led, fecha, hora], (err, result) => {
+
+app.delete('/delete_sequential_mode/:mac/:id', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const modeId = req.params.id;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al agregar un nuevo dato' });
-      return;
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
     }
-    res.json({ id: result.insertId });
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const deleteQuery = 'DELETE FROM sequential_mode WHERE id = ? AND mac = ?';
+    connection.query(deleteQuery, [modeId, macAddress], (deleteErr, result) => {
+      if (deleteErr) {
+        console.error('Error al eliminar el modo secuencial:', deleteErr);
+        return res.status(500).json({ error: 'Error al eliminar el modo secuencial' });
+      }
+      
+      res.json({ message: 'Modo secuencial eliminado correctamente' });
+    });
   });
 });
- 
-app.delete('/registros/:id', (req, res) => {
-  const id = req.params.id;
-  const query = 'DELETE FROM Registros WHERE id = ?';
-  connection.query(query, [id], (err, result) => {
+
+app.delete('/delete_basic_mode/:mac/:id', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const modeId = req.params.id;
+  const userId = req.userId;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
     if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al eliminar el registro' });
-      return;
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
     }
-    if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'Registro no encontrado' });
-      return;
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
     }
-    res.json({ message: 'Registro eliminado correctamente' });
+
+    const deleteQuery = 'DELETE FROM basic_mode WHERE id = ? AND mac = ?';
+    connection.query(deleteQuery, [modeId, macAddress], (deleteErr, result) => {
+      if (deleteErr) {
+        console.error('Error al eliminar el modo básico:', deleteErr);
+        return res.status(500).json({ error: 'Error al eliminar el modo básico' });
+      }
+      
+      res.json({ message: 'Modo básico eliminado correctamente' });
+    });
   });
 });
- 
-app.patch('/registros/:id', (req, res) => {
-  const id = req.params.id;
-  const { led, fecha, hora } = req.body;
-  const query = 'UPDATE Registros SET led = ?, fecha = ?, hora = ? WHERE id = ?';
-  connection.query(query, [led, fecha, hora, id], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Error al actualizar el registro' });
-      return;
-    }
-    if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'Registro no encontrado' });
-      return;
-    }
-    res.json({ message: 'Registro actualizado correctamente' });
-  });
-});
-*/
+
 
 function validateToken(token) {
   return new Promise((resolve, reject) => {

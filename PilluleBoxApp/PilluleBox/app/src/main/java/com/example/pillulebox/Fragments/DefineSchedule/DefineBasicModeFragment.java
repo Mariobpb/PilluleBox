@@ -24,7 +24,6 @@ import java.util.Locale;
 
 import AsyncTasks.Schedules.AddBasicModeTask;
 import AsyncTasks.Schedules.UpdateBasicModeTask;
-import AsyncTasks.Schedules.UpdateSequentialModeTask;
 import Models.Dispenser;
 import Models.ScheduleModes.BasicMode;
 
@@ -77,7 +76,7 @@ public class DefineBasicModeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_edit_basic_mode, container, false);
+        View view = inflater.inflate(R.layout.fragment_define_basic_mode, container, false);
         initializeViews(view);
         setupInputs();
         setCurrentValues();
