@@ -357,6 +357,94 @@ app.post('/update_dispenser_context', authMiddleware, (req, res) => {
   });
 });
 
+app.post('/add_single_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { medicine_name, dispensing_date } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const insertQuery = 'INSERT INTO single_mode (mac, medicine_name, dispensing_date) VALUES (?, ?, ?)';
+    connection.query(insertQuery, [macAddress, medicine_name, dispensing_date], (insertErr, result) => {
+      if (insertErr) {
+        console.error('Error al añadir el modo:', insertErr);
+        return res.status(500).json({ error: 'Error al añadir el modo' });
+      }
+      
+      res.json({ message: 'Modo añadido correctamente'});
+    });
+  });
+});
+
+app.post('/add_sequential_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { 
+    medicine_name, 
+    start_date, 
+    end_date, 
+    period,
+    limit_times_consumption,
+    affected_periods,
+    current_times_consumption 
+  } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const insertQuery = `
+      INSERT INTO sequential_mode (
+        mac,
+        medicine_name, 
+        start_date,
+        end_date,
+        period,
+        limit_times_consumption,
+        affected_periods,
+        current_times_consumption
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    connection.query(insertQuery, [
+      macAddress,
+      medicine_name,
+      start_date,
+      end_date,
+      period,
+      limit_times_consumption,
+      affected_periods,
+      current_times_consumption
+    ], (insertErr, result) => {
+      if (insertErr) {
+        console.error('Error al añadir el modo secuencial:', insertErr);
+        return res.status(500).json({ error: 'Error al añadir el modo secuencial' });
+      }
+      
+      res.json({ 
+        message: 'Modo secuencial añadido correctamente',
+        id: result.insertId 
+      });
+    });
+  });
+});
+
 app.get('/user_dispensers', authMiddleware, (req, res) => {
   const userId = req.userId;
   const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
@@ -405,7 +493,6 @@ app.get('/dispenser_cells/:mac', authMiddleware, (req, res) => {
     });
   });
 });
-
 
 app.get('/single_modes/:mac', authMiddleware, (req, res) => {
   const macAddress = req.params.mac;
@@ -509,6 +596,124 @@ app.put('/update_single_mode/:mac', authMiddleware, (req, res) => {
       }
       
       res.json({ message: 'Modo actualizado correctamente' });
+    });
+  });
+});
+
+app.put('/update_sequential_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { 
+    id, 
+    medicine_name, 
+    start_date, 
+    end_date, 
+    period,
+    limit_times_consumption,
+    affected_periods,
+    current_times_consumption 
+  } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const updateQuery = `
+      UPDATE sequential_mode 
+      SET medicine_name = ?,
+          start_date = ?,
+          end_date = ?,
+          period = ?,
+          limit_times_consumption = ?,
+          affected_periods = ?,
+          current_times_consumption = ?
+      WHERE id = ? AND mac = ?
+    `;
+
+    connection.query(updateQuery, [
+      medicine_name,
+      start_date,
+      end_date,
+      period,
+      limit_times_consumption,
+      affected_periods,
+      current_times_consumption,
+      id,
+      macAddress
+    ], (updateErr) => {
+      if (updateErr) {
+        console.error('Error al actualizar el modo secuencial:', updateErr);
+        return res.status(500).json({ error: 'Error al actualizar el modo secuencial' });
+      }
+      
+      console.log(`Modo secuencial actualizado para dispensador ${macAddress}, ID: ${id}`);
+      res.json({ message: 'Modo secuencial actualizado correctamente' });
+    });
+  });
+});
+
+app.put('/update_basic_mode/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { 
+    id, 
+    medicine_name, 
+    morning_start_time,
+    morning_end_time,
+    afternoon_start_time,
+    afternoon_end_time,
+    night_start_time,
+    night_end_time
+  } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    const updateQuery = `
+      UPDATE basic_mode 
+      SET medicine_name = ?,
+          morning_start_time = ?,
+          morning_end_time = ?,
+          afternoon_start_time = ?,
+          afternoon_end_time = ?,
+          night_start_time = ?,
+          night_end_time = ?
+      WHERE id = ? AND mac = ?
+    `;
+
+    connection.query(updateQuery, [
+      medicine_name,
+      morning_start_time,
+      morning_end_time,
+      afternoon_start_time,
+      afternoon_end_time,
+      night_start_time,
+      night_end_time,
+      id,
+      macAddress
+    ], (updateErr) => {
+      if (updateErr) {
+        console.error('Error al actualizar el modo básico:', updateErr);
+        return res.status(500).json({ error: 'Error al actualizar el modo básico' });
+      }
+      
+      console.log(`Modo básico actualizado para dispensador ${macAddress}, ID: ${id}`);
+      res.json({ message: 'Modo básico actualizado correctamente' });
     });
   });
 });

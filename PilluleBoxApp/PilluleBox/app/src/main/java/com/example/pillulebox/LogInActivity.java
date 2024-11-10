@@ -22,7 +22,7 @@ public class LogInActivity extends AppCompatActivity implements CallbackValidati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
 
-        String token = General.getToken(this);
+        String token = GeneralInfo.getToken(this);
         if (token != null) {
             new ValidateTokenTask(this).execute(token);
         }
@@ -38,7 +38,7 @@ public class LogInActivity extends AppCompatActivity implements CallbackValidati
             String username_email_str = username_email.getText().toString();
             String password_str = password.getText().toString();
             try {
-                String passEncrypted = General.encryptPassword(password_str);
+                String passEncrypted = GeneralInfo.encryptPassword(password_str);
                 new LogInUserTask(LogInActivity.this, error).execute(username_email_str, passEncrypted);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -68,13 +68,13 @@ public class LogInActivity extends AppCompatActivity implements CallbackValidati
     @Override
     public void onTokenValidated(boolean success) {
         if (success) {
-            General.toastMessage("Autenticación exitosa", this);
+            GeneralInfo.toastMessage("Autenticación exitosa", this);
             Intent intent = new Intent(this, MenuActivity.class);
             this.startActivity(intent);
             finish();
         } else {
-            General.toastMessage("Autenticación fallida", this);
-            General.clearAllPreferences(this);
+            GeneralInfo.toastMessage("Autenticación fallida", this);
+            GeneralInfo.clearAllPreferences(this);
         }
     }
 }

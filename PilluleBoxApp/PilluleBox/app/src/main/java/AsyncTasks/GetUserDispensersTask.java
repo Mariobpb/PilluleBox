@@ -6,7 +6,7 @@ import android.util.Log;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.adapters.DispenserAdapter;
 
 import org.json.JSONArray;
@@ -41,7 +41,7 @@ public class GetUserDispensersTask extends AsyncTask<Void, Void, List<Dispenser>
         Log.d(TAG, "Iniciando petición al servidor...");
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "user_dispensers")
+                .url(GeneralInfo.getURL() + "user_dispensers")
                 .addHeader("Authorization", token)
                 .get()
                 .build();
@@ -101,7 +101,7 @@ public class GetUserDispensersTask extends AsyncTask<Void, Void, List<Dispenser>
         } else {
             Log.e(TAG, "No se encontraron dispensadores o la lista es nula");
             if (context != null) {
-                General.toastMessage("No se encontraron dispensadores", context);
+                GeneralInfo.toastMessage("No se encontraron dispensadores", context);
             }
         }
     }

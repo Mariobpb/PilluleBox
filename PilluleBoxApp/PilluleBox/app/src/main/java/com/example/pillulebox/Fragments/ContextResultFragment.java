@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 
 import com.example.pillulebox.adapters.DispenserAdapter;
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.MenuActivity;
 import com.example.pillulebox.R;
 
@@ -71,7 +71,7 @@ public class ContextResultFragment extends Fragment implements UpdateDispenserCo
         Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(getContext());
         if (selectedDispenser != null) {
             statusText.setText("Actualizando contexto...");
-            String token = General.getToken(getContext());
+            String token = GeneralInfo.getToken(getContext());
 
             new UpdateDispenserContextTask(
                     getContext(),
@@ -94,7 +94,7 @@ public class ContextResultFragment extends Fragment implements UpdateDispenserCo
                 if (selectedDispenser != null) {
                     selectedDispenser.setContextDispenser(contextId);
                     SharedPreferences prefs = requireContext()
-                            .getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+                            .getSharedPreferences(GeneralInfo.Archivo, Context.MODE_PRIVATE);
                     Gson gson = new Gson();
                     String dispenserJson = gson.toJson(selectedDispenser);
                     prefs.edit()

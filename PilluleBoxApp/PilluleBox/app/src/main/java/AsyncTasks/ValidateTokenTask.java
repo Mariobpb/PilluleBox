@@ -2,7 +2,7 @@ package AsyncTasks;
 
 import android.os.AsyncTask;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +17,7 @@ import okhttp3.Response;
 
 public class ValidateTokenTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = General.getURL();
+    private final String BASE_URL = GeneralInfo.getURL();
     private final CallbackValidations callback;
     public ValidateTokenTask(CallbackValidations callback){
         this.callback = callback;

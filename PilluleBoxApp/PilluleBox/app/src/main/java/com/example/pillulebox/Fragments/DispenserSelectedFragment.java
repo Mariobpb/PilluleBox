@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.example.pillulebox.adapters.DispenserAdapter;
 import com.example.pillulebox.ContextActivity;
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.R;
 import com.example.pillulebox.ScheduleActivity;
 
@@ -98,7 +98,7 @@ public class DispenserSelectedFragment extends Fragment {
         if (selectedDispenser != null) {
             dispenserName.setText(selectedDispenser.getName());
             dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ? "Favor de definir el contexto" : "");
-            String token = General.getToken(requireContext());
+            String token = GeneralInfo.getToken(requireContext());
             new GetDispenserCellsTask(requireContext(), token, selectedDispenser.getMac(),
                     new GetDispenserCellsTask.CellsCallback() {
                         @Override
@@ -108,7 +108,7 @@ public class DispenserSelectedFragment extends Fragment {
 
                         @Override
                         public void onError(String error) {
-                            General.toastMessage(error, requireContext());
+                            GeneralInfo.toastMessage(error, requireContext());
                         }
                     }).execute();
         }

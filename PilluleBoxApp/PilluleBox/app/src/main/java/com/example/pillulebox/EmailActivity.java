@@ -47,7 +47,7 @@ public class EmailActivity extends AppCompatActivity implements CallbackValidati
             new ValidateCodeTask(this, this, error).execute(entered_code, email);
         });
         sendCode.setOnClickListener(v -> {
-            new SendCodeTask(this).execute(General.generateRandomCode(), email);
+            new SendCodeTask(this).execute(GeneralInfo.generateRandomCode(), email);
         });
     }
     @Override
@@ -63,7 +63,7 @@ public class EmailActivity extends AppCompatActivity implements CallbackValidati
         if (success) {
             runOnUiThread(() -> {
                 try {
-                    new SignUpUserTask(this, this).execute(username, email, General.encryptPassword(password));
+                    new SignUpUserTask(this, this).execute(username, email, GeneralInfo.encryptPassword(password));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -89,7 +89,7 @@ public class EmailActivity extends AppCompatActivity implements CallbackValidati
     public void onCodeSent(boolean success) {
         if (success) {
             runOnUiThread(() -> {
-                General.toastMessage("Código enviado exitosamente", EmailActivity.this);
+                GeneralInfo.toastMessage("Código enviado exitosamente", EmailActivity.this);
             });
         } else {
             runOnUiThread(() -> {

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.LogInActivity;
 
 import org.json.JSONException;
@@ -22,7 +22,7 @@ import okhttp3.Response;
 
 public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = General.getURL();
+    private final String BASE_URL = GeneralInfo.getURL();
     private final CallbackValidations callback;
     private final Context context;
     private final Activity activity;
@@ -67,7 +67,7 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
     protected void onPostExecute(Response response) {
         if (response != null) {
             if (response.isSuccessful()) {
-                General.toastMessage("Usuario registrado exitosamente", context);
+                GeneralInfo.toastMessage("Usuario registrado exitosamente", context);
                 Intent intent = new Intent(context, LogInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -84,14 +84,14 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
                         JSONObject jsonObject = new JSONObject(errorMessageBody);
                         error_text.setText(jsonObject.getString("error"));
                     } else {
-                        General.toastMessage("Error al registrar al usuario", context);
+                        GeneralInfo.toastMessage("Error al registrar al usuario", context);
                     }
                 } catch (IOException | JSONException e) {
-                    General.toastMessage(e.toString(), context);
+                    GeneralInfo.toastMessage(e.toString(), context);
                 }
             }
         } else {
-            General.toastMessage("Error de conexión con el servidor", context);
+            GeneralInfo.toastMessage("Error de conexión con el servidor", context);
         }
     }
 }

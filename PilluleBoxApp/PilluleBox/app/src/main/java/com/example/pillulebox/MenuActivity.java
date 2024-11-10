@@ -39,7 +39,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     @Override
     protected void onResume() {
         super.onResume();
-        String token = General.getToken(this);
+        String token = GeneralInfo.getToken(this);
         if (token != null) {
             new ValidateTokenTask(this).execute(token);
         } else {
@@ -52,7 +52,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        String token = General.getToken(this);
+        String token = GeneralInfo.getToken(this);
         if (token != null) {
             new ValidateTokenTask(this).execute(token);
         }
@@ -149,11 +149,11 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
 
     private void loadUserDispensers() {
         Log.d(TAG, "loadUserDispensers: Intentando cargar dispensadores del usuario");
-        String token = General.getToken(this);
+        String token = GeneralInfo.getToken(this);
 
         if (token == null) {
             Log.e(TAG, "loadUserDispensers: Token no encontrado");
-            General.toastMessage("No se encontró el token de autenticación", this);
+            GeneralInfo.toastMessage("No se encontró el token de autenticación", this);
             return;
         }
 
@@ -186,11 +186,11 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         int id = item.getItemId();
 
         if (id == R.id.menu_history) {
-            General.toastMessage("Historial", this);
+            GeneralInfo.toastMessage("Historial", this);
             return true;
         } else if (id == R.id.menu_logout) {
             Log.d(TAG, "onClick: Cerrando sesión");
-            General.clearAllPreferences(this);
+            GeneralInfo.clearAllPreferences(this);
             Intent intent = new Intent(MenuActivity.this, LogInActivity.class);
             startActivity(intent);
             finish();
@@ -201,8 +201,8 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     }
 
     private void returnToLogIn() {
-        General.toastMessage("Autenticación fallida", this);
-        General.clearAllPreferences(this);
+        GeneralInfo.toastMessage("Autenticación fallida", this);
+        GeneralInfo.clearAllPreferences(this);
         Intent intent = new Intent(this, LogInActivity.class);
         this.startActivity(intent);
         finish();

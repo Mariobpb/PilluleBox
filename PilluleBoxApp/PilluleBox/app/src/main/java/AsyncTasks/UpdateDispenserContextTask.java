@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +57,7 @@ public class UpdateDispenserContextTask extends AsyncTask<Void, Void, Boolean> {
         );
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "update_dispenser_context")
+                .url(GeneralInfo.getURL() + "update_dispenser_context")
                 .addHeader("Authorization", token)
                 .post(body)
                 .build();

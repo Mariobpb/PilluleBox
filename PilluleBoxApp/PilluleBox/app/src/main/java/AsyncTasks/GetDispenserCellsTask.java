@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class GetDispenserCellsTask extends AsyncTask<Void, Void, List<Cell>> {
         Log.d(TAG, "Iniciando petición al servidor para obtener celdas del dispensador: " + macAddress);
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "dispenser_cells/" + macAddress)
+                .url(GeneralInfo.getURL() + "dispenser_cells/" + macAddress)
                 .addHeader("Authorization", token)
                 .get()
                 .build();

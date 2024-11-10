@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ import okhttp3.Response;
 
 public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = General.getURL();
+    private final String BASE_URL = GeneralInfo.getURL();
     private final CallbackValidations callback;
     private final Context context;
     private final TextView error;
@@ -86,7 +86,7 @@ public class ValidateFieldsTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (!success && errorMessage != null) {
-            General.toastMessage(errorMessage, context);
+            GeneralInfo.toastMessage(errorMessage, context);
         }
         if (callback != null) {
             callback.onFieldsValidated(success);

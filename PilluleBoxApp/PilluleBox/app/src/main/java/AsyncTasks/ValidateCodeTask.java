@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 public class ValidateCodeTask extends AsyncTask<String, Void, Boolean> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = General.getURL();
+    private final String BASE_URL = GeneralInfo.getURL();
     private final CallbackValidations callback;
     private final Context context;
     private final TextView error;

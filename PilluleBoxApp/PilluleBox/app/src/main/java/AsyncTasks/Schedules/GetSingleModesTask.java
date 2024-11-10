@@ -1,14 +1,13 @@
-package AsyncTasks;
+package AsyncTasks.Schedules;
 
 import android.content.Context;
-import android.icu.text.SimpleDateFormat;
 
 import java.sql.Date;
-import java.text.ParseException;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import Models.ScheduleModes.SingleMode;
 import okhttp3.OkHttpClient;
@@ -50,7 +48,7 @@ public class GetSingleModesTask extends AsyncTask<Void, Void, List<SingleMode>> 
         List<SingleMode> modes = new ArrayList<>();
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "single_modes/" + macAddress)
+                .url(GeneralInfo.getURL() + "single_modes/" + macAddress)
                 .addHeader("Authorization", token)
                 .get()
                 .build();

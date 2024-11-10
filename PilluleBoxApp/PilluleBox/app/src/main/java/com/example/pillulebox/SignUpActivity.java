@@ -2,7 +2,6 @@ package com.example.pillulebox;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,7 +47,7 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
                 try {
                     new ValidateFieldsTask(this, this, error).execute(username_str, email_str);
                 } catch (Exception e) {
-                    General.toastMessage(e.toString(), SignUpActivity.this);
+                    GeneralInfo.toastMessage(e.toString(), SignUpActivity.this);
                 }
             }
         });
@@ -66,7 +65,7 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
     public void onFieldsValidated(boolean success) {
         if (success) {
             runOnUiThread(() -> {
-                new SendCodeTask(this).execute(General.generateRandomCode(), email_str);
+                new SendCodeTask(this).execute(GeneralInfo.generateRandomCode(), email_str);
             });
         }
     }
@@ -83,7 +82,7 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
     public void onCodeSent(boolean success) {
         if (success) {
             runOnUiThread(() -> {
-                General.toastMessage("Código enviado exitosamente", SignUpActivity.this);
+                GeneralInfo.toastMessage("Código enviado exitosamente", SignUpActivity.this);
 
                 Intent intent = new Intent(SignUpActivity.this, EmailActivity.class);
                 intent.putExtra("username", username.getText().toString());

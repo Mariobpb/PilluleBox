@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp">
 
         <RadioButton
             android:id="@+id/singleModeRadio"
@@ -27,27 +27,27 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="Single" />
+            android:text="Único" />
 
         <RadioButton
             android:id="@+id/sequentialModeRadio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Sequential" />
+            android:text="Secuencial" />
 
         <RadioButton
             android:id="@+id/basicModeRadio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Basic" />
+            android:text="Básico" />
     </RadioGroup>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/schedulesRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="280dp"
         android:padding="8dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -57,6 +57,10 @@
         android:layout_margin="16dp"
         android:backgroundTint="@color/white"
         android:src="@drawable/ic_add" />
+    <FrameLayout
+        android:id="@+id/fragment_container_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

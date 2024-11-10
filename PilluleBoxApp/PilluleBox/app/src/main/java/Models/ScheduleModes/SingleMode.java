@@ -8,6 +8,10 @@ public class SingleMode implements Serializable {
     private String medicineName;
     private Date dispensingDate;
 
+    public SingleMode(String medicineName, Date dispensingDate) {
+        this.medicineName = medicineName;
+        this.dispensingDate = dispensingDate;
+    }
     public SingleMode(int id, String medicineName, Date dispensingDate) {
         this.id = id;
         this.medicineName = medicineName;

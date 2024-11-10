@@ -1,24 +1,22 @@
-package AsyncTasks;
+package AsyncTasks.Schedules;
 
 import android.content.Context;
-import android.icu.text.SimpleDateFormat;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.sql.Date;
-import java.text.ParseException;
+import java.sql.Time;
+import java.sql.Timestamp;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import Models.ScheduleModes.SequentialMode;
 import okhttp3.OkHttpClient;
@@ -50,7 +48,7 @@ public class GetSequentialModesTask extends AsyncTask<Void, Void, List<Sequentia
         List<SequentialMode> modes = new ArrayList<>();
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "sequential_modes/" + macAddress)
+                .url(GeneralInfo.getURL() + "sequential_modes/" + macAddress)
                 .addHeader("Authorization", token)
                 .get()
                 .build();
@@ -62,10 +60,41 @@ public class GetSequentialModesTask extends AsyncTask<Void, Void, List<Sequentia
 
                 for (int i = 0; i < modesArray.length(); i++) {
                     JSONObject modeObj = modesArray.getJSONObject(i);
+
+                    Date startDate = null;
+                    Date endDate = null;
+
+                    if (!modeObj.isNull("start_date")) {
+                        String startDateStr = modeObj.getString("start_date");
+                        Timestamp startTimestamp = Timestamp.valueOf(startDateStr.replace("T", " ").replace("Z", ""));
+                        startDate = new Date(startTimestamp.getTime());
+                    }
+
+                    if (!modeObj.isNull("end_date")) {
+                        String endDateStr = modeObj.getString("end_date");
+                        Timestamp endTimestamp = Timestamp.valueOf(endDateStr.replace("T", " ").replace("Z", ""));
+                        endDate = new Date(endTimestamp.getTime());
+                    }
+
+                    Time period = null;
+                    if (!modeObj.isNull("period")) {
+                        String periodStr = modeObj.getString("period");
+                        try {
+                            period = Time.valueOf(periodStr);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing period: " + e.getMessage(), e);
+                        }
+                    }
+
                     SequentialMode mode = new SequentialMode(
                             modeObj.getInt("id"),
                             modeObj.getString("medicine_name"),
-                            Date.from(Instant.parse(modeObj.getString("start_date")))
+                            startDate,
+                            endDate,
+                            period,
+                            modeObj.getInt("limit_times_consumption"),
+                            modeObj.getInt("affected_periods") == 1,
+                            modeObj.getInt("current_times_consumption")
                     );
                     modes.add(mode);
                 }

@@ -32,10 +32,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <EditText
-                android:id="@+id/start_datetime_input"
+                android:id="@+id/start_morning_hour_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Fecha y hora inicial"
+                android:hint="Hora matutina inicial"
                 android:focusable="false"
                 android:clickable="true"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -49,12 +49,12 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <EditText
-                android:id="@+id/end_datetime_input"
+                android:id="@+id/end_morning_hour_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:focusable="false"
-                android:hint="Fecha y hora final" />
+                android:hint="Hora matutina final" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -69,10 +69,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <EditText
-                android:id="@+id/period_time_input"
+                android:id="@+id/start_afternoon_hour_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Periodo"
+                android:hint="Hora vespertina inicial"
                 android:focusable="false"
                 android:clickable="true"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -85,22 +85,52 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/limit_consumption_input"
+            <EditText
+                android:id="@+id/end_afternoon_hour_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="4"
-                android:hint="Límite de consumo"/>
+                android:clickable="true"
+                android:focusable="false"
+                android:hint="Hora vespertina final" />
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/affect_periods_input"
+
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Afectar periodos"
-        android:textSize="16sp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <EditText
+                android:id="@+id/start_night_hour_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Hora nocturna inicial"
+                android:focusable="false"
+                android:clickable="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <EditText
+                android:id="@+id/end_night_hour_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false"
+                android:hint="Hora nocturna final" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/save_button"

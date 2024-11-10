@@ -15,7 +15,7 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/medicineName"
+            android:id="@+id/medicine_name"
             android:layout_width="230dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

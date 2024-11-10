@@ -8,20 +8,22 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.pillulebox.Fragments.EditSchedule.EditSingleModeFragment;
+import com.example.pillulebox.Fragments.DefineSchedule.DefineBasicModeFragment;
+import com.example.pillulebox.Fragments.DefineSchedule.DefineSequentialModeFragment;
+import com.example.pillulebox.Fragments.DefineSchedule.DefineSingleModeFragment;
 
 import Models.ScheduleModes.BasicMode;
 import Models.ScheduleModes.SequentialMode;
 import Models.ScheduleModes.SingleMode;
 
-public class EditScheduleActivity extends AppCompatActivity {
+public class DefineScheduleActivity extends AppCompatActivity {
     private String modeType;
     private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_schedule);
+        setContentView(R.layout.activity_define_schedule);
         getModeFromExtras();
         setupToolbar();
     }
@@ -32,15 +34,25 @@ public class EditScheduleActivity extends AppCompatActivity {
         if (modeType != null) {
             if (modeType.equals("single")) {
                 SingleMode singleMode = (SingleMode) intent.getSerializableExtra("mode");
-                EditSingleModeFragment fragment = EditSingleModeFragment.newInstance(singleMode);
+                DefineSingleModeFragment fragment = DefineSingleModeFragment.newInstance(singleMode);
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container_edit_schedule, fragment)
                         .commit();
             } else if (modeType.equals("sequential")) {
                 SequentialMode sequentialMode = (SequentialMode) intent.getSerializableExtra("mode");
+                DefineSequentialModeFragment fragment = DefineSequentialModeFragment.newInstance(sequentialMode);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container_edit_schedule, fragment)
+                        .commit();
             } else if (modeType.equals("basic")) {
                 BasicMode basicMode = (BasicMode) intent.getSerializableExtra("mode");
+                DefineBasicModeFragment fragment = DefineBasicModeFragment.newInstance(basicMode);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container_edit_schedule, fragment)
+                        .commit();
             }
         }
     }

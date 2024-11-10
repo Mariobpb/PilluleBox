@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.TextView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.LogInActivity;
 import com.example.pillulebox.MenuActivity;
 
@@ -23,7 +23,7 @@ import okhttp3.Response;
 
 public class LogInUserTask extends AsyncTask<String, Void, Response> {
     private final OkHttpClient client = new OkHttpClient();
-    private final String BASE_URL = General.getURL();
+    private final String BASE_URL = GeneralInfo.getURL();
     private final String secretKey;
     public String token;
     private final Context context;
@@ -74,18 +74,18 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
         if (response != null) {
             if(response.isSuccessful()){
                 error_text.setText("");
-                General.toastMessage("Autenticación exitosa", context);
+                GeneralInfo.toastMessage("Autenticación exitosa", context);
 
-                General.setToken(context, token);
+                GeneralInfo.setToken(context, token);
 
                 Intent intent = new Intent(context, MenuActivity.class);
                 context.startActivity(intent);
                 ((LogInActivity) context).finish();
             } else {
-                General.toastMessage("Error de autenticación", context);
+                GeneralInfo.toastMessage("Error de autenticación", context);
             }
         } else {
-            General.toastMessage("Error de autenticación", context);
+            GeneralInfo.toastMessage("Error de autenticación", context);
         }
     }
 

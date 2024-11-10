@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import Models.Dispenser;
 
-public class General {
+public class GeneralInfo {
     private static final String Secret_Key = "1234567890123456";
     private static final String IV = "iughvnbaklsvvkhj";
     private static final String BASE_URL = "http://192.168.100.14:8080/";

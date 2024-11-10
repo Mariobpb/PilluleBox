@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pillulebox.EditScheduleActivity;
+import com.example.pillulebox.DefineScheduleActivity;
 import com.example.pillulebox.R;
 
 import java.util.List;
@@ -22,6 +22,15 @@ import Models.ScheduleModes.SequentialMode;
 public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAdapter.ViewHolder> {
     private List<SequentialMode> modes;
     private final SimpleDateFormat dateFormat;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(SequentialMode mode);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public SequentialModeAdapter(List<SequentialMode> modes) {
         this.modes = modes;
@@ -41,8 +50,15 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
         SequentialMode mode = modes.get(position);
         holder.medicineName.setText(mode.getMedicineName());
         holder.startDate.setText(dateFormat.format(mode.getStartDate()));
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(mode);
+            }
+        });
+
         holder.editModeButton.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), EditScheduleActivity.class);
+            Intent intent = new Intent(v.getContext(), DefineScheduleActivity.class);
             intent.putExtra("mode", mode);
             intent.putExtra("mode_type", "sequential");
             v.getContext().startActivity(intent);
@@ -61,7 +77,7 @@ public class SequentialModeAdapter extends RecyclerView.Adapter<SequentialModeAd
 
         ViewHolder(View view) {
             super(view);
-            medicineName = view.findViewById(R.id.medicineName);
+            medicineName = view.findViewById(R.id.medicine_name);
             startDate = view.findViewById(R.id.startDate);
             editModeButton = view.findViewById(R.id.edit_sequential_mode_button);
         }

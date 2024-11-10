@@ -1,16 +1,17 @@
-package AsyncTasks;
+package AsyncTasks.Schedules;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class GetBasicModesTask extends AsyncTask<Void, Void, List<BasicMode>> {
         List<BasicMode> modes = new ArrayList<>();
 
         Request request = new Request.Builder()
-                .url(General.getURL() + "basic_modes/" + macAddress)
+                .url(GeneralInfo.getURL() + "basic_modes/" + macAddress)
                 .addHeader("Authorization", token)
                 .get()
                 .build();
@@ -56,9 +57,42 @@ public class GetBasicModesTask extends AsyncTask<Void, Void, List<BasicMode>> {
 
                 for (int i = 0; i < modesArray.length(); i++) {
                     JSONObject modeObj = modesArray.getJSONObject(i);
+
+                    Time morningStartTime = null;
+                    Time morningEndTime = null;
+                    Time afternoonStartTime = null;
+                    Time afternoonEndTime = null;
+                    Time nightStartTime = null;
+                    Time nightEndTime = null;
+
+                    if (!modeObj.isNull("morning_start_time")) {
+                        morningStartTime = Time.valueOf(modeObj.getString("morning_start_time"));
+                    }
+                    if (!modeObj.isNull("morning_end_time")) {
+                        morningEndTime = Time.valueOf(modeObj.getString("morning_end_time"));
+                    }
+                    if (!modeObj.isNull("afternoon_start_time")) {
+                        afternoonStartTime = Time.valueOf(modeObj.getString("afternoon_start_time"));
+                    }
+                    if (!modeObj.isNull("afternoon_end_time")) {
+                        afternoonEndTime = Time.valueOf(modeObj.getString("afternoon_end_time"));
+                    }
+                    if (!modeObj.isNull("night_start_time")) {
+                        nightStartTime = Time.valueOf(modeObj.getString("night_start_time"));
+                    }
+                    if (!modeObj.isNull("night_end_time")) {
+                        nightEndTime = Time.valueOf(modeObj.getString("night_end_time"));
+                    }
+
                     BasicMode mode = new BasicMode(
                             modeObj.getInt("id"),
-                            modeObj.getString("medicine_name")
+                            modeObj.getString("medicine_name"),
+                            morningStartTime,
+                            morningEndTime,
+                            afternoonStartTime,
+                            afternoonEndTime,
+                            nightStartTime,
+                            nightEndTime
                     );
                     modes.add(mode);
                 }

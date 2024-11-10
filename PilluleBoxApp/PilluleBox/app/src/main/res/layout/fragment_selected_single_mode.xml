@@ -4,55 +4,62 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:backgroundTint="@color/cell_sequential_mode"
+    android:layout_gravity="center"
+    android:backgroundTint="@color/cell_single_mode"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="16dp">
 
         <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="230dp"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre: "
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/medicine_name"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:text="Fecha: "
+                android:textSize="18dp"
                 android:textStyle="bold" />
-            <androidx.appcompat.widget.LinearLayoutCompat
+
+            <TextView
+                android:id="@+id/dispensing_date"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fecha de inicio: "
-                    />
-                <TextView
-                    android:id="@+id/startDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
-            </androidx.appcompat.widget.LinearLayoutCompat>
+                android:layout_height="wrap_content" />
+
         </androidx.appcompat.widget.LinearLayoutCompat>
+
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/edit_sequential_mode_button"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:id="@+id/assign_cells"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/corners4"
             android:paddingHorizontal="10dp"
-            android:text="Editar" />
+            android:text="Asignar celdas" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.cardview.widget.CardView>

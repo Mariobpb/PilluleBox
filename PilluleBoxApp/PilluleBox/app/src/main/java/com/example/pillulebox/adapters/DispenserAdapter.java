@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pillulebox.General;
+import com.example.pillulebox.GeneralInfo;
 import com.example.pillulebox.MenuActivity;
 import com.example.pillulebox.R;
 import com.google.gson.Gson;
@@ -61,7 +61,7 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
     }
 
     private void saveSelectedDispenser(Dispenser dispenser) {
-        SharedPreferences prefs = context.getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(GeneralInfo.Archivo, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         Gson gson = new Gson();
         String dispenserJson = gson.toJson(dispenser);
@@ -73,7 +73,7 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
     }
 
     private boolean isDispenserSelected(Dispenser dispenser) {
-        SharedPreferences prefs = context.getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(GeneralInfo.Archivo, Context.MODE_PRIVATE);
         String savedDispenserJson = prefs.getString(SELECTED_DISPENSER_KEY, "");
         if (!savedDispenserJson.isEmpty()) {
             Gson gson = new Gson();
@@ -84,7 +84,7 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
     }
 
     public static void clearSelectedDispenser(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(GeneralInfo.Archivo, Context.MODE_PRIVATE);
         prefs.edit().remove(SELECTED_DISPENSER_KEY).apply();
 
         if (context instanceof MenuActivity) {
@@ -93,7 +93,7 @@ public class DispenserAdapter extends RecyclerView.Adapter<DispenserAdapter.View
     }
 
     public static Dispenser getSelectedDispenser(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(General.Archivo, Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(GeneralInfo.Archivo, Context.MODE_PRIVATE);
         String savedDispenserJson = prefs.getString(SELECTED_DISPENSER_KEY, "");
         if (!savedDispenserJson.isEmpty()) {
             Gson gson = new Gson();
