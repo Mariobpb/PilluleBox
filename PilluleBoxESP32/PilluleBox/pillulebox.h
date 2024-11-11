@@ -7,6 +7,7 @@
 #include <AESLib.h>
 #include <Arduino.h>
 #include "Base64.h"
+#include <RTClib.h>
 
 
 enum KeyboardType { BK,
@@ -36,6 +37,10 @@ String generateSecretKey();
 //String esperarStringSerial();
 String encryptPassword(String password);
 String base64_encode(uint8_t* data, size_t length);
+time_t parseDateTime(const char* dateStr);
+bool checkedAlarms();
+bool updateCellsAgain();
+void dispenseMedicine(int cellNumber, bool dispense);
 
 // UI
 void setBackground(int b);
@@ -44,18 +49,27 @@ void displayEditableText(String str, int initialPosY);
 void displayCharSelectedKeyboard(char Keys[][10], int positionX, int positionY, int initialPosY);
 void menuUI();
 void logInUI();
+void displayCellsList();
 void dispenserUI();
 
 //Solicitudes
 bool validateMacAddress();
 bool logIn(String username_email, String password);
 bool validateToken(const char* token);
+bool updateCellsData(const char* token);
 
 // Variables globales
 extern const int btnPins[6];
 extern bool btnCurrentStatus[6];
 extern bool prevBtnStatus[6];
 extern bool textConfirmed;
+extern int SCL_RTC_PIN;
+extern RTC_DS3231 rtc;
+extern int SDA_RTC_PIN;
+extern int SCL_RTC_PIN;
+extern int TX_PIN;
+extern int RX_PIN;
+extern DateTime lastLocalUpdate;
 extern char basicKeys[4][10];
 extern char capitalKeys[4][10];
 extern char numberSymbolKeys[4][10];
@@ -219,5 +233,20 @@ public:
   void setSequentialMode(SequentialMode* mode);
   void setBasicMode(BasicMode* mode);
 };
+
+extern Cell cells[14];
+
+struct AlarmInfo {
+    bool isActive;
+    DateTime alarmTime;
+    uint8_t cellNumber;
+    
+    AlarmInfo() : isActive(false), cellNumber(0) {}
+};
+
+void setSingleModeAlarm(const Cell& cell);
+void printCellData(const Cell& cell);
+
+extern AlarmInfo alarms[14];
 
 #endif

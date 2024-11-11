@@ -1,25 +1,46 @@
 #include "pillulebox.h"
 
+#include <Wire.h>
 #include <EEPROM.h>
 //#include <HTTPClient.h>
 #include <WiFi.h>
 
 
-String WiFiDisconnectedList[] = { "Conectarse a\nred", "Visualizar\ncontenido", "MAC Address" };
+String WiFiDisconnectedList[] = { "Conectarse a\nred", "Ingresar\nceldas", "MAC Address" };
 Lista OptionsWiFiDisconnected(WiFiDisconnectedList, sizeof(WiFiDisconnectedList) / sizeof(WiFiDisconnectedList[0]));
 
-String logedInList[] = { "Conectarse a\notra red", "Cerrar Sesion", "Visualizar\ncontenido", "MAC Address" };
+String logedInList[] = { "Conectarse a\notra red", "Cerrar Sesion", "Ingresar\nceldas", "MAC Address" };
 Lista OptionsLogedIn(logedInList, sizeof(logedInList) / sizeof(logedInList[0]));
 
-String logedOutList[] = { "Conectarse a\notra red", "Iniciar Sesion", "Visualizar\ncontenido", "MAC Address" };
+String logedOutList[] = { "Conectarse a\notra red", "Iniciar Sesion", "Ingresar\nceldas", "MAC Address" };
 Lista OptionsLogedOut(logedOutList, sizeof(logedOutList) / sizeof(logedOutList[0]));
 
 
 void setup() {
   EEPROM.write(dirMacAuth, 0);
   initPins();
-  Serial.begin(115200);
+  Serial.begin(9600);
+  Serial2.begin(9600, SERIAL_8N1, TX_PIN, RX_PIN);
   EEPROM.begin(512);
+  setenv("TZ", "GMT-6", 1);
+  tzset();
+  Wire.begin(SDA_RTC_PIN, SCL_RTC_PIN);
+
+  if (!rtc.begin()) {
+    setBackground(2);
+    tft.setTextColor(TFT_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(0, 20);
+    tft.print("No se pudo encontrar el módulo RTC,\n favor de conectarlo y reinicie");
+    Serial.println("No se pudo encontrar el módulo RTC, favor de conectarlo");
+    while (true)
+      ;
+  }
+
+  if (rtc.lostPower()) {
+    Serial.println("RTC perdió energía, estableciendo hora!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
 
   Serial.println("Bienvenido :)");
 
@@ -48,6 +69,16 @@ void loop() {
         readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
       }
       if (validateToken(tokenEEPROM)) {
+        if (updateCellsAgain()) {
+          if (updateCellsData(tokenEEPROM)) {
+            Serial.println("Actualización exitosa");
+            for (int i = 0; i < 14; i++) {
+              printCellData(cells[i]);
+            }
+          } else {
+            Serial.println("Falló la actualización");
+          }
+        }
         setBackground(1);
         tft.setTextColor(TFT_WHITE);
         tft.setCursor(0, 20);
@@ -69,7 +100,7 @@ void loop() {
             writeStringInEEPROM(dirTOKEN, "", tokenBufferSize);
             break;
           case 3:
-            dispenserUI();
+            displayCellsList();
             break;
           case 4:
             setBackground(1);
@@ -107,11 +138,12 @@ void loop() {
       }
     } else {
       setBackground(2);
-      tft.setCursor(0, tft.height()/2);
+      tft.setCursor(0, tft.height() / 2);
       tft.setTextSize(3);
       tft.setTextColor(TFT_RED);
       tft.print("Dispositivo no\nautorizado");
-      while(true);
+      while (true)
+        ;
     }
   } else {
     setBackground(1);

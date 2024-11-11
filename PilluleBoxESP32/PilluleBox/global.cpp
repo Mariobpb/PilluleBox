@@ -1,10 +1,20 @@
 #include "pillulebox.h"
 
 const int btnPins[6] = { 46, 11, 12, 10, 3, 9 };  //Up, Down, Left, Right, Enter, Back
-Cell cells[14];
 bool btnCurrentStatus[6] = { false, false, false, false, false, false };
 bool prevBtnStatus[6] = { false, false, false, false, false, false };
 bool textConfirmed;
+
+int Buzzer_PIN = 4;
+
+RTC_DS3231 rtc;
+int SDA_RTC_PIN = 7;
+int SCL_RTC_PIN = 6;
+
+int TX_PIN = 18;
+int RX_PIN = 17;
+
+DateTime lastLocalUpdate;
 
 char basicKeys[4][10] = {
   { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
@@ -44,3 +54,6 @@ const char* Secret_Key = "1234567890123456"; // 16 bytes
 const char* IV = "iughvnbaklsvvkhj"; // 16 bytes
 char tokenEEPROM[tokenBufferSize + 1];
 String username = "";
+
+Cell cells[14];
+AlarmInfo alarms[14];

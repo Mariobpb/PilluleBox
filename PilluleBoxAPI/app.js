@@ -632,6 +632,52 @@ app.get('/basic_modes/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.get('/cells_with_modes/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  console.log("Actualizando celdas");
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+    }
+    
+    const query = `
+      SELECT 
+        c.id, c.num_cell, c.current_medicine_date,
+        sm.id as single_id, sm.medicine_name as single_medicine, sm.dispensing_date,
+        sqm.id as seq_id, sqm.medicine_name as seq_medicine, sqm.start_date, 
+        sqm.end_date, sqm.period, sqm.limit_times_consumption,
+        sqm.affected_periods, sqm.current_times_consumption,
+        bm.id as basic_id, bm.medicine_name as basic_medicine,
+        bm.morning_start_time, bm.morning_end_time,
+        bm.afternoon_start_time, bm.afternoon_end_time,
+        bm.night_start_time, bm.night_end_time
+      FROM cell c
+      LEFT JOIN single_mode sm ON c.single_mode_id = sm.id
+      LEFT JOIN sequential_mode sqm ON c.sequential_mode_id = sqm.id
+      LEFT JOIN basic_mode bm ON c.basic_mode_id = bm.id
+      WHERE c.mac_dispenser = ?
+      ORDER BY c.num_cell
+    `;
+
+    connection.query(query, [macAddress], (err, results) => {
+      if (err) {
+        console.error('Error al obtener los datos:', err);
+        return res.status(500).json({ error: 'Error al obtener los datos de las celdas' });
+      }
+
+      res.json(results);
+    });
+  });
+});
+
 app.put('/update_single_mode/:mac', authMiddleware, (req, res) => {
   const macAddress = req.params.mac;
   const userId = req.userId;

@@ -89,12 +89,28 @@ int Lista::selectItemFromList() {
     resetBtns();
     while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
       readBtns();
+      if (WiFi.status() == WL_CONNECTED) {
+        if (checkedAlarms()) {
+          setBackground(1);
+          drawList();
+        }
+        if (updateCellsAgain()) {
+          if (updateCellsData(tokenEEPROM)) {
+            Serial.println("Actualización exitosa");
+            for (int i = 0; i < 14; i++) {
+              printCellData(cells[i]);
+            }
+          } else {
+            Serial.println("Falló la actualización");
+          }
+        }
+      }
       delay(50);
     };
 
     if (btnCurrentStatus[0]) updateSelection(-1);
     if (btnCurrentStatus[1]) updateSelection(1);
-    if (btnCurrentStatus[5]) return -1;  // Salir si se presiona el botón de retorno
+    if (btnCurrentStatus[5]) return -1;
 
   } while (!btnCurrentStatus[4]);
 
@@ -335,4 +351,259 @@ String base64_encode(uint8_t* data, size_t length) {
       encoded += '=';
   }
   return encoded;
+}
+
+time_t parseDateTime(const char* dateStr) {
+  struct tm tm = {};
+  int year, month, day, hour, min, sec;
+  float msec;
+  if (sscanf(dateStr, "%d-%d-%dT%d:%d:%d.%fZ",
+             &year, &month, &day, &hour, &min, &sec, &msec)
+      >= 6) {
+    tm.tm_year = year - 1900;
+    tm.tm_mon = month - 1;
+    tm.tm_mday = day;
+    tm.tm_hour = hour;
+    tm.tm_min = min;
+    tm.tm_sec = sec;
+
+    Serial.printf("Fecha UTC recibida: %s\n", dateStr);
+    Serial.printf("Valores parseados UTC: %04d-%02d-%02d %02d:%02d:%02d\n",
+                  year, month, day, hour, min, sec);
+    time_t timestamp = mktime(&tm);
+    timestamp -= 6 * 3600;
+    struct tm* check = localtime(&timestamp);
+    Serial.printf("Fecha ajustada a GMT-6: %04d-%02d-%02d %02d:%02d:%02d\n",
+                  check->tm_year + 1900, check->tm_mon + 1, check->tm_mday,
+                  check->tm_hour, check->tm_min, check->tm_sec);
+
+    return timestamp;
+  }
+
+  Serial.println("Error parseando fecha: " + String(dateStr));
+  return 0;
+}
+
+void setSingleModeAlarm(const Cell& cell) {
+  if (cell.getSingleMode() != nullptr) {
+    int cellIndex = cell.getNumCell() - 1;
+    time_t dispensingTime = cell.getSingleMode()->getDispensingDate();
+
+    struct tm* timeinfo = localtime(&dispensingTime);
+    DateTime alarmTime(
+      timeinfo->tm_year + 1900,
+      timeinfo->tm_mon + 1,
+      timeinfo->tm_mday,
+      timeinfo->tm_hour,
+      timeinfo->tm_min,
+      timeinfo->tm_sec);
+
+    DateTime now = rtc.now();
+    if (alarmTime > now || cell.getCurrentMedicineDate() != -1) {
+      alarms[cellIndex].isActive = true;
+      alarms[cellIndex].alarmTime = alarmTime;
+      alarms[cellIndex].cellNumber = cell.getNumCell();
+
+      if (cellIndex == 0) {
+        rtc.setAlarm1(alarmTime, DS3231_A1_Date);
+      } else if (cellIndex == 1) {  // Para Alarma 2
+        rtc.setAlarm2(alarmTime, DS3231_A2_Date);
+      }
+
+      Serial.print("Alarma configurada para celda ");
+      Serial.print(cell.getNumCell());
+      Serial.print(" - Fecha: ");
+      Serial.print(alarmTime.year());
+      Serial.print("/");
+      Serial.print(alarmTime.month());
+      Serial.print("/");
+      Serial.print(alarmTime.day());
+      Serial.print(" ");
+      Serial.print(alarmTime.hour());
+      Serial.print(":");
+      Serial.print(alarmTime.minute());
+      Serial.print(":");
+      Serial.println(alarmTime.second());
+    } else {
+      Serial.print("Ignorando alarma pasada para celda ");
+      Serial.println(cell.getNumCell());
+    }
+  }
+}
+
+bool checkedAlarms() {
+  bool startedAlarm = false;
+  DateTime now = rtc.now();
+  for (int i = 0; i < 14; i++) {
+    if (alarms[i].isActive) {
+      if (now >= alarms[i].alarmTime) {
+        startedAlarm = true;
+
+        Serial.print("¡Alarma! Celda ");
+        Serial.print(alarms[i].cellNumber);
+        Serial.println(" lista para dispensar");
+
+        setBackground(2);
+        tft.setCursor(0, tft.height() / 2);
+        tft.setTextSize(3);
+        tft.setTextColor(TFT_WHITE);
+        tft.print("Medicamento listo\npara dispensar\n\nFavor de confirmar");
+        readBtns();
+
+        while (!btnCurrentStatus[4]) {
+          delay(50);
+          readBtns();
+        }
+
+        setBackground(2);
+        tft.setCursor(0, tft.height() / 2);
+        tft.setTextSize(3);
+        tft.setTextColor(TFT_WHITE);
+        tft.print("Dispensando medicamento...");
+
+        dispenseMedicine(alarms[i].cellNumber, true);
+
+        alarms[i].isActive = false;
+        delay(1000);
+        readBtns();
+      }
+    }
+  }
+  return startedAlarm;
+}
+
+void printCellData(const Cell& cell) {
+  Serial.println("\n----------------------------------------");
+  Serial.printf("DATOS DE CELDA #%d (ID: %d)\n", cell.getNumCell(), cell.getId());
+  Serial.println("----------------------------------------");
+
+  // Función helper para formatear tiempo
+  auto formatTime = [](const tm& time) -> String {
+    char buffer[6];
+    sprintf(buffer, "%02d:%02d", time.tm_hour, time.tm_min);
+    return String(buffer);
+  };
+
+  // Función helper para formatear fecha y hora
+  auto formatDateTime = [](time_t timestamp) -> String {
+    struct tm* timeinfo = localtime(&timestamp);
+    char buffer[20];
+    sprintf(buffer, "%02d/%02d/%d %02d:%02d",
+            timeinfo->tm_mday,
+            timeinfo->tm_mon + 1,
+            timeinfo->tm_year + 1900,
+            timeinfo->tm_hour,
+            timeinfo->tm_min);
+    return String(buffer);
+  };
+
+  // Mostrar fecha actual del medicamento
+  Serial.printf("Fecha actual del medicamento: %s\n",
+                formatDateTime(cell.getCurrentMedicineDate()).c_str());
+  Serial.println("----------------------------------------");
+
+  // Verificar y mostrar modo Single
+  if (cell.getSingleMode() != nullptr) {
+    SingleMode* sMode = cell.getSingleMode();
+    Serial.println("MODO ÚNICO ACTIVO:");
+    Serial.printf("ID: %d\n", sMode->getId());
+    Serial.printf("Medicina: %s\n", sMode->getMedicineName());
+    Serial.printf("Fecha de dispensación: %s\n",
+                  formatDateTime(sMode->getDispensingDate()).c_str());
+  }
+
+  // Verificar y mostrar modo Sequential
+  if (cell.getSequentialMode() != nullptr) {
+    SequentialMode* sqMode = cell.getSequentialMode();
+    Serial.println("MODO SECUENCIAL ACTIVO:");
+    Serial.printf("ID: %d\n", sqMode->getId());
+    Serial.printf("Medicina: %s\n", sqMode->getMedicineName());
+    Serial.printf("Fecha inicio: %s\n",
+                  formatDateTime(sqMode->getStartDate()).c_str());
+    Serial.printf("Fecha fin: %s\n",
+                  formatDateTime(sqMode->getEndDate()).c_str());
+    Serial.printf("Período: %s\n",
+                  formatTime(sqMode->getPeriod()).c_str());
+    Serial.printf("Tomas: %d/%d\n",
+                  sqMode->getCurrentTimesConsumption(),
+                  sqMode->getLimitTimesConsumption());
+    Serial.printf("Períodos afectados: %s\n",
+                  sqMode->getAffectedPeriods() ? "Sí" : "No");
+  }
+
+  // Verificar y mostrar modo Basic
+  if (cell.getBasicMode() != nullptr) {
+    BasicMode* bMode = cell.getBasicMode();
+    Serial.println("MODO BÁSICO ACTIVO:");
+    Serial.printf("ID: %d\n", bMode->getId());
+    Serial.printf("Medicina: %s\n", bMode->getMedicineName());
+
+    Serial.println("Horarios:");
+    Serial.printf("  Mañana:  %s - %s\n",
+                  formatTime(bMode->getMorningStartTime()).c_str(),
+                  formatTime(bMode->getMorningEndTime()).c_str());
+    Serial.printf("  Tarde:   %s - %s\n",
+                  formatTime(bMode->getAfternoonStartTime()).c_str(),
+                  formatTime(bMode->getAfternoonEndTime()).c_str());
+    Serial.printf("  Noche:   %s - %s\n",
+                  formatTime(bMode->getNightStartTime()).c_str(),
+                  formatTime(bMode->getNightEndTime()).c_str());
+  }
+
+  if (cell.getSingleMode() == nullptr && cell.getSequentialMode() == nullptr && cell.getBasicMode() == nullptr) {
+    Serial.println("CELDA SIN MODO CONFIGURADO");
+  }
+
+  Serial.println("----------------------------------------\n");
+}
+
+bool updateCellsAgain() {
+  DateTime now = rtc.now();
+  if (lastLocalUpdate.unixtime() == 0) {
+    lastLocalUpdate = now;
+    Serial.printf("Primera actualización a las %02d:%02d\n",
+                  now.hour(),
+                  now.minute());
+    return true;
+  }
+  TimeSpan timePassed = now - lastLocalUpdate;
+  long minutesPassed = timePassed.totalseconds() / 60;
+  if (minutesPassed >= 1) {
+    Serial.printf("Solicitando actualización a las %02d:%02d:%02d\n",
+                  now.hour(),
+                  now.minute(),
+                  now.second());
+    lastLocalUpdate = now;
+    return true;
+  }
+  return false;
+}
+
+//ESP32S3 Code
+
+void dispenseMedicine(int cellNumber, bool dispense) {
+  Serial2.flush();
+  Serial2.print(cellNumber);
+  Serial2.print(",");
+  Serial2.print(dispense ? 1 : 0);  // Enviar 1 o 0
+  Serial2.flush();
+  delay(100);
+
+  bool dispensed = false;
+  while (!dispensed) {
+    if (Serial2.available() >= 1) {
+      int response = Serial2.read();  // Leer un entero
+      Serial.println("Response: |" + (String)response + "|");
+      if (response == 1) {
+        dispensed = true;
+        Serial.println("Medicamento dispensado correctamente");
+      } else {
+        Serial.println("Error al dispensar medicamento");
+      }
+    }
+  }
+
+  if (!dispensed) {
+    Serial.println("No se recibió respuesta del Arduino Uno");
+  }
 }
