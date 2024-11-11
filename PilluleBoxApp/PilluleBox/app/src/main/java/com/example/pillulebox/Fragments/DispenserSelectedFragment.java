@@ -33,12 +33,11 @@ public class DispenserSelectedFragment extends Fragment {
     private AppCompatButton defineContextButton;
     private AppCompatButton assignScheduleButton;
     private View[] cell = new View[14];
-    /*
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
-     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadDispenserInfo();
+    }
 
     public DispenserSelectedFragment() {
         // Required empty public constructor
@@ -84,18 +83,27 @@ public class DispenserSelectedFragment extends Fragment {
         Dispenser selectedDispenser = DispenserAdapter.getSelectedDispenser(requireContext());
         if (selectedDispenser != null) {
             dispenserName.setText(selectedDispenser.getName());
-            dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ? "Favor de definir el contexto" : "");
+            dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ?
+                    "Favor de definir el contexto" : "");
+
+            // Reiniciar las celdas antes de cargar nuevos datos
+            restartCells();
+
             String token = GeneralInfo.getToken(requireContext());
             new GetDispenserCellsTask(requireContext(), token, selectedDispenser.getMac(),
                     new GetDispenserCellsTask.CellsCallback() {
                         @Override
                         public void onCellsLoaded(List<Cell> cells) {
-                            updateCells(cells);
+                            if (isAdded()) { // Verificar que el fragment aún esté adjunto
+                                updateCells(cells);
+                            }
                         }
 
                         @Override
                         public void onError(String error) {
-                            GeneralInfo.toastMessage(error, requireContext());
+                            if (isAdded()) {
+                                GeneralInfo.toastMessage(error, requireContext());
+                            }
                         }
                     }).execute();
         }

@@ -42,6 +42,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         String token = GeneralInfo.getToken(this);
         if (token != null) {
             new ValidateTokenTask(this).execute(token);
+            reloadCurrentFragment();
         } else {
             returnToLogIn();
         }
@@ -164,6 +165,15 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
 
         Log.d(TAG, "loadUserDispensers: Ejecutando GetUserDispensersTask");
         new GetUserDispensersTask(this, dispensersList, token).execute();
+    }
+
+    private void reloadCurrentFragment() {
+        Fragment currentFragment = getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_container_menu);
+
+        if (currentFragment instanceof DispenserSelectedFragment) {
+            ((DispenserSelectedFragment) currentFragment).loadDispenserInfo();
+        }
     }
 
     private void setupListeners() {

@@ -1,6 +1,6 @@
 #include "pillulebox.h"
 
-const int btnPins[6] = { 15, 5, 6, 4, 7, 16 };  //Up, Down, Left, Right, Enter, Back
+const int btnPins[6] = { 46, 11, 12, 10, 3, 9 };  //Up, Down, Left, Right, Enter, Back
 bool btnCurrentStatus[6] = { false, false, false, false, false, false };
 bool prevBtnStatus[6] = { false, false, false, false, false, false };
 bool textConfirmed;

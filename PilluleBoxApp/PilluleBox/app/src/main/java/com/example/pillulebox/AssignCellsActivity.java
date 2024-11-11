@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import AsyncTasks.GetDispenserCellsTask;
+import AsyncTasks.UpdateCellsTask;
 import Managers.CellStateManager;
 import Models.Cell;
 import Models.Dispenser;
@@ -112,7 +113,6 @@ public class AssignCellsActivity extends AppCompatActivity {
     }
     private void handleCellClick(int cellIndex) {
         Log.d(TAG, "Cell clicked: " + (cellIndex + 1));
-
         if (currentCells == null || cellIndex >= currentCells.size()) {
             Log.e(TAG, "Invalid cell index or currentCells is null");
             return;
@@ -124,109 +124,161 @@ public class AssignCellsActivity extends AppCompatActivity {
             return;
         }
 
-        // Verificar si la celda ya está seleccionada
+        boolean hadOriginalMode = false;
+        // Verificar si la celda tenía originalmente el modo actual
+        switch (modeType) {
+            case "single":
+                hadOriginalMode = cellInfo.getSingleModeId() != null &&
+                        cellInfo.getSingleModeId().equals(currentModeId);
+                break;
+            case "sequential":
+                hadOriginalMode = cellInfo.getSequentialModeId() != null &&
+                        cellInfo.getSequentialModeId().equals(currentModeId);
+                break;
+            case "basic":
+                hadOriginalMode = cellInfo.getBasicModeId() != null &&
+                        cellInfo.getBasicModeId().equals(currentModeId);
+                break;
+        }
+
         if (selectedCells.contains(cellIndex)) {
-            // Deseleccionar la celda
+            // Si la celda está seleccionada, la deseleccionamos
             selectedCells.remove(Integer.valueOf(cellIndex));
-            CellStateManager.updateCellState(cells[cellIndex],
-                    defineMainColorCell(cellInfo),
-                    defineSecondaryColorCell(cellInfo),
-                    this);
-            Log.d(TAG, "Cell " + (cellIndex + 1) + " deselected");
+
+            // Si tenía el modo original, la mostramos como vacía o disponible según su contenido
+            if (hadOriginalMode) {
+                int mainState = cellInfo.getCurrentMedicineDate() != null ?
+                        CellStateManager.STATE_AVAILABLE : CellStateManager.STATE_EMPTY;
+                int secondaryState = isSevenDaysAgo(cellInfo.getCurrentMedicineDate()) ?
+                        CellStateManager.SECONDARY_STATE_WARNING : CellStateManager.SECONDARY_STATE_NONE;
+
+                CellStateManager.updateCellState(cells[cellIndex], mainState, secondaryState, this);
+            } else {
+                // Si no tenía el modo original, vuelve a su estado original
+                CellStateManager.updateCellState(cells[cellIndex],
+                        defineMainColorCell(cellInfo),
+                        defineSecondaryColorCell(cellInfo),
+                        this);
+            }
         } else {
-            // Seleccionar la celda - Ahora mantiene el estado secundario
+            // Si la celda no está seleccionada, la seleccionamos
             selectedCells.add(cellIndex);
             CellStateManager.updateCellState(cells[cellIndex],
                     CellStateManager.STATE_SELECTED_CELL,
-                    defineSecondaryColorCell(cellInfo), // Mantiene el estado secundario
+                    defineSecondaryColorCell(cellInfo),
                     this);
-            Log.d(TAG, "Cell " + (cellIndex + 1) + " selected with secondary state");
         }
+
+        Log.d(TAG, "Cell " + (cellIndex + 1) + " " +
+                (selectedCells.contains(cellIndex) ? "selected" : "deselected"));
     }
-
-
     private void setupSaveButton() {
         saveButton.setOnClickListener(v -> saveSelectedCells());
     }
     private void saveSelectedCells() {
-        if (selectedCells.isEmpty()) {
-            Toast.makeText(this, "Selecciona al menos una celda", Toast.LENGTH_SHORT).show();
+        List<Cell> cellsToUpdate = new ArrayList<>();
+
+        for (Cell originalCell : currentCells) {
+            boolean hadOriginalMode = false;
+            boolean isSelected = selectedCells.contains(originalCell.getNumCell() - 1);
+
+            // Verificar si tenía el modo original
+            switch (modeType) {
+                case "single":
+                    hadOriginalMode = originalCell.getSingleModeId() != null &&
+                            originalCell.getSingleModeId().equals(currentModeId);
+                    break;
+                case "sequential":
+                    hadOriginalMode = originalCell.getSequentialModeId() != null &&
+                            originalCell.getSequentialModeId().equals(currentModeId);
+                    break;
+                case "basic":
+                    hadOriginalMode = originalCell.getBasicModeId() != null &&
+                            originalCell.getBasicModeId().equals(currentModeId);
+                    break;
+            }
+
+            // Actualizar solo si:
+            // 1. Tenía el modo original y no está seleccionada (para limpiar)
+            // 2. Está seleccionada (para asignar nuevo modo)
+            if ((hadOriginalMode && !isSelected) || isSelected) {
+                Cell updatedCell = new Cell(
+                        originalCell.getId(),
+                        originalCell.getMacDispenser(),
+                        originalCell.getNumCell(),
+                        originalCell.getCurrentMedicineDate(),
+                        null, // Limpiamos todos los modos primero
+                        null,
+                        null
+                );
+
+                // Si está seleccionada y no tenía el modo original, asignamos el nuevo modo
+                if (isSelected && !hadOriginalMode) {
+                    switch (modeType) {
+                        case "single":
+                            updatedCell = new Cell(
+                                    originalCell.getId(),
+                                    originalCell.getMacDispenser(),
+                                    originalCell.getNumCell(),
+                                    originalCell.getCurrentMedicineDate(),
+                                    currentModeId,
+                                    null,
+                                    null
+                            );
+                            break;
+                        case "sequential":
+                            updatedCell = new Cell(
+                                    originalCell.getId(),
+                                    originalCell.getMacDispenser(),
+                                    originalCell.getNumCell(),
+                                    originalCell.getCurrentMedicineDate(),
+                                    null,
+                                    currentModeId,
+                                    null
+                            );
+                            break;
+                        case "basic":
+                            updatedCell = new Cell(
+                                    originalCell.getId(),
+                                    originalCell.getMacDispenser(),
+                                    originalCell.getNumCell(),
+                                    originalCell.getCurrentMedicineDate(),
+                                    null,
+                                    null,
+                                    currentModeId
+                            );
+                            break;
+                    }
+                }
+
+                cellsToUpdate.add(updatedCell);
+            }
+        }
+
+        if (cellsToUpdate.isEmpty()) {
+            finish();
             return;
         }
 
-        Log.d(TAG, "Saving selected cells: " + selectedCells.toString());
+        String token = GeneralInfo.getToken(this);
+        Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
 
-        // Crear lista de celdas actualizadas
-        List<Cell> cellsToUpdate = new ArrayList<>();
-        for (Integer cellIndex : selectedCells) {
-            Cell originalCell = currentCells.get(cellIndex);
+        new UpdateCellsTask(this, token, selectedDispenser.getMac(), cellsToUpdate,
+                new UpdateCellsTask.UpdateCallback() {
+                    @Override
+                    public void onSuccess() {
+                        runOnUiThread(() -> finish());
+                    }
 
-            // Crear nueva celda con el modo actualizado
-            Cell updatedCell;
-            switch (modeType) {
-                case "single":
-                    updatedCell = new Cell(
-                            originalCell.getId(),
-                            originalCell.getMacDispenser(),
-                            originalCell.getNumCell(),
-                            originalCell.getCurrentMedicineDate(),
-                            currentModeId,  // Nuevo SingleModeId
-                            null,           // Limpiar SequentialModeId
-                            null            // Limpiar BasicModeId
-                    );
-                    break;
-                case "sequential":
-                    updatedCell = new Cell(
-                            originalCell.getId(),
-                            originalCell.getMacDispenser(),
-                            originalCell.getNumCell(),
-                            originalCell.getCurrentMedicineDate(),
-                            null,           // Limpiar SingleModeId
-                            currentModeId,  // Nuevo SequentialModeId
-                            null            // Limpiar BasicModeId
-                    );
-                    break;
-                case "basic":
-                    updatedCell = new Cell(
-                            originalCell.getId(),
-                            originalCell.getMacDispenser(),
-                            originalCell.getNumCell(),
-                            originalCell.getCurrentMedicineDate(),
-                            null,           // Limpiar SingleModeId
-                            null,           // Limpiar SequentialModeId
-                            currentModeId   // Nuevo BasicModeId
-                    );
-                    break;
-                default:
-                    Log.e(TAG, "Modo no reconocido: " + modeType);
-                    continue;
-            }
-
-            cellsToUpdate.add(updatedCell);
-
-            // Actualizar la celda en currentCells para reflejar el cambio inmediatamente
-            currentCells.set(cellIndex, updatedCell);
-        }
-        // new UpdateCellsTask(this, token, cellsToUpdate, new UpdateCellsCallback() {
-        //     @Override
-        //     public void onSuccess() {
-        //         Toast.makeText(AssignCellsActivity.this, "Cambios guardados exitosamente", Toast.LENGTH_SHORT).show();
-        //         // Actualizar la vista
-        //         updateCells(currentCells);
-        //         // Limpiar selección
-        //         selectedCells.clear();
-        //     }
-        //
-        //     @Override
-        //     public void onError(String error) {
-        //         Toast.makeText(AssignCellsActivity.this, "Error al guardar: " + error, Toast.LENGTH_SHORT).show();
-        //     }
-        // }).execute();
-
-        // Por ahora, solo mostraremos un mensaje y actualizaremos la vista
-        Toast.makeText(this, "Cambios guardados localmente", Toast.LENGTH_SHORT).show();
-        updateCells(currentCells);
-        selectedCells.clear();
+                    @Override
+                    public void onError(String error) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(AssignCellsActivity.this,
+                                    "Error al actualizar las celdas: " + error,
+                                    Toast.LENGTH_LONG).show();
+                        });
+                    }
+                }).execute();
     }
     public void loadDispenserInfo() {
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
@@ -267,14 +319,10 @@ public class AssignCellsActivity extends AppCompatActivity {
             Log.d(TAG, "Cell info is null, returning empty state");
             return CellStateManager.STATE_EMPTY;
         }
-
-        // Si la celda está seleccionada, mostrar como seleccionada
         if (selectedCells.contains(cellInfo.getNumCell() - 1)) {
             Log.d(TAG, "Cell " + cellInfo.getNumCell() + " is selected");
             return CellStateManager.STATE_SELECTED_CELL;
         }
-
-        // Si la celda coincide con el modo actual, mostrar en azul (seleccionado)
         if ((modeType.equals("single") && cellInfo.getSingleModeId() != null &&
                 cellInfo.getSingleModeId().equals(currentModeId)) ||
                 (modeType.equals("sequential") && cellInfo.getSequentialModeId() != null &&
@@ -308,7 +356,6 @@ public class AssignCellsActivity extends AppCompatActivity {
     }
 
     private int defineSecondaryColorCell(Cell cellInfo) {
-        // Ya no verificamos si la celda está seleccionada
         if (cellInfo.getCurrentMedicineDate() != null &&
                 isSevenDaysAgo(cellInfo.getCurrentMedicineDate())) {
             Log.d(TAG, "Cell " + cellInfo.getNumCell() + " has warning state");

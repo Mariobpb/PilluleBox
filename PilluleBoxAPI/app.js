@@ -778,6 +778,77 @@ app.put('/update_basic_mode/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.put('/update_cells/:mac', authMiddleware, (req, res) => {
+  const macAddress = req.params.mac;
+  const userId = req.userId;
+  const { cells } = req.body;
+
+  const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkQuery, [macAddress, userId], (err, results) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+
+    connection.beginTransaction(err => {
+      if (err) {
+        console.error('Error al iniciar la transacción:', err);
+        return res.status(500).json({ error: 'Error al actualizar las celdas' });
+      }
+
+      let completedUpdates = 0;
+      const totalUpdates = cells.length;
+
+      cells.forEach(cell => {
+        const updateQuery = `
+          UPDATE cell 
+          SET single_mode_id = ?, 
+              sequential_mode_id = ?, 
+              basic_mode_id = ? 
+          WHERE id = ? AND mac_dispenser = ?
+        `;
+        
+        connection.query(
+          updateQuery, 
+          [
+            cell.single_mode_id, 
+            cell.sequential_mode_id, 
+            cell.basic_mode_id, 
+            cell.id, 
+            cell.mac_dispenser
+          ], 
+          (updateErr) => {
+            if (updateErr) {
+              return connection.rollback(() => {
+                console.error('Error al actualizar celda:', updateErr);
+                res.status(500).json({ error: 'Error al actualizar las celdas' });
+              });
+            }
+
+            completedUpdates++;
+            
+            if (completedUpdates === totalUpdates) {
+              connection.commit(commitErr => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    console.error('Error al confirmar la transacción:', commitErr);
+                    res.status(500).json({ error: 'Error al actualizar las celdas' });
+                  });
+                }
+                res.json({ message: 'Celdas actualizadas correctamente' });
+              });
+            }
+          }
+        );
+      });
+    });
+  });
+});
+
 app.delete('/delete_single_mode/:mac/:id', authMiddleware, (req, res) => {
   const macAddress = req.params.mac;
   const modeId = req.params.id;
