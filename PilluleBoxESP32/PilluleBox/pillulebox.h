@@ -103,93 +103,121 @@ public:
   void updateSelection(int direccion);
 };
 
-class Cell {
-private:
-    int id;
-    uint8_t num_cell;
-    time_t current_medicine_date;
-    SingleMode* single_mode;
-    SequentialMode* sequential_mode;
-    BasicMode* basic_mode;
-    
-public:
-    Cell();
-    ~Cell();
-    
-    void setNumber(uint8_t number);
-    void setSingleMode(SingleMode* mode);
-    void setSequentialMode(SequentialMode* mode);
-    void setBasicMode(BasicMode* mode);
-    void clearModes();
-    
-    bool canDispense(time_t current_time);
-    void updateDispenseTime(time_t new_time);
-    const char* getCurrentMedicineName() const;
-    uint8_t getNumber() const { return num_cell; }
-    int getId() const { return id; }
-};
-
 class SingleMode {
 private:
-    int id;
-    char medicine_name[31];
-    time_t dispensing_date;
+  int id;
+  char medicine_name[31];
+  time_t dispensing_date;
 
 public:
-    SingleMode();
-    void setMedicineName(const char* name);
-    void setDispensingDate(time_t date);
-    bool canDispense(time_t current_time);
-    const char* getMedicineName() const;
-    int getId() const { return id; }
+  SingleMode(int id);
+  ~SingleMode();
+  
+  int getId() const;
+  const char* getMedicineName() const;
+  time_t getDispensingDate() const;
+  
+  void setId(int id);
+  void setMedicineName(const char* name);
+  void setDispensingDate(time_t date);
 };
 
 class SequentialMode {
 private:
-    int id;
-    char medicine_name[31];
-    time_t start_date;
-    time_t end_date;
-    tm period;
-    uint8_t limit_times_consumption;
-    bool affected_periods;
-    uint8_t current_times_consumption;
+  int id;
+  char medicine_name[31];
+  time_t start_date;
+  time_t end_date;
+  tm period;
+  uint8_t limit_times_consumption;
+  bool affected_periods;
+  uint8_t current_times_consumption;
 
 public:
-    SequentialMode();
-    void setMedicineName(const char* name);
-    void setDateRange(time_t start, time_t end);
-    void setPeriod(tm period_time);
-    void setConsumptionLimit(uint8_t limit);
-    void setAffectedPeriods(bool affected);
-    bool incrementConsumption();
-    bool canDispense(time_t current_time);
-    const char* getMedicineName() const;
-    int getId() const { return id; }
+  SequentialMode(int id);
+  ~SequentialMode();
+  
+  int getId() const;
+  const char* getMedicineName() const;
+  time_t getStartDate() const;
+  time_t getEndDate() const;
+  tm getPeriod() const;
+  uint8_t getLimitTimesConsumption() const;
+  bool getAffectedPeriods() const;
+  uint8_t getCurrentTimesConsumption() const;
+  
+  void setId(int id);
+  void setMedicineName(const char* name);
+  void setStartDate(time_t date);
+  void setEndDate(time_t date);
+  void setPeriod(const tm& period);
+  void setLimitTimesConsumption(uint8_t limit);
+  void setAffectedPeriods(bool affected);
+  void setCurrentTimesConsumption(uint8_t times);
 };
 
 class BasicMode {
 private:
-    int id;
-    char medicine_name[31];
-    tm morning_start_time;
-    tm morning_end_time;
-    tm afternoon_start_time;
-    tm afternoon_end_time;
-    tm night_start_time;
-    tm night_end_time;
+  int id;
+  char medicine_name[31];
+  tm morning_start_time;
+  tm morning_end_time;
+  tm afternoon_start_time;
+  tm afternoon_end_time;
+  tm night_start_time;
+  tm night_end_time;
 
 public:
-    BasicMode();
-    void setMedicineName(const char* name);
-    void setMorningTime(tm start, tm end);
-    void setAfternoonTime(tm start, tm end);
-    void setNightTime(tm start, tm end);
-    bool isInMorningPeriod(tm current_time);
-    bool isInAfternoonPeriod(tm current_time);
-    bool isInNightPeriod(tm current_time);
-    const char* getMedicineName() const;
-    int getId() const { return id; }
+  BasicMode(int id);
+  ~BasicMode();
+  
+  int getId() const;
+  const char* getMedicineName() const;
+  tm getMorningStartTime() const;
+  tm getMorningEndTime() const;
+  tm getAfternoonStartTime() const;
+  tm getAfternoonEndTime() const;
+  tm getNightStartTime() const;
+  tm getNightEndTime() const;
+  
+  void setId(int id);
+  void setMedicineName(const char* name);
+  void setMorningStartTime(const tm& time);
+  void setMorningEndTime(const tm& time);
+  void setAfternoonStartTime(const tm& time);
+  void setAfternoonEndTime(const tm& time);
+  void setNightStartTime(const tm& time);
+  void setNightEndTime(const tm& time);
+};
+
+class Cell {
+private:
+  int id;
+  uint8_t num_cell;
+  time_t current_medicine_date;
+  SingleMode* single_mode;
+  SequentialMode* sequential_mode;
+  BasicMode* basic_mode;
+
+  void clearOtherModes();
+
+public:
+  Cell();
+  ~Cell();
+  
+  int getId() const;
+  uint8_t getNumCell() const;
+  time_t getCurrentMedicineDate() const;
+  SingleMode* getSingleMode() const;
+  SequentialMode* getSequentialMode() const;
+  BasicMode* getBasicMode() const;
+  
+  void setId(int id);
+  void setNumCell(uint8_t num_cell);
+  void setCurrentMedicineDate(time_t date);
+  void setSingleMode(SingleMode* mode);
+  void setSequentialMode(SequentialMode* mode);
+  void setBasicMode(BasicMode* mode);
 };
 
 #endif
