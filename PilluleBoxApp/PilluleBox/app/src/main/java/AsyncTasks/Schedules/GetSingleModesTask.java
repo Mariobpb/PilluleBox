@@ -80,7 +80,7 @@ public class GetSingleModesTask extends AsyncTask<Void, Void, List<SingleMode>> 
         if (modes != null && !modes.isEmpty()) {
             callback.onModesLoaded(modes);
         } else {
-            callback.onError("No se pudieron cargar los modos");
+            callback.onError("Sin horarios disponibles");
         }
     }
 }

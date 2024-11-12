@@ -109,7 +109,7 @@ public class GetBasicModesTask extends AsyncTask<Void, Void, List<BasicMode>> {
         if (modes != null && !modes.isEmpty()) {
             callback.onModesLoaded(modes);
         } else {
-            callback.onError("No se pudieron cargar los modos");
+            callback.onError("Sin horarios disponibles");
         }
     }
 }
