@@ -2,6 +2,7 @@ package com.example.pillulebox;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import Models.ScheduleModes.SequentialMode;
 import Models.ScheduleModes.SingleMode;
 
 public class ScheduleActivity extends AppCompatActivity {
+    private String TAG = "ScheduleActivity";
     private Toolbar toolbar;
     private RadioGroup modeRadioGroup;
     private RecyclerView schedulesRecyclerView;
@@ -121,10 +123,12 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private void loadInitialData() {
         modeRadioGroup.check(R.id.singleModeRadio);
+
         loadSingleModeData();
     }
 
     private void loadSingleModeData() {
+        schedulesRecyclerView.setAdapter(null);
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
         if (selectedDispenser != null) {
             String token = GeneralInfo.getToken(this);
@@ -145,6 +149,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void loadSequentialModeData() {
+        schedulesRecyclerView.setAdapter(null);
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
         if (selectedDispenser != null) {
             String token = GeneralInfo.getToken(this);
@@ -165,6 +170,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     private void loadBasicModeData() {
+        schedulesRecyclerView.setAdapter(null);
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
         if (selectedDispenser != null) {
             String token = GeneralInfo.getToken(this);
@@ -178,7 +184,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String error) {
-                    Toast.makeText(ScheduleActivity.this, error, Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error loading single modes: " + error);
                 }
             }).execute();
         }

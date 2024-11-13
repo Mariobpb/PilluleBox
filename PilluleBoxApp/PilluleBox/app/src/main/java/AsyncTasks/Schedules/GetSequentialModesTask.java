@@ -111,7 +111,7 @@ public class GetSequentialModesTask extends AsyncTask<Void, Void, List<Sequentia
         if (modes != null && !modes.isEmpty()) {
             callback.onModesLoaded(modes);
         } else {
-            callback.onError("No se pudieron cargar los modos");
+            callback.onError("Sin horarios disponibles ");
         }
     }
 }
