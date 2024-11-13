@@ -11,9 +11,6 @@ RTC_DS3231 rtc;
 int SDA_RTC_PIN = 7;
 int SCL_RTC_PIN = 6;
 
-int TX_PIN = 18;
-int RX_PIN = 17;
-
 DateTime lastLocalUpdate;
 
 char basicKeys[4][10] = {

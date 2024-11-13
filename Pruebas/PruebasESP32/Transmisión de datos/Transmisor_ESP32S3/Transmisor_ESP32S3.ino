@@ -1,3 +1,5 @@
+#include <Adafruit_PWMServoDriver.h>
+
 // ESP32-S3 (Transmisor)
 void setup() {
   Serial.begin(9600);    // Monitor serial

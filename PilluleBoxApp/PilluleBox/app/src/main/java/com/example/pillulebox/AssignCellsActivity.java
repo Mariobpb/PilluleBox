@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
@@ -104,6 +105,7 @@ public class AssignCellsActivity extends AppCompatActivity {
             }
         }
     }
+
     private void setupClickListeners() {
         Log.d(TAG, "Setting up click listeners");
         for (int i = 0; i < cells.length; i++) {
@@ -111,6 +113,7 @@ public class AssignCellsActivity extends AppCompatActivity {
             cells[i].setOnClickListener(v -> handleCellClick(cellIndex));
         }
     }
+
     private void handleCellClick(int cellIndex) {
         Log.d(TAG, "Cell clicked: " + (cellIndex + 1));
         if (currentCells == null || cellIndex >= currentCells.size()) {
@@ -142,10 +145,8 @@ public class AssignCellsActivity extends AppCompatActivity {
         }
 
         if (selectedCells.contains(cellIndex)) {
-            // Si la celda está seleccionada, la deseleccionamos
             selectedCells.remove(Integer.valueOf(cellIndex));
 
-            // Si tenía el modo original, la mostramos como vacía o disponible según su contenido
             if (hadOriginalMode) {
                 int mainState = cellInfo.getCurrentMedicineDate() != null ?
                         CellStateManager.STATE_AVAILABLE : CellStateManager.STATE_EMPTY;
@@ -154,14 +155,12 @@ public class AssignCellsActivity extends AppCompatActivity {
 
                 CellStateManager.updateCellState(cells[cellIndex], mainState, secondaryState, this);
             } else {
-                // Si no tenía el modo original, vuelve a su estado original
                 CellStateManager.updateCellState(cells[cellIndex],
                         defineMainColorCell(cellInfo),
                         defineSecondaryColorCell(cellInfo),
                         this);
             }
         } else {
-            // Si la celda no está seleccionada, la seleccionamos
             selectedCells.add(cellIndex);
             CellStateManager.updateCellState(cells[cellIndex],
                     CellStateManager.STATE_SELECTED_CELL,
@@ -172,10 +171,81 @@ public class AssignCellsActivity extends AppCompatActivity {
         Log.d(TAG, "Cell " + (cellIndex + 1) + " " +
                 (selectedCells.contains(cellIndex) ? "selected" : "deselected"));
     }
+
     private void setupSaveButton() {
         saveButton.setOnClickListener(v -> saveSelectedCells());
     }
+
     private void saveSelectedCells() {
+        List<Cell> cellsToUpdate = new ArrayList<>();
+        List<Integer> cellsWithExistingModes = new ArrayList<>();
+
+        // Verificamos las celdas seleccionadas que ya tienen modos asignados
+        for (Integer selectedIndex : selectedCells) {
+            Cell cell = currentCells.get(selectedIndex);
+            boolean hasCurrentMode = false;
+
+            // Verificar si la celda tiene el modo actual
+            switch (modeType) {
+                case "single":
+                    hasCurrentMode = cell.getSingleModeId() != null &&
+                            cell.getSingleModeId().equals(currentModeId);
+                    break;
+                case "sequential":
+                    hasCurrentMode = cell.getSequentialModeId() != null &&
+                            cell.getSequentialModeId().equals(currentModeId);
+                    break;
+                case "basic":
+                    hasCurrentMode = cell.getBasicModeId() != null &&
+                            cell.getBasicModeId().equals(currentModeId);
+                    break;
+            }
+            if ((cell.getSingleModeId() != null ||
+                    cell.getSequentialModeId() != null ||
+                    cell.getBasicModeId() != null) && !hasCurrentMode) {
+                cellsWithExistingModes.add(cell.getNumCell());
+            }
+        }
+        if (!cellsWithExistingModes.isEmpty()) {
+            showOverwriteWarning(cellsWithExistingModes, () -> proceedWithSave());
+        } else {
+            proceedWithSave();
+        }
+    }
+
+    private void showOverwriteWarning(List<Integer> cellsWithModes, Runnable onConfirm) {
+        StringBuilder message = new StringBuilder();
+        message.append("Las siguientes celdas ya tienen un modo de horario asignado:\n\n");
+
+        for (Integer cellNum : cellsWithModes) {
+            Cell cell = currentCells.get(cellNum - 1);
+            message.append("- Celda ").append(cellNum).append(": ");
+
+            if (cell.getSingleModeId() != null) {
+                message.append("Modo Único");
+            } else if (cell.getSequentialModeId() != null) {
+                message.append("Modo Secuencial");
+            } else if (cell.getBasicModeId() != null) {
+                message.append("Modo Básico");
+            }
+            message.append("\n");
+        }
+
+        message.append("\n¿Desea sobreescribir los modos existentes?");
+
+        new AlertDialog.Builder(this)
+                .setTitle("Advertencia")
+                .setMessage(message.toString())
+                .setPositiveButton("Continuar", (dialog, which) -> {
+                    dialog.dismiss();
+                    onConfirm.run();
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                .setCancelable(false)
+                .show();
+    }
+
+    private void proceedWithSave() {
         List<Cell> cellsToUpdate = new ArrayList<>();
 
         for (Cell originalCell : currentCells) {
@@ -198,21 +268,17 @@ public class AssignCellsActivity extends AppCompatActivity {
                     break;
             }
 
-            // Actualizar solo si:
-            // 1. Tenía el modo original y no está seleccionada (para limpiar)
-            // 2. Está seleccionada (para asignar nuevo modo)
             if ((hadOriginalMode && !isSelected) || isSelected) {
                 Cell updatedCell = new Cell(
                         originalCell.getId(),
                         originalCell.getMacDispenser(),
                         originalCell.getNumCell(),
                         originalCell.getCurrentMedicineDate(),
-                        null, // Limpiamos todos los modos primero
+                        null,
                         null,
                         null
                 );
 
-                // Si está seleccionada y no tenía el modo original, asignamos el nuevo modo
                 if (isSelected && !hadOriginalMode) {
                     switch (modeType) {
                         case "single":
@@ -280,6 +346,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                     }
                 }).execute();
     }
+
     public void loadDispenserInfo() {
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
         if (selectedDispenser != null) {
@@ -307,6 +374,7 @@ public class AssignCellsActivity extends AppCompatActivity {
             Log.e(TAG, "No dispenser selected");
         }
     }
+
     private void restartCells() {
         Log.d(TAG, "Restarting cells to initial state");
         for (View cell : cells) {
@@ -314,6 +382,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                     CellStateManager.SECONDARY_STATE_NONE, this);
         }
     }
+
     private int defineMainColorCell(Cell cellInfo) {
         if (cellInfo == null) {
             Log.d(TAG, "Cell info is null, returning empty state");
@@ -388,6 +457,7 @@ public class AssignCellsActivity extends AppCompatActivity {
             }
         }
     }
+
     private boolean isSevenDaysAgo(Date date) {
         if (date == null) {
             return false;
@@ -397,6 +467,7 @@ public class AssignCellsActivity extends AppCompatActivity {
         long diffInDays = diffInMillies / (86400000);
         return diffInDays >= 7;
     }
+
     private void setupToolbar() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
