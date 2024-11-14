@@ -74,7 +74,6 @@ public class LogInActivity extends AppCompatActivity implements CallbackValidati
             finish();
         } else {
             GeneralInfo.toastMessage("Autenticación fallida", this);
-            GeneralInfo.clearAllPreferences(this);
         }
     }
 }

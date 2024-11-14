@@ -6,13 +6,13 @@
 #include <WiFi.h>
 
 
-String WiFiDisconnectedList[] = { "Conectarse a\nred", "Ingresar\nceldas", "MAC Address" };
+String WiFiDisconnectedList[] = { "Conectarse a\nred", "Ingresar\nmedicamentos", "MAC Address" };
 Lista OptionsWiFiDisconnected(WiFiDisconnectedList, sizeof(WiFiDisconnectedList) / sizeof(WiFiDisconnectedList[0]));
 
-String logedInList[] = { "Conectarse a\notra red", "Cerrar Sesion", "Ingresar\nceldas", "MAC Address" };
+String logedInList[] = { "Conectarse a\notra red", "Cerrar Sesion", "Ingresar\nmedicamentos", "MAC Address" };
 Lista OptionsLogedIn(logedInList, sizeof(logedInList) / sizeof(logedInList[0]));
 
-String logedOutList[] = { "Conectarse a\notra red", "Iniciar Sesion", "Ingresar\nceldas", "MAC Address" };
+String logedOutList[] = { "Conectarse a\notra red", "Iniciar Sesion", "Ingresar\nmedicamentos", "MAC Address" };
 Lista OptionsLogedOut(logedOutList, sizeof(logedOutList) / sizeof(logedOutList[0]));
 
 
@@ -20,7 +20,6 @@ void setup() {
   EEPROM.write(dirMacAuth, 0);
   initPins();
   Serial.begin(9600);
-  Serial2.begin(9600, SERIAL_8N1, TX_PIN, RX_PIN);
   EEPROM.begin(512);
   setenv("TZ", "GMT-6", 1);
   tzset();
@@ -100,7 +99,8 @@ void loop() {
             writeStringInEEPROM(dirTOKEN, "", tokenBufferSize);
             break;
           case 3:
-            displayCellsList();
+            enterMedicine();
+            delay(3000);
             break;
           case 4:
             setBackground(1);

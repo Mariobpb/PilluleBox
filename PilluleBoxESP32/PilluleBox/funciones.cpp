@@ -8,6 +8,8 @@
 #include <EEPROM.h>
 #include <esp_random.h>
 
+#include <Adafruit_PWMServoDriver.h>
+
 void initPins() {
   for (int i = 0; i < 6; i++) {
     pinMode(btnPins[i], INPUT_PULLDOWN);
@@ -461,7 +463,8 @@ bool checkedAlarms() {
         tft.setTextColor(TFT_WHITE);
         tft.print("Dispensando medicamento...");
 
-        dispenseMedicine(alarms[i].cellNumber, true);
+        positionCell(alarms[i].cellNumber);
+        dispenseMedicine();
 
         alarms[i].isActive = false;
         delay(1000);
@@ -579,31 +582,50 @@ bool updateCellsAgain() {
   return false;
 }
 
-//ESP32S3 Code
+void positionCell(int cellNumber) {
+}
 
-void dispenseMedicine(int cellNumber, bool dispense) {
-  Serial2.flush();
-  Serial2.print(cellNumber);
-  Serial2.print(",");
-  Serial2.print(dispense ? 1 : 0);  // Enviar 1 o 0
-  Serial2.flush();
-  delay(100);
+void dispenseMedicine() {
+}
 
-  bool dispensed = false;
-  while (!dispensed) {
-    if (Serial2.available() >= 1) {
-      int response = Serial2.read();  // Leer un entero
-      Serial.println("Response: |" + (String)response + "|");
-      if (response == 1) {
-        dispensed = true;
-        Serial.println("Medicamento dispensado correctamente");
-      } else {
-        Serial.println("Error al dispensar medicamento");
-      }
+void enterMedicine() {
+  setBackground(1);
+  tft.setCursor(0, 0);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(2);
+  tft.print("Seleccione la celda\na ingresar el medicamento");
+  int column = 0;
+  int row = 0;
+  resetBtns();
+  while (!btnCurrentStatus[5]) {
+    displayCellSelected(cells, column, row);
+    resetBtns();
+    while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
+      readBtns();
+      delay(50);
+    }
+    if (btnCurrentStatus[0]) {
+      row--;
+      if (row < 0) row = 6;
+    }
+    if (btnCurrentStatus[1]) {
+      row++;
+      if (row > 6) row = 0;
+    }
+    if (btnCurrentStatus[2]) {
+      column--;
+      if (column < 0) column = 1;
+    }
+    if (btnCurrentStatus[3]) {
+      column++;
+      if (column > 1) column = 0;
     }
   }
+  int numCell = getNumCell(column, row);
+  delay(5000);
+}
 
-  if (!dispensed) {
-    Serial.println("No se recibió respuesta del Arduino Uno");
-  }
+int getNumCell(int column, int row) {
+  int numCell = row;
+
 }

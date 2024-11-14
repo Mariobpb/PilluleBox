@@ -337,5 +337,31 @@ void displayCellsList() {
   OptionsCells.setPositionY(tft.getCursorY());
   OptionsCells.setHeight(300);
   int seleccion = OptionsCells.selectItemFromList();
-  
+}
+
+void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
+  int cellSizeX = 60;
+  int cellSizeY = 35;
+
+  sprite.createSprite(tft.width() - 40, (cellSizeY * 7) + 40);
+  sprite.setColorDepth(8);
+  sprite.fillSprite(TFT_BLACK);
+
+  int PosX = (sprite.width() / 2) - (cellSizeX + 10);
+  int PosY = 5;
+  for (int column = 0; column <= 1; column++) {
+    for (int row = 0; row <= 6; row++) {
+      if (column == columnSelected && row == rowSelected) {
+        sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_BLUE);
+      }
+      else {
+        sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_WHITE);
+      }
+      PosY += cellSizeY + 5;
+    }
+    PosX += cellSizeX + 20;
+    PosY = 5;
+  }
+  sprite.pushSprite(20, 40);
+  sprite.deleteSprite();
 }

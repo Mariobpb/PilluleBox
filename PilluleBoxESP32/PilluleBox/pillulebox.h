@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "Base64.h"
 #include <RTClib.h>
+#include <Adafruit_PWMServoDriver.h>
 
 
 enum KeyboardType { BK,
@@ -40,7 +41,10 @@ String base64_encode(uint8_t* data, size_t length);
 time_t parseDateTime(const char* dateStr);
 bool checkedAlarms();
 bool updateCellsAgain();
-void dispenseMedicine(int cellNumber, bool dispense);
+void positionCell(int cellNumber);
+void dispenseMedicine();
+void enterMedicine();
+int getNumCell(int column, int row);
 
 // UI
 void setBackground(int b);
@@ -246,6 +250,7 @@ struct AlarmInfo {
 
 void setSingleModeAlarm(const Cell& cell);
 void printCellData(const Cell& cell);
+void displayCellSelected(Cell cells[], int columnSelected, int rowSelected);
 
 extern AlarmInfo alarms[14];
 
