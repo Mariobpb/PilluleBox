@@ -1,24 +1,38 @@
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
+#include <ESP32Servo.h>
 
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
+// Pin donde conectaremos el servo (puede ser cualquier pin GPIO)
+#define SERVO_PIN 38  // Puedes cambiar este pin
 
-const int servoPin = 0; // Canal del servomotor en el driver PCA9685
-int servoPos = 0; // Posición actual del servomotor
+Servo myservo;
 
 void setup() {
   Serial.begin(115200);
-  pwm.begin();
-  pwm.setPWMFreq(50); // Frecuencia de 50Hz para servomotores
+  Serial.println("Iniciando prueba directa de servo...");
+  
+  // Permitir asignación de timer para el canal PWM
+  ESP32PWM::allocateTimer(0);
+  
+  // Configurar el servo
+  myservo.setPeriodHertz(50);  // PWM a 50Hz
+  myservo.attach(SERVO_PIN);   // Adjuntar el servo al pin
+  
+  Serial.println("Servo inicializado");
 }
 
 void loop() {
-  // Mover el servomotor hacia la derecha
-  for (servoPos = 0; servoPos < 4096; servoPos++) {
-    pwm.setPWM(servoPin, 0, servoPos);
-    delay(1); // Velocidad de movimiento
-  }
-
-  // Mantener la posición final durante 2 segundos
-  delay(2000);
+  Serial.println("Punto medio - debería detenerse");
+  myservo.write(90);  // Posición central
+  delay(3000);
+  
+  Serial.println("Rotación completa en una dirección");
+  myservo.write(180); // Máximo en una dirección
+  delay(3000);
+  
+  Serial.println("Punto medio nuevamente");
+  myservo.write(90);  // Regreso al centro
+  delay(3000);
+  
+  Serial.println("Rotación completa en dirección opuesta");
+  myservo.write(0);   // Máximo en la otra dirección
+  delay(3000);
 }
