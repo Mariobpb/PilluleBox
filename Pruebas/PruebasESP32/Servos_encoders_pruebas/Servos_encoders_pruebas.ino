@@ -17,7 +17,7 @@
 #define SERVO_CW 1600      // Girar en sentido horario
 
 // Variable global para el número a procesar (1-14)
-int numeroRecibido = 5; // Cambiar este valor para pruebas
+int numeroRecibido = 7; // Cambiar este valor para pruebas
 
 // Creación de objetos Servo
 Servo servo360_1;
