@@ -6,10 +6,10 @@
 #define I2C_SCL 16  // GPIO9
 
 
-#define ENCODER1_MAIN_INPUT 17
-#define ENCODER2_MAIN_INPUT 18
-#define ENCODER1_OFFSET_INPUT 36
-#define ENCODER2_OFFSET_INPUT 35
+#define ENCODER1_MAIN_INPUT 36
+#define ENCODER2_MAIN_INPUT 17
+#define ENCODER1_OFFSET_INPUT 35
+#define ENCODER2_OFFSET_INPUT 18
 
 #define SERVO360_1_CHANNEL 0
 #define SERVO180_1_CHANNEL 1
@@ -22,8 +22,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVO_MIN 75
 #define SERVO_MAX 563
 #define SERVO_STOP 320      // Detener
-#define SERVO_SPIN 350      // Girar
-#define SERVO_ANTISPIN 290  // Girar
+int SERVO_SPIN = SERVO_STOP + 30;      // Girar
+int SERVO_ANTISPIN = ((SERVO_STOP)-(SERVO_SPIN - SERVO_STOP));  // Girar
 #define SERVO_180 480       // 180 grados
 
 // Variable global para el número a procesar (1-14)
