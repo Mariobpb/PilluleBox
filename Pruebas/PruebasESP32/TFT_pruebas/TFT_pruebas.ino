@@ -1,4 +1,5 @@
 #include <TFT_eSPI.h>
+#include <WiFi.h>
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -13,8 +14,9 @@ void loop() {
   tft.setTextSize(4);
   tft.setCursor(0, 0);
   tft.println("Networks found:");
+  tft.println("Direccion MAC: " + WiFi.macAddress());
 
-  delay(1000);
+  delay(10000);
 
   tft.setRotation(0);  // Ajusta la rotación si es necesario (0-3)
   tft.fillScreen(TFT_RED);

@@ -24,7 +24,7 @@ void setup() {
   setenv("TZ", "GMT-6", 1);
   tzset();
   Wire.begin(SDA_RTC_PIN, SCL_RTC_PIN);
-
+  
   if (!rtc.begin()) {
     setBackground(2);
     tft.setTextColor(TFT_WHITE);
@@ -35,7 +35,7 @@ void setup() {
     while (true)
       ;
   }
-
+  
   if (rtc.lostPower()) {
     Serial.println("RTC perdió energía, estableciendo hora!");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
