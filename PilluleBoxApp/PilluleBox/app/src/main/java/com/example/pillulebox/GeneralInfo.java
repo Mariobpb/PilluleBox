@@ -18,7 +18,7 @@ import Models.Dispenser;
 public class GeneralInfo {
     private static final String Secret_Key = "1234567890123456";
     private static final String IV = "iughvnbaklsvvkhj";
-    private static final String BASE_URL = "http://192.168.100.14:8080/";
+    private static final String BASE_URL = "http://192.168.194.234:8080/";
     public static final String Archivo = "PilluleBoxPrefs";
     public static final String Key = "AuthToken";
     private static final String SELECTED_DISPENSER_KEY = "SelectedDispenser";

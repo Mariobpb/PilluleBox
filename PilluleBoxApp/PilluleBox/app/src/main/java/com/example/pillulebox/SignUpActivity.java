@@ -100,8 +100,14 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             error.setText("Ingrese los datos en todos los campos");
             return false;
+        } else if (username.length() > 50 || email.length() > 50 || password.length() > 50) {
+            error.setText("El límite de caracteres en los campos es de 50 caracteres");
+            return false;
         } else if (!username.matches("^[a-zA-Z0-9 &!+:#*_ñÑ\\$=]*$")) {
             error.setText("El nombre de usuario debe contener sólo caracteres alfanuméricos y los siguientes símbolos:\n' ', '&', '!', '+', ':', '#', '*', '_', '$', '=')");
+            return false;
+        } else if (username.length() < 5) {
+            error.setText("El nombre de usuario debe contener al menos 5 caracteres en total");
             return false;
         } else if ((!(password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") && password.matches(".*[0-9].*") && password.matches(".*[&!+:#*_$=@.].*"))) || (!password.matches("^[a-zA-Z0-9 &!+:#*_@.ñÑ\\$=]*$"))) {
             error.setText("La contraseña debe contener al menos una minúscula, una mayúscula, un número, y algún símbolo permitido:\n('&', '!', '+', ':', '#', '*', '_', '$', '=', '@', '.')");

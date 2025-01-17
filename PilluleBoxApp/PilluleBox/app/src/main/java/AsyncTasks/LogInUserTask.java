@@ -85,7 +85,7 @@ public class LogInUserTask extends AsyncTask<String, Void, Response> {
                 GeneralInfo.toastMessage("Error de autenticación", context);
             }
         } else {
-            GeneralInfo.toastMessage("Error de autenticación", context);
+            GeneralInfo.toastMessage("Error de comunicación con el servidor", context);
         }
     }
 
