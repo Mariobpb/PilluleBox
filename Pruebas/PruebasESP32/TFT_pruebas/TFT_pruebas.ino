@@ -1,44 +1,36 @@
 #include <TFT_eSPI.h>
-#include <WiFi.h>
-
 TFT_eSPI tft = TFT_eSPI();
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("Iniciando prueba de display");
+  
   tft.init();
+  tft.setRotation(0);
+  Serial.println("Pantalla inicializada");
+  
+  // Test de colores básicos
+  tft.fillScreen(TFT_BLACK);
+  delay(500);
+  Serial.println("Negro OK");
+  
+  tft.fillScreen(TFT_RED);
+  delay(500);
+  Serial.println("Rojo OK");
+  
+  tft.fillScreen(TFT_GREEN);
+  delay(500);
+  Serial.println("Verde OK");
+  
+  tft.fillScreen(TFT_BLUE);
+  delay(500);
+  Serial.println("Azul OK");
 }
 
 void loop() {
-  tft.setRotation(0);  // Ajusta la rotación si es necesario (0-3)
-  tft.fillScreen(TFT_RED);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(4);
-  tft.setCursor(0, 0);
-  tft.println("Networks found:");
-  tft.println("Direccion MAC: " + WiFi.macAddress());
-
-  delay(10000);
-
-  tft.setRotation(0);  // Ajusta la rotación si es necesario (0-3)
-  tft.fillScreen(TFT_RED);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(4);
-  tft.drawString("Hola, Mundo!", 30, 0);
-
-  delay(1000);
-
-  tft.setRotation(0);  // Ajusta la rotación si es necesario (0-3)
-  tft.fillScreen(TFT_RED);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(4);
-  tft.drawString("Hola, Mundo!", 0, 30);
-
-  delay(1000);
-
-  tft.setRotation(0);  // Ajusta la rotación si es necesario (0-3)
-  tft.fillScreen(TFT_RED);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(4);
-  tft.drawString("Hola, Mundo!", 30, 30);
-
-  delay(1000);
+  // Patrón de diagnóstico
+  tft.fillScreen(TFT_BLACK);
+  tft.drawRect(0, 0, tft.width()-1, tft.height()-1, TFT_WHITE);
+  tft.drawLine(0, 0, tft.width()-1, tft.height()-1, TFT_RED);
+  delay(2000);
 }
