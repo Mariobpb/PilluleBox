@@ -22,6 +22,11 @@ void setup() {
 }
 
 void loop() {
+  for (int i = 0; i < 1000; i += 10) {
+    pwm.setPWM(11, 0, i);
+    Serial.println((String)i);
+    delay(2000);
+  }
   /*
   Serial.println("Valor mínimo:\n");
   for (int i = 80; i < 300; i++) {
@@ -77,8 +82,10 @@ void loop() {
 
   delay(5000);
   */
+  /*
   pwm.setPWM(0, 0, SERVOMIN);
   delay(5000);
   pwm.setPWM(0, 0, SERVO180);
   delay(5000);
+  */
 }
