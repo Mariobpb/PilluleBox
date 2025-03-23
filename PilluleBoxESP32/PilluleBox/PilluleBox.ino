@@ -159,7 +159,7 @@ void loop() {
         reconnectWiFi();
         break;
       case 2:
-        dispenserUI();
+        enterMedicine();
         break;
       case 3:
         setBackground(1);

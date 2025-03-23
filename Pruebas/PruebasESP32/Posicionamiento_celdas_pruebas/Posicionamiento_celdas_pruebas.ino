@@ -74,7 +74,7 @@ void setup() {
 }
 
 void loop() {
-  for (int numeroRecibido = 1; numeroRecibido <= 7; numeroRecibido++) {
+  for (int numeroRecibido = 0; numeroRecibido <= 14; numeroRecibido++) {
     Serial.println("\n\nNúmero recibido: " + (String)numeroRecibido);
     tft.fillScreen(TFT_BLACK);
     tft.setCursor(0, 0);
@@ -190,14 +190,14 @@ void activarServo180(int servoChannel180) {
   tft.println("Activando servo de 180 grados");
   if (servoChannel180 == SERVO180_1_CHANNEL) {
     pwm.setPWM(servoChannel180, 0, SERVO_180);
-    delay(3000);
+    delay(2000);
     pwm.setPWM(servoChannel180, 0, SERVO_MIN);
-    delay(3000);
+    delay(2000);
   } else {
     pwm.setPWM(servoChannel180, 0, SERVO_MIN);  // Mover a 0 grados
-    delay(3000);
+    delay(2000);
     pwm.setPWM(servoChannel180, 0, SERVO_180);  // Regresar a 180 grados
-    delay(3000);
+    delay(2000);
   }
   Serial.println("Servo de 180 grados completado");
 }
