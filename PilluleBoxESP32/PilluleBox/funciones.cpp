@@ -604,6 +604,9 @@ void enterMedicine() {
       readBtns();
       delay(50);
     }
+    if (btnCurrentStatus[4]) {
+      return;
+    }
     if (btnCurrentStatus[0]) {
       row--;
       if (row < 0) row = 6;

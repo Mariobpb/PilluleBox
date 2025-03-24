@@ -127,7 +127,7 @@ void loop() {
             logInUI();
             break;
           case 3:
-            dispenserUI();
+            enterMedicine();
             break;
           case 4:
             setBackground(1);
