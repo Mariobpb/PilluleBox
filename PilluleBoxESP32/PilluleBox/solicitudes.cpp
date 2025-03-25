@@ -132,6 +132,12 @@ bool updateCellsData(const char* token) {
     HTTPClient http;
     String url = String(apiUrl) + "/cells_with_modes/" + WiFi.macAddress();
 
+    setBackground(2);
+    tft.setCursor(0, 50);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_WHITE);
+    tft.println("Actualizando datos\nde celdas...");
+
     Serial.println("\n--- Iniciando actualización de celdas ---");
     Serial.println("URL: " + url + "|");
     

@@ -353,8 +353,7 @@ void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
     for (int row = 0; row <= 6; row++) {
       if (column == columnSelected && row == rowSelected) {
         sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_BLUE);
-      }
-      else {
+      } else {
         sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_WHITE);
       }
       PosY += cellSizeY + 5;
@@ -364,4 +363,21 @@ void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
   }
   sprite.pushSprite(20, 40);
   sprite.deleteSprite();
+}
+
+void showBackgroundInfo(bool logedIn) {
+  if (logedIn) {
+    setBackground(1);
+    tft.setTextColor(TFT_WHITE);
+    tft.setCursor(0, 20);
+    tft.setTextColor(TFT_BLUE);
+    tft.println("Bienvenido " + username + "\n");
+    tft.setTextColor(TFT_WHITE);
+    tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+  } else {
+    setBackground(1);
+    tft.setTextColor(TFT_WHITE);
+    tft.setCursor(0, 20);
+    tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+  }
 }

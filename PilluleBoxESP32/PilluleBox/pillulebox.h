@@ -55,6 +55,7 @@ void menuUI();
 void logInUI();
 void displayCellsList();
 void dispenserUI();
+void showBackgroundInfo(bool logedIn);
 
 //Solicitudes
 bool validateMacAddress();

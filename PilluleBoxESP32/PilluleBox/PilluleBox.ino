@@ -64,6 +64,7 @@ void loop() {
   tft.setTextSize(2);
   if (WiFi.status() == WL_CONNECTED) {
     if (validateMacAddress()) {
+      bool logedIn = false;
       if (!emptyDirFlash(dirTOKEN, tokenBufferSize)) {
         readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
       }
@@ -78,13 +79,8 @@ void loop() {
             Serial.println("Falló la actualización");
           }
         }
-        setBackground(1);
-        tft.setTextColor(TFT_WHITE);
-        tft.setCursor(0, 20);
-        tft.setTextColor(TFT_BLUE);
-        tft.println("Bienvenido " + username + "\n");
-        tft.setTextColor(TFT_WHITE);
-        tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+        logedIn = true;
+        showBackgroundInfo(logedIn);
         OptionsLogedIn.setTextSize(3);
         OptionsLogedIn.setPositionY(tft.getCursorY());
         OptionsLogedIn.setHeight(180);
@@ -109,10 +105,7 @@ void loop() {
             break;
         }
       } else {
-        setBackground(1);
-        tft.setTextColor(TFT_WHITE);
-        tft.setCursor(0, 20);
-        tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+        showBackgroundInfo(logedIn);
         OptionsLogedOut.setTextSize(3);
         OptionsLogedOut.setPositionY(tft.getCursorY());
         OptionsLogedOut.setHeight(180);

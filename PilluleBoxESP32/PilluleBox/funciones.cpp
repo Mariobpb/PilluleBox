@@ -105,6 +105,9 @@ int Lista::selectItemFromList() {
           } else {
             Serial.println("Falló la actualización");
           }
+          delay(1000);
+          setBackground(1);
+          drawList();
         }
       }
       delay(50);
@@ -596,15 +599,14 @@ void enterMedicine() {
   tft.print("Seleccione la celda\na ingresar el medicamento");
   int column = 0;
   int row = 0;
-  resetBtns();
-  while (!btnCurrentStatus[5]) {
+  do {
     displayCellSelected(cells, column, row);
     resetBtns();
     while (!btnCurrentStatus[0] && !btnCurrentStatus[1] && !btnCurrentStatus[2] && !btnCurrentStatus[3] && !btnCurrentStatus[4] && !btnCurrentStatus[5]) {
       readBtns();
       delay(50);
     }
-    if (btnCurrentStatus[4]) {
+    if (btnCurrentStatus[5]) {
       return;
     }
     if (btnCurrentStatus[0]) {
@@ -623,12 +625,8 @@ void enterMedicine() {
       column++;
       if (column > 1) column = 0;
     }
-  }
-  int numCell = getNumCell(column, row);
-  delay(5000);
-}
-
-int getNumCell(int column, int row) {
-  int numCell = row;
+  } while (!btnCurrentStatus[4]);
+  int cellSelected = (row + 1) + (column * 7);
+  Serial.println("Celda seleccionada: " + (String)cellSelected);
 
 }
