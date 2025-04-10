@@ -5,8 +5,8 @@
 TFT_eSPI tft = TFT_eSPI();
 
 // Define los pines I2C que quieras usar
-#define I2C_SDA 15  // GPIO8
-#define I2C_SCL 16  // GPIO9
+#define DRIVER_SDA 15  // GPIO8
+#define DRIVER_SCL 16  // GPIO9
 
 
 #define ENCODER1_MAIN_INPUT 17
@@ -53,7 +53,7 @@ void setup() {
   tft.setTextSize(2);
   Serial.println("Pantalla inicializada");
 
-  Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.begin(DRIVER_SDA, DRIVER_SCL);
 
   pwm.begin();
   pwm.setPWMFreq(50);

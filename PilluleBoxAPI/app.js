@@ -85,7 +85,7 @@ app.post('/login', (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'Error al buscar el usuario' });
       return;
-    }
+      }
     if (results.length > 0) {
       console.log("\nUsuario autenticado");
       const id = results[0].id;
@@ -97,7 +97,7 @@ app.post('/login', (req, res) => {
             console.error(updateErr);
             return res.status(500).json({ error: 'Error al actualizar el dispenser' });
           }
-          console.log("Login exitoso y dispenser actualizado");
+          console.log("Dispenser actualizado");
         });
     }
 
@@ -181,7 +181,7 @@ app.post('/validate_token', (req, res) => {
             console.error(updateErr);
             return res.status(500).json({ error: 'Error al actualizar el dispenser' });
           }
-          console.log("Login exitoso y dispenser actualizado");
+          console.log("Dispenser actualizado");
         });
     }
       console.log("Token inválido o expirado");

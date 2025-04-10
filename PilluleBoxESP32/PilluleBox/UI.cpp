@@ -365,8 +365,8 @@ void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
   sprite.deleteSprite();
 }
 
-void showBackgroundInfo(bool logedIn) {
-  if (logedIn) {
+void showBackgroundInfo() {
+  if (WiFi.status() == WL_CONNECTED && username != "") {
     setBackground(1);
     tft.setTextColor(TFT_WHITE);
     tft.setCursor(0, 20);
@@ -374,10 +374,12 @@ void showBackgroundInfo(bool logedIn) {
     tft.println("Bienvenido " + username + "\n");
     tft.setTextColor(TFT_WHITE);
     tft.println("WiFi:\n" + WiFi.SSID() + "\n");
-  } else {
+  } else if (WiFi.status() == WL_CONNECTED) {
     setBackground(1);
     tft.setTextColor(TFT_WHITE);
     tft.setCursor(0, 20);
     tft.println("WiFi:\n" + WiFi.SSID() + "\n");
+  } else {
+    setBackground(1);
   }
 }

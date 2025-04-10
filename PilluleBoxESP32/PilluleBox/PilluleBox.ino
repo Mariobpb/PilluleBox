@@ -23,9 +23,15 @@ void setup() {
   EEPROM.begin(512);
   setenv("TZ", "GMT-6", 1);
   tzset();
+  
+  
+  // Inicializar primer bus I2C para RTC
   Wire.begin(SDA_RTC_PIN, SCL_RTC_PIN);
   
-  if (!rtc.begin()) {
+  // Inicializar segundo bus I2C para driver de servos
+  Wire1.begin(DRIVER_SDA, DRIVER_SCL);
+  
+  if (!rtc.begin(&Wire)) {
     setBackground(2);
     tft.setTextColor(TFT_WHITE);
     tft.setTextSize(2);
@@ -40,6 +46,11 @@ void setup() {
     Serial.println("RTC perdió energía, estableciendo hora!");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
+
+  pwm.begin();
+  pwm.setPWMFreq(50);
+
+
 
   Serial.println("Bienvenido :)");
 
@@ -64,23 +75,23 @@ void loop() {
   tft.setTextSize(2);
   if (WiFi.status() == WL_CONNECTED) {
     if (validateMacAddress()) {
-      bool logedIn = false;
       if (!emptyDirFlash(dirTOKEN, tokenBufferSize)) {
         readStringfromEEPROM(dirTOKEN, tokenEEPROM, tokenBufferSize);
       }
       if (validateToken(tokenEEPROM)) {
         if (updateCellsAgain()) {
-          if (updateCellsData(tokenEEPROM)) {
-            Serial.println("Actualización exitosa");
+          if (tokenEEPROM != "" && updateCellsData(tokenEEPROM)) {
+            Serial.println("Actualización de celdas exitosa");
+            /*
             for (int i = 0; i < 14; i++) {
               printCellData(cells[i]);
             }
+            */
           } else {
-            Serial.println("Falló la actualización");
+            Serial.println("Falló la actualización de celdas");
           }
         }
-        logedIn = true;
-        showBackgroundInfo(logedIn);
+        showBackgroundInfo();
         OptionsLogedIn.setTextSize(3);
         OptionsLogedIn.setPositionY(tft.getCursorY());
         OptionsLogedIn.setHeight(180);
@@ -93,10 +104,10 @@ void loop() {
             break;
           case 2:
             writeStringInEEPROM(dirTOKEN, "", tokenBufferSize);
+            username = "";
             break;
           case 3:
             enterMedicine();
-            delay(3000);
             break;
           case 4:
             setBackground(1);
@@ -105,7 +116,7 @@ void loop() {
             break;
         }
       } else {
-        showBackgroundInfo(logedIn);
+        showBackgroundInfo();
         OptionsLogedOut.setTextSize(3);
         OptionsLogedOut.setPositionY(tft.getCursorY());
         OptionsLogedOut.setHeight(180);
@@ -139,7 +150,7 @@ void loop() {
         ;
     }
   } else {
-    setBackground(1);
+    showBackgroundInfo();
     tft.setCursor(0, 20);
     OptionsWiFiDisconnected.setTextSize(3);
     OptionsWiFiDisconnected.setPositionY(30);

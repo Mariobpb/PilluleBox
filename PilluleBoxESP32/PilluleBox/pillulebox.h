@@ -45,6 +45,10 @@ void positionCell(int cellNumber);
 void dispenseMedicine();
 void enterMedicine();
 int getNumCell(int column, int row);
+void mostrarPulsos(int seccion, bool esOffset);
+void buscarOffset(int servoChannel360, int pinOffset, int seccion);
+void procesarSeccion(int seccion, int posicion);
+void activarServo180(int servoChannel180);
 
 // UI
 void setBackground(int b);
@@ -55,7 +59,7 @@ void menuUI();
 void logInUI();
 void displayCellsList();
 void dispenserUI();
-void showBackgroundInfo(bool logedIn);
+void showBackgroundInfo();
 
 //Solicitudes
 bool validateMacAddress();
@@ -68,12 +72,33 @@ extern const int btnPins[6];
 extern bool btnCurrentStatus[6];
 extern bool prevBtnStatus[6];
 extern bool textConfirmed;
-extern int SCL_RTC_PIN;
 extern RTC_DS3231 rtc;
-extern int SDA_RTC_PIN;
-extern int SCL_RTC_PIN;
-extern int TX_PIN;
-extern int RX_PIN;
+extern const int SDA_RTC_PIN;
+extern const int SCL_RTC_PIN;
+
+extern const int DRIVER_SDA;
+extern const int DRIVER_SCL;
+extern const int ENCODER1_MAIN_INPUT;
+extern const int ENCODER2_MAIN_INPUT;
+extern const int ENCODER1_OFFSET_INPUT;
+extern const int ENCODER2_OFFSET_INPUT;
+extern const int SERVO360_1_CHANNEL;
+extern const int SERVO180_1_CHANNEL;
+extern const int SERVO360_2_CHANNEL;
+extern const int SERVO180_2_CHANNEL;
+extern Adafruit_PWMServoDriver pwm;
+extern const int SERVO_MIN;
+extern const int SERVO_MAX;
+extern const int SERVO_STOP;
+extern int SERVO_SPIN;
+extern int SERVO_ANTISPIN;
+extern const int SERVO_180;
+extern volatile int pulsosPrincipales;
+extern volatile int pulsosOffset;
+extern bool encontradoOffset;
+extern int lastStateOffset;
+extern int lastStatePrincipal;
+
 extern DateTime lastLocalUpdate;
 extern char basicKeys[4][10];
 extern char capitalKeys[4][10];

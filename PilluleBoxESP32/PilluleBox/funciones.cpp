@@ -93,21 +93,21 @@ int Lista::selectItemFromList() {
       readBtns();
       if (WiFi.status() == WL_CONNECTED) {
         if (checkedAlarms()) {
-          setBackground(1);
           drawList();
         }
         if (updateCellsAgain()) {
           if (updateCellsData(tokenEEPROM)) {
-            Serial.println("Actualización exitosa");
+            Serial.println("Actualización de celdas exitosa");
+            /*
             for (int i = 0; i < 14; i++) {
               printCellData(cells[i]);
             }
+            */
           } else {
-            Serial.println("Falló la actualización");
+            Serial.println("Falló la actualización de celdas");
+            delay(1000);
           }
-          delay(1000);
-          setBackground(1);
-          drawList();
+          return -1;
         }
       }
       delay(50);
@@ -492,6 +492,10 @@ void printCellData(const Cell& cell) {
 
   // Función helper para formatear fecha y hora
   auto formatDateTime = [](time_t timestamp) -> String {
+    if (timestamp == -1) {
+      return String("No establecida");
+    }
+
     struct tm* timeinfo = localtime(&timestamp);
     char buffer[20];
     sprintf(buffer, "%02d/%02d/%d %02d:%02d",
@@ -629,4 +633,115 @@ void enterMedicine() {
   int cellSelected = (row + 1) + (column * 7);
   Serial.println("Celda seleccionada: " + (String)cellSelected);
 
+  if (cellSelected >= 1 && cellSelected <= 14) {
+    if (cellSelected <= 7) {
+      Serial.println("\nProcesando Seccion 1");
+      procesarSeccion(1, cellSelected);
+    } else {
+      Serial.println("\nProcesando Seccion 2");
+      procesarSeccion(2, cellSelected - 7);
+    }
+  }
+}
+
+void mostrarPulsos(int seccion, bool esOffset) {
+  if (esOffset) {
+    Serial.print("Seccion ");
+    Serial.print(seccion);
+    Serial.print(" - Pulsos Offset: ");
+    Serial.println(pulsosOffset);
+  } else {
+    Serial.print("Seccion ");
+    Serial.print(seccion);
+    Serial.print(" - Pulsos Principal: ");
+    Serial.println(pulsosPrincipales);
+  }
+}
+
+void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
+  encontradoOffset = false;
+  pulsosOffset = 0;
+  int currentState;
+
+  Serial.print("Buscando offset en seccion ");
+  Serial.println(seccion);
+
+  pwm.setPWM(servoChannel360, 0, SERVO_SPIN);  // Iniciar movimiento
+
+  while (!encontradoOffset) {
+    currentState = digitalRead(pinOffset);
+
+    // Detectar cambio de HIGH a LOW (flanco descendente)
+    if (currentState == LOW && lastStateOffset == HIGH) {
+      pulsosOffset++;
+      mostrarPulsos(seccion, true);
+    }
+
+    lastStateOffset = currentState;
+
+    if (currentState == LOW) {
+      encontradoOffset = true;
+      pwm.setPWM(servoChannel360, 0, SERVO_ANTISPIN);
+      delay(50);
+      pwm.setPWM(servoChannel360, 0, SERVO_STOP);  // Detener servo
+      Serial.println("Offset encontrado!");
+      delay(500);
+    }
+  }
+}
+
+void procesarSeccion(int seccion, int posicion) {
+  int servoChannel360 = (seccion == 1) ? SERVO360_1_CHANNEL : SERVO360_2_CHANNEL;
+  int servoChannel180 = (seccion == 1) ? SERVO180_1_CHANNEL : SERVO180_2_CHANNEL;
+  int pinOffset = (seccion == 1) ? ENCODER1_OFFSET_INPUT : ENCODER2_OFFSET_INPUT;
+  int pinPrincipal = (seccion == 1) ? ENCODER1_MAIN_INPUT : ENCODER2_MAIN_INPUT;
+
+  pulsosPrincipales = 0;
+  int currentState;
+
+  // Siempre buscar el offset primero
+  buscarOffset(servoChannel360, pinOffset, seccion);
+
+  // Si necesitamos movernos a una posición específica (mayor a 1)
+  if (posicion > 1) {
+    int pulsosObjetivo = posicion - 1;
+    Serial.print("Moviendo a posicion " + (String) posicion);
+
+    pwm.setPWM(servoChannel360, 0, SERVO_SPIN);  // Continuar movimiento
+
+    while (pulsosPrincipales < pulsosObjetivo) {
+      currentState = digitalRead(pinPrincipal);
+
+      // Detectar cambio de HIGH a LOW (flanco descendente)
+      if (currentState == LOW && lastStatePrincipal == HIGH) {
+        pulsosPrincipales++;
+        mostrarPulsos(seccion, false);
+      }
+
+      lastStatePrincipal = currentState;
+    }
+    pwm.setPWM(servoChannel360, 0, SERVO_ANTISPIN);
+    delay(50);
+    pwm.setPWM(servoChannel360, 0, SERVO_STOP);  // Detener servo
+    Serial.println("Posicion alcanzada!");
+  }
+
+  // Activar servo de 180 grados
+  activarServo180(servoChannel180);
+}
+
+void activarServo180(int servoChannel180) {
+  Serial.println("Activando servo de 180 grados");
+  if (servoChannel180 == SERVO180_1_CHANNEL) {
+    pwm.setPWM(servoChannel180, 0, SERVO_180);
+    delay(2000);
+    pwm.setPWM(servoChannel180, 0, SERVO_MIN);
+    delay(2000);
+  } else {
+    pwm.setPWM(servoChannel180, 0, SERVO_MIN);  // Mover a 0 grados
+    delay(2000);
+    pwm.setPWM(servoChannel180, 0, SERVO_180);  // Regresar a 180 grados
+    delay(2000);
+  }
+  Serial.println("Servo de 180 grados completado");
 }

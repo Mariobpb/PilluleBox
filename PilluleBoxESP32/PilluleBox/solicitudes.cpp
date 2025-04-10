@@ -118,12 +118,15 @@ bool validateToken(const char* token) {
         return true;
       } else {
         String error = responseDoc["error"].as<String>();
+        username = "";
         return false;
       }
     } else {
+      username = "";
       return false;
     }
   } else {
+    username = "";
     return false;
   }
 }
