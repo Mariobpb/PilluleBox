@@ -98,11 +98,9 @@ int Lista::selectItemFromList() {
         if (updateCellsAgain()) {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
-            /*
             for (int i = 0; i < 14; i++) {
               printCellData(cells[i]);
             }
-            */
           } else {
             Serial.println("Falló la actualización de celdas");
             delay(1000);

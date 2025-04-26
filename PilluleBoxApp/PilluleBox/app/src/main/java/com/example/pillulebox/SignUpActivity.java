@@ -16,9 +16,9 @@ import AsyncTasks.ValidateFieldsTask;
 
 public class SignUpActivity extends AppCompatActivity implements CallbackValidations {
     TextView error;
-    EditText username, email, password;
+    EditText username, email, password, confirmed_password;
     Button signup;
-    String username_str, email_str, password_str;
+    String username_str, email_str, password_str, confirmed_password_str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +36,7 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
         username = findViewById(R.id.username_signup);
         email = findViewById(R.id.email_signup);
         password = findViewById(R.id.password_signup);
+        confirmed_password = findViewById(R.id.confirm_password_signup);
         signup = findViewById(R.id.signup_button);
 
         error.setText("");
@@ -43,7 +44,8 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
             username_str = username.getText().toString();
             email_str = email.getText().toString();
             password_str = password.getText().toString();
-            if(validateFields(username_str, email_str, password_str)){
+            confirmed_password_str = confirmed_password.getText().toString();
+            if(validateFields(username_str, email_str, password_str, confirmed_password_str)){
                 try {
                     new ValidateFieldsTask(this, this, error).execute(username_str, email_str);
                 } catch (Exception e) {
@@ -96,8 +98,8 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
             });
         }
     }
-    private boolean validateFields(String username, String email, String password) {
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+    private boolean validateFields(String username, String email, String password, String confirmed_password) {
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmed_password.isEmpty()) {
             error.setText("Ingrese los datos en todos los campos");
             return false;
         } else if (username.length() > 50 || email.length() > 50 || password.length() > 50) {
@@ -111,6 +113,9 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
             return false;
         } else if ((!(password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") && password.matches(".*[0-9].*") && password.matches(".*[&!+:#*_$=@.].*"))) || (!password.matches("^[a-zA-Z0-9 &!+:#*_@.ñÑ\\$=]*$"))) {
             error.setText("La contraseña debe contener al menos una minúscula, una mayúscula, un número, y algún símbolo permitido:\n('&', '!', '+', ':', '#', '*', '_', '$', '=', '@', '.')");
+            return false;
+        } else if (password_str != confirmed_password_str) {
+            error.setText("Las contraseñas non coinciden");
             return false;
         }
         error.setText("");
