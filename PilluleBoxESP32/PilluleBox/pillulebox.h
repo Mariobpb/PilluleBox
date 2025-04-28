@@ -275,6 +275,7 @@ struct AlarmInfo {
 };
 
 void setSingleModeAlarm(const Cell& cell);
+void parseTimeString(const char* timeStr, tm* timeStruct);
 void printCellData(const Cell& cell);
 void displayCellSelected(Cell cells[], int columnSelected, int rowSelected);
 

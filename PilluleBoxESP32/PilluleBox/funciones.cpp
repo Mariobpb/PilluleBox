@@ -476,6 +476,18 @@ bool checkedAlarms() {
   return startedAlarm;
 }
 
+void parseTimeString(const char* timeStr, tm* timeStruct) {
+    // For MySQL TIME format "HH:MM:SS"
+    if (timeStr && strlen(timeStr) >= 8) {
+        int hour, min, sec;
+        if (sscanf(timeStr, "%d:%d:%d", &hour, &min, &sec) == 3) {
+            timeStruct->tm_hour = hour;
+            timeStruct->tm_min = min;
+            timeStruct->tm_sec = sec;
+        }
+    }
+}
+
 void printCellData(const Cell& cell) {
   Serial.println("\n----------------------------------------");
   Serial.printf("DATOS DE CELDA #%d (ID: %d)\n", cell.getNumCell(), cell.getId());
