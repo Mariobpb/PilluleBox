@@ -184,7 +184,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String error) {
-                    Log.e(TAG, "Error loading single modes: " + error);
+                    Toast.makeText(ScheduleActivity.this, error, Toast.LENGTH_SHORT).show();
                 }
             }).execute();
         }

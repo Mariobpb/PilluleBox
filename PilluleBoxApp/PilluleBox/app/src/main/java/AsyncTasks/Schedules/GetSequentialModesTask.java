@@ -66,14 +66,26 @@ public class GetSequentialModesTask extends AsyncTask<Void, Void, List<Sequentia
 
                     if (!modeObj.isNull("start_date")) {
                         String startDateStr = modeObj.getString("start_date");
-                        Timestamp startTimestamp = Timestamp.valueOf(startDateStr.replace("T", " ").replace("Z", ""));
-                        startDate = new Date(startTimestamp.getTime());
+                        try {
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                            java.util.Date parsedDate = sdf.parse(startDateStr);
+                            startDate = new Date(parsedDate.getTime());
+                        } catch (java.text.ParseException e) {
+                            Log.e(TAG, "Error parsing start_date: " + e.getMessage(), e);
+                        }
                     }
 
                     if (!modeObj.isNull("end_date")) {
                         String endDateStr = modeObj.getString("end_date");
-                        Timestamp endTimestamp = Timestamp.valueOf(endDateStr.replace("T", " ").replace("Z", ""));
-                        endDate = new Date(endTimestamp.getTime());
+                        try {
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                            java.util.Date parsedDate = sdf.parse(endDateStr);
+                            endDate = new Date(parsedDate.getTime());
+                        } catch (java.text.ParseException e) {
+                            Log.e(TAG, "Error parsing end_date: " + e.getMessage(), e);
+                        }
                     }
 
                     Time period = null;
@@ -96,6 +108,15 @@ public class GetSequentialModesTask extends AsyncTask<Void, Void, List<Sequentia
                             modeObj.getInt("affected_periods") == 1,
                             modeObj.getInt("current_times_consumption")
                     );
+
+                    Log.d(TAG, "Datos secuenciales recibidos:");
+                    Log.d(TAG, modeObj.toString());
+                    Log.d(TAG, "ID: " + mode.getId());
+                    Log.d(TAG, "Medicina: " + mode.getMedicineName());
+                    Log.d(TAG, "Fecha inicio (Java): " + mode.getStartDate().toString());
+                    Log.d(TAG, "Fecha fin (Java): " + mode.getEndDate().toString());
+                    Log.d(TAG, "Periodo (Java): " + mode.getPeriod().toString());
+
                     modes.add(mode);
                 }
             }
