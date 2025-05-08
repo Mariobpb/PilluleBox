@@ -5,22 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-import com.example.pillulebox.Fragments.DefineSchedule.DefineBasicModeFragment;
-import com.example.pillulebox.Fragments.DefineSchedule.DefineSequentialModeFragment;
-import com.example.pillulebox.Fragments.DefineSchedule.DefineSingleModeFragment;
-import com.example.pillulebox.adapters.DispenserAdapter;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,7 +33,7 @@ public class AssignCellsActivity extends AppCompatActivity {
     private View[] cells = new View[14];
     private AppCompatButton saveButton;
     private List<Integer> selectedCells;
-    private List<Cell> currentCells;
+    private List<Cell> initialCells;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +48,7 @@ public class AssignCellsActivity extends AppCompatActivity {
         getModeFromExtras();
         loadDispenserInfo();
         setupClickListeners();
-        setupSaveButton();
+        setupButton();
     }
 
     private void initializeViews() {
@@ -72,6 +62,23 @@ public class AssignCellsActivity extends AppCompatActivity {
             cells[i] = findViewById(cellIds[i]);
         }
         saveButton = findViewById(R.id.save_button);
+    }
+
+    private void setupToolbar() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    private void restartCells() {
+        Log.d(TAG, "Restarting cells to initial state");
+        for (View cell : cells) {
+            CellStateManager.updateCellState(cell, CellStateManager.STATE_EMPTY,
+                    CellStateManager.SECONDARY_STATE_NONE, this);
+        }
     }
 
     private void getModeFromExtras() {
@@ -116,12 +123,12 @@ public class AssignCellsActivity extends AppCompatActivity {
 
     private void handleCellClick(int cellIndex) {
         Log.d(TAG, "Cell clicked: " + (cellIndex + 1));
-        if (currentCells == null || cellIndex >= currentCells.size()) {
+        if (initialCells == null || cellIndex >= initialCells.size()) {
             Log.e(TAG, "Invalid cell index or currentCells is null");
             return;
         }
 
-        Cell cellInfo = currentCells.get(cellIndex);
+        Cell cellInfo = initialCells.get(cellIndex);
         if (cellInfo == null) {
             Log.e(TAG, "Cell info is null for index: " + cellIndex);
             return;
@@ -172,45 +179,42 @@ public class AssignCellsActivity extends AppCompatActivity {
                 (selectedCells.contains(cellIndex) ? "selected" : "deselected"));
     }
 
-    private void setupSaveButton() {
-        saveButton.setOnClickListener(v -> saveSelectedCells());
-    }
+    private void setupButton() {
+        saveButton.setOnClickListener(v -> {
+            List<Integer> cellsWithExistingModes = new ArrayList<>();
 
-    private void saveSelectedCells() {
-        List<Cell> cellsToUpdate = new ArrayList<>();
-        List<Integer> cellsWithExistingModes = new ArrayList<>();
+            // Verificamos las celdas seleccionadas que ya tienen modos asignados
+            for (Integer selectedIndex : selectedCells) {
+                Cell cell = initialCells.get(selectedIndex);
+                boolean hasCurrentMode = false;
 
-        // Verificamos las celdas seleccionadas que ya tienen modos asignados
-        for (Integer selectedIndex : selectedCells) {
-            Cell cell = currentCells.get(selectedIndex);
-            boolean hasCurrentMode = false;
-
-            // Verificar si la celda tiene el modo actual
-            switch (modeType) {
-                case "single":
-                    hasCurrentMode = cell.getSingleModeId() != null &&
-                            cell.getSingleModeId().equals(currentModeId);
-                    break;
-                case "sequential":
-                    hasCurrentMode = cell.getSequentialModeId() != null &&
-                            cell.getSequentialModeId().equals(currentModeId);
-                    break;
-                case "basic":
-                    hasCurrentMode = cell.getBasicModeId() != null &&
-                            cell.getBasicModeId().equals(currentModeId);
-                    break;
+                // Verificar si la celda tiene el modo actual
+                switch (modeType) {
+                    case "single":
+                        hasCurrentMode = cell.getSingleModeId() != null &&
+                                cell.getSingleModeId().equals(currentModeId);
+                        break;
+                    case "sequential":
+                        hasCurrentMode = cell.getSequentialModeId() != null &&
+                                cell.getSequentialModeId().equals(currentModeId);
+                        break;
+                    case "basic":
+                        hasCurrentMode = cell.getBasicModeId() != null &&
+                                cell.getBasicModeId().equals(currentModeId);
+                        break;
+                }
+                if ((cell.getSingleModeId() != null ||
+                        cell.getSequentialModeId() != null ||
+                        cell.getBasicModeId() != null) && !hasCurrentMode) {
+                    cellsWithExistingModes.add(cell.getNumCell());
+                }
             }
-            if ((cell.getSingleModeId() != null ||
-                    cell.getSequentialModeId() != null ||
-                    cell.getBasicModeId() != null) && !hasCurrentMode) {
-                cellsWithExistingModes.add(cell.getNumCell());
+            if (!cellsWithExistingModes.isEmpty()) {
+                showOverwriteWarning(cellsWithExistingModes, () -> proceedWithSave());
+            } else {
+                proceedWithSave();
             }
-        }
-        if (!cellsWithExistingModes.isEmpty()) {
-            showOverwriteWarning(cellsWithExistingModes, () -> proceedWithSave());
-        } else {
-            proceedWithSave();
-        }
+        });
     }
 
     private void showOverwriteWarning(List<Integer> cellsWithModes, Runnable onConfirm) {
@@ -218,7 +222,7 @@ public class AssignCellsActivity extends AppCompatActivity {
         message.append("Las siguientes celdas ya tienen un modo de horario asignado:\n\n");
 
         for (Integer cellNum : cellsWithModes) {
-            Cell cell = currentCells.get(cellNum - 1);
+            Cell cell = initialCells.get(cellNum - 1);
             message.append("- Celda ").append(cellNum).append(": ");
 
             if (cell.getSingleModeId() != null) {
@@ -248,27 +252,35 @@ public class AssignCellsActivity extends AppCompatActivity {
     private void proceedWithSave() {
         List<Cell> cellsToUpdate = new ArrayList<>();
 
-        for (Cell originalCell : currentCells) {
-            boolean hadOriginalMode = false;
+        // Agregar un log para mostrar cuántas celdas se van a procesar
+        Log.d(TAG, "Procesando " + initialCells.size() + " celdas para actualización");
+
+        for (Cell originalCell : initialCells) {
+            boolean hadOriginallyCurrentMode = false;
             boolean isSelected = selectedCells.contains(originalCell.getNumCell() - 1);
 
             // Verificar si tenía el modo original
             switch (modeType) {
                 case "single":
-                    hadOriginalMode = originalCell.getSingleModeId() != null &&
+                    hadOriginallyCurrentMode = originalCell.getSingleModeId() != null &&
                             originalCell.getSingleModeId().equals(currentModeId);
                     break;
                 case "sequential":
-                    hadOriginalMode = originalCell.getSequentialModeId() != null &&
+                    hadOriginallyCurrentMode = originalCell.getSequentialModeId() != null &&
                             originalCell.getSequentialModeId().equals(currentModeId);
                     break;
                 case "basic":
-                    hadOriginalMode = originalCell.getBasicModeId() != null &&
+                    hadOriginallyCurrentMode = originalCell.getBasicModeId() != null &&
                             originalCell.getBasicModeId().equals(currentModeId);
                     break;
             }
 
-            if ((hadOriginalMode && !isSelected) || isSelected) {
+            // Log para ver el estado de cada celda
+            Log.d(TAG, "Celda " + originalCell.getNumCell() +
+                    " - Seleccionada: " + isSelected +
+                    " - Tenía modo original: " + hadOriginallyCurrentMode);
+
+            if ((hadOriginallyCurrentMode && !isSelected) || isSelected) {
                 Cell updatedCell = new Cell(
                         originalCell.getId(),
                         originalCell.getMacDispenser(),
@@ -279,7 +291,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                         null
                 );
 
-                if (isSelected && !hadOriginalMode) {
+                if (isSelected && !hadOriginallyCurrentMode) {
                     switch (modeType) {
                         case "single":
                             updatedCell = new Cell(
@@ -291,6 +303,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                                     null,
                                     null
                             );
+                            Log.d(TAG, "Asignando modo Single a celda " + originalCell.getNumCell());
                             break;
                         case "sequential":
                             updatedCell = new Cell(
@@ -302,6 +315,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                                     currentModeId,
                                     null
                             );
+                            Log.d(TAG, "Asignando modo Sequential a celda " + originalCell.getNumCell());
                             break;
                         case "basic":
                             updatedCell = new Cell(
@@ -313,15 +327,35 @@ public class AssignCellsActivity extends AppCompatActivity {
                                     null,
                                     currentModeId
                             );
+                            Log.d(TAG, "Asignando modo Basic a celda " + originalCell.getNumCell());
                             break;
                     }
+                } else if (hadOriginallyCurrentMode && !isSelected) {
+                    // Si tenía el modo pero ya no está seleccionada, lo quitamos
+                    Log.d(TAG, "Quitando modo " + modeType + " de celda " + originalCell.getNumCell());
                 }
 
                 cellsToUpdate.add(updatedCell);
             }
         }
 
+        // Log resumen con todas las celdas que se van a actualizar
+        Log.d(TAG, "=== RESUMEN DE ACTUALIZACIÓN ===");
+        Log.d(TAG, "Total de celdas a actualizar: " + cellsToUpdate.size());
+        for (Cell cell : cellsToUpdate) {
+            String action;
+            if ((modeType.equals("single") && cell.getSingleModeId() != null) ||
+                    (modeType.equals("sequential") && cell.getSequentialModeId() != null) ||
+                    (modeType.equals("basic") && cell.getBasicModeId() != null)) {
+                action = "ASIGNAR " + modeType.toUpperCase();
+            } else {
+                action = "QUITAR MODO";
+            }
+            Log.d(TAG, "Celda " + cell.getNumCell() + ": " + action);
+        }
+
         if (cellsToUpdate.isEmpty()) {
+            Log.d(TAG, "No hay celdas para actualizar. Finalizando actividad.");
             finish();
             return;
         }
@@ -329,15 +363,19 @@ public class AssignCellsActivity extends AppCompatActivity {
         String token = GeneralInfo.getToken(this);
         Dispenser selectedDispenser = GeneralInfo.getSelectedDispenser(this);
 
+        Log.d(TAG, "Enviando actualización al servidor para " + cellsToUpdate.size() + " celdas del dispensador " + selectedDispenser.getMac());
+
         new UpdateCellsTask(this, token, selectedDispenser.getMac(), cellsToUpdate,
                 new UpdateCellsTask.UpdateCallback() {
                     @Override
                     public void onSuccess() {
+                        Log.d(TAG, "Actualización exitosa de celdas");
                         runOnUiThread(() -> finish());
                     }
 
                     @Override
                     public void onError(String error) {
+                        Log.e(TAG, "Error al actualizar celdas: " + error);
                         runOnUiThread(() -> {
                             Toast.makeText(AssignCellsActivity.this,
                                     "Error al actualizar las celdas: " + error,
@@ -358,8 +396,8 @@ public class AssignCellsActivity extends AppCompatActivity {
                         @Override
                         public void onCellsLoaded(List<Cell> cells) {
                             Log.d(TAG, "Cells loaded successfully: " + cells.size() + " cells");
-                            currentCells = cells;
-                            updateCells(cells);
+                            initialCells = cells;
+                            updateCells(initialCells);
                         }
 
                         @Override
@@ -372,14 +410,6 @@ public class AssignCellsActivity extends AppCompatActivity {
                     }).execute();
         } else {
             Log.e(TAG, "No dispenser selected");
-        }
-    }
-
-    private void restartCells() {
-        Log.d(TAG, "Restarting cells to initial state");
-        for (View cell : cells) {
-            CellStateManager.updateCellState(cell, CellStateManager.STATE_EMPTY,
-                    CellStateManager.SECONDARY_STATE_NONE, this);
         }
     }
 
@@ -448,6 +478,25 @@ public class AssignCellsActivity extends AppCompatActivity {
         for (Cell cellInfo : cells) {
             int cellIndex = cellInfo.getNumCell() - 1;
             if (cellIndex >= 0 && cellIndex < this.cells.length) {
+                boolean hasCurrentMode = false;
+                switch (modeType) {
+                    case "single":
+                        hasCurrentMode = cellInfo.getSingleModeId() != null &&
+                                cellInfo.getSingleModeId().equals(currentModeId);
+                        break;
+                    case "sequential":
+                        hasCurrentMode = cellInfo.getSequentialModeId() != null &&
+                                cellInfo.getSequentialModeId().equals(currentModeId);
+                        break;
+                    case "basic":
+                        hasCurrentMode = cellInfo.getBasicModeId() != null &&
+                                cellInfo.getBasicModeId().equals(currentModeId);
+                        break;
+                }
+                if (hasCurrentMode && !selectedCells.contains(cellIndex)) {
+                    selectedCells.add(cellIndex);
+                    Log.d(TAG, "Cell " + cellInfo.getNumCell() + " auto-selected because it has current mode " + modeType);
+                }
                 CellStateManager.updateCellState(
                         this.cells[cellIndex],
                         defineMainColorCell(cellInfo),
@@ -468,14 +517,6 @@ public class AssignCellsActivity extends AppCompatActivity {
         return diffInDays >= 7;
     }
 
-    private void setupToolbar() {
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
