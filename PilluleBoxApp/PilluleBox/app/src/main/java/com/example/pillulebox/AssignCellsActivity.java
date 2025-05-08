@@ -251,8 +251,6 @@ public class AssignCellsActivity extends AppCompatActivity {
 
     private void proceedWithSave() {
         List<Cell> cellsToUpdate = new ArrayList<>();
-
-        // Agregar un log para mostrar cuántas celdas se van a procesar
         Log.d(TAG, "Procesando " + initialCells.size() + " celdas para actualización");
 
         for (Cell originalCell : initialCells) {
@@ -275,7 +273,6 @@ public class AssignCellsActivity extends AppCompatActivity {
                     break;
             }
 
-            // Log para ver el estado de cada celda
             Log.d(TAG, "Celda " + originalCell.getNumCell() +
                     " - Seleccionada: " + isSelected +
                     " - Tenía modo original: " + hadOriginallyCurrentMode);
@@ -291,7 +288,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                         null
                 );
 
-                if (isSelected && !hadOriginallyCurrentMode) {
+                if (isSelected) {
                     switch (modeType) {
                         case "single":
                             updatedCell = new Cell(
@@ -330,8 +327,7 @@ public class AssignCellsActivity extends AppCompatActivity {
                             Log.d(TAG, "Asignando modo Basic a celda " + originalCell.getNumCell());
                             break;
                     }
-                } else if (hadOriginallyCurrentMode && !isSelected) {
-                    // Si tenía el modo pero ya no está seleccionada, lo quitamos
+                } else {
                     Log.d(TAG, "Quitando modo " + modeType + " de celda " + originalCell.getNumCell());
                 }
 
@@ -339,7 +335,6 @@ public class AssignCellsActivity extends AppCompatActivity {
             }
         }
 
-        // Log resumen con todas las celdas que se van a actualizar
         Log.d(TAG, "=== RESUMEN DE ACTUALIZACIÓN ===");
         Log.d(TAG, "Total de celdas a actualizar: " + cellsToUpdate.size());
         for (Cell cell : cellsToUpdate) {
