@@ -14,6 +14,8 @@ void initPins() {
   for (int i = 0; i < 6; i++) {
     pinMode(btnPins[i], INPUT_PULLDOWN);
   }
+  pinMode(Buzzer_PIN, OUTPUT);
+  digitalWrite(Buzzer_PIN, LOW);
 }
 
 void resetBtns() {
@@ -99,7 +101,7 @@ int Lista::selectItemFromList() {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              printCellData(cells[i]);
+              //printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -236,7 +238,7 @@ int selectNetwork() {
     Lista lista(l, numRedes);
     int sprPosY = tft.getCursorY() + tft.fontHeight();
     lista.setPositionY(sprPosY);
-    lista.setHeight(tft.height() - sprPosY);
+    lista.setHeight(tft.height() - sprPosY - tft.fontHeight());
     //lista.setHeight(200));
     return lista.selectItemFromList();
   }
@@ -451,13 +453,14 @@ bool checkedAlarms() {
         tft.setTextSize(3);
         tft.setTextColor(TFT_WHITE);
         tft.print("Medicamento listo\npara dispensar\n\nFavor de confirmar");
+        digitalWrite(Buzzer_PIN, HIGH);
         readBtns();
 
         while (!btnCurrentStatus[4]) {
           delay(50);
           readBtns();
         }
-
+        digitalWrite(Buzzer_PIN, LOW);
         setBackground(2);
         tft.setCursor(0, tft.height() / 2);
         tft.setTextSize(3);

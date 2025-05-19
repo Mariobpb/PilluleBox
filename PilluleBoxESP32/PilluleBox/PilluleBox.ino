@@ -46,6 +46,7 @@ void setup() {
     Serial.println("RTC perdió energía, estableciendo hora!");
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   pwm.begin();
   pwm.setPWMFreq(50);
@@ -83,7 +84,7 @@ void loop() {
           if (tokenEEPROM != "" && updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              printCellData(cells[i]);
+              //printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");

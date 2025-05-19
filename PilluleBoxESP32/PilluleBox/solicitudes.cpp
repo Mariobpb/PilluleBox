@@ -158,6 +158,11 @@ bool updateCellsData(const char* token) {
 
     if (!error) {
       JsonArray array = doc.as<JsonArray>();
+      
+      // Primero, limpiar todas las celdas para garantizar que los modos eliminados se borren
+      for (int i = 0; i < 14; i++) {
+        cells[i].clearOtherModes();
+      }
 
       for (JsonVariant v : array) {
         int cellIndex = v["num_cell"].as<int>() - 1;
@@ -178,6 +183,7 @@ bool updateCellsData(const char* token) {
               cell.setCurrentMedicineDate(-1);
             }
 
+            // Verifica explícitamente cada modo y solo lo establece si no es nulo
             if (!v["single_id"].isNull()) {
               SingleMode* sMode = new SingleMode(v["single_id"].as<int>());
               sMode->setMedicineName(v["single_medicine"].as<const char*>());

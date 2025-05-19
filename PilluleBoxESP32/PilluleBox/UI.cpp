@@ -366,20 +366,24 @@ void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
 }
 
 void showBackgroundInfo() {
-  if (WiFi.status() == WL_CONNECTED && username != "") {
-    setBackground(1);
-    tft.setTextColor(TFT_WHITE);
-    tft.setCursor(0, 20);
+  DateTime now = rtc.now();
+  char dateStr[20];
+  sprintf(dateStr, "%02d/%02d/%04d", now.day(), now.month(), now.year());
+  char timeStr[20];
+  sprintf(timeStr, "%02d:%02d", now.hour(), now.minute());
+  char dateTimeStr[50];
+  snprintf(dateTimeStr, sizeof(dateTimeStr), "%s %s\n", dateStr, timeStr);
+  
+  setBackground(1);
+  tft.setCursor(0, 20);
+  tft.setTextColor(TFT_WHITE);
+  tft.println(dateTimeStr);
+  if (username != "") {
     tft.setTextColor(TFT_BLUE);
     tft.println("Bienvenido " + username + "\n");
+  }
+  if (WiFi.status() == WL_CONNECTED) {
     tft.setTextColor(TFT_WHITE);
     tft.println("WiFi:\n" + WiFi.SSID() + "\n");
-  } else if (WiFi.status() == WL_CONNECTED) {
-    setBackground(1);
-    tft.setTextColor(TFT_WHITE);
-    tft.setCursor(0, 20);
-    tft.println("WiFi:\n" + WiFi.SSID() + "\n");
-  } else {
-    setBackground(1);
   }
 }

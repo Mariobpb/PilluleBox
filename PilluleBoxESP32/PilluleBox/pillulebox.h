@@ -72,6 +72,7 @@ extern const int btnPins[6];
 extern bool btnCurrentStatus[6];
 extern bool prevBtnStatus[6];
 extern bool textConfirmed;
+extern const int Buzzer_PIN;
 extern RTC_DS3231 rtc;
 extern const int SDA_RTC_PIN;
 extern const int SCL_RTC_PIN;
@@ -243,12 +244,11 @@ private:
   SequentialMode* sequential_mode;
   BasicMode* basic_mode;
 
-  void clearOtherModes();
-
 public:
   Cell();
   ~Cell();
   
+  void clearOtherModes();
   int getId() const;
   uint8_t getNumCell() const;
   time_t getCurrentMedicineDate() const;
