@@ -238,7 +238,7 @@ int selectNetwork() {
     Lista lista(l, numRedes);
     int sprPosY = tft.getCursorY() + tft.fontHeight();
     lista.setPositionY(sprPosY);
-    lista.setHeight(tft.height() - sprPosY - tft.fontHeight());
+    lista.setHeight(tft.height() - (sprPosY + (tft.fontHeight() * 2)));
     //lista.setHeight(200));
     return lista.selectItemFromList();
   }
@@ -251,6 +251,9 @@ void setBackground(int b) {
       break;
     case 2:
       tft.fillScreen(TFT_BLACK);
+      break;
+      case 3:
+      tft.fillScreen(convertRGBtoRGB565(34, 155, 58));
       break;
   }
 }
@@ -448,7 +451,7 @@ bool checkedAlarms() {
         Serial.print(alarms[i].cellNumber);
         Serial.println(" lista para dispensar");
 
-        setBackground(2);
+        setBackground(3);
         tft.setCursor(0, tft.height() / 2);
         tft.setTextSize(3);
         tft.setTextColor(TFT_WHITE);
@@ -473,6 +476,7 @@ bool checkedAlarms() {
         alarms[i].isActive = false;
         delay(1000);
         readBtns();
+        setBackground(1);
       }
     }
   }
