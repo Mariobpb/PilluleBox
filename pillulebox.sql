@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-04-2025 a las 14:29:27
+-- Tiempo de generación: 25-05-2025 a las 06:38:23
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -352,20 +352,20 @@ INSERT INTO `cell` (`id`, `mac_dispenser`, `num_cell`, `current_medicine_date`, 
 (327, 'B4:C5:D6:E1:F2:A3', 12, NULL, NULL, NULL, NULL),
 (328, 'B4:C5:D6:E1:F2:A3', 13, NULL, NULL, NULL, NULL),
 (329, 'B4:C5:D6:E1:F2:A3', 14, NULL, NULL, NULL, NULL),
-(330, 'F0:9E:9E:22:6E:80', 1, NULL, NULL, 13, NULL),
+(330, 'F0:9E:9E:22:6E:80', 1, NULL, NULL, NULL, NULL),
 (331, 'F0:9E:9E:22:6E:80', 2, NULL, NULL, NULL, NULL),
-(332, 'F0:9E:9E:22:6E:80', 3, NULL, NULL, 14, NULL),
+(332, 'F0:9E:9E:22:6E:80', 3, NULL, NULL, NULL, NULL),
 (333, 'F0:9E:9E:22:6E:80', 4, NULL, NULL, NULL, NULL),
 (334, 'F0:9E:9E:22:6E:80', 5, NULL, NULL, NULL, NULL),
 (335, 'F0:9E:9E:22:6E:80', 6, NULL, NULL, NULL, NULL),
 (336, 'F0:9E:9E:22:6E:80', 7, NULL, NULL, NULL, NULL),
 (337, 'F0:9E:9E:22:6E:80', 8, NULL, NULL, NULL, NULL),
 (338, 'F0:9E:9E:22:6E:80', 9, NULL, NULL, NULL, NULL),
-(339, 'F0:9E:9E:22:6E:80', 10, NULL, NULL, NULL, 12),
+(339, 'F0:9E:9E:22:6E:80', 10, NULL, NULL, NULL, NULL),
 (340, 'F0:9E:9E:22:6E:80', 11, NULL, NULL, NULL, NULL),
-(341, 'F0:9E:9E:22:6E:80', 12, '2025-04-07 15:03:09', NULL, NULL, 13),
-(342, 'F0:9E:9E:22:6E:80', 13, NULL, NULL, NULL, 13),
-(343, 'F0:9E:9E:22:6E:80', 14, NULL, NULL, NULL, NULL);
+(341, 'F0:9E:9E:22:6E:80', 12, NULL, NULL, NULL, 12),
+(342, 'F0:9E:9E:22:6E:80', 13, NULL, NULL, 14, NULL),
+(343, 'F0:9E:9E:22:6E:80', 14, '2025-05-14 09:28:55', 14, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -444,7 +444,7 @@ DELIMITER ;
 
 CREATE TABLE `history` (
   `id` int(11) NOT NULL,
-  `cell_id` int(11) DEFAULT NULL,
+  `mac_dispenser` char(17) DEFAULT NULL,
   `consumption_status` tinyint(1) DEFAULT NULL,
   `date_consumption` datetime DEFAULT NULL,
   `reason` varchar(128) DEFAULT NULL
@@ -477,7 +477,7 @@ INSERT INTO `sequential_mode` (`id`, `mac`, `medicine_name`, `start_date`, `end_
 (9, '30:30:F9:72:22:8C', 'Vitamina C', '2024-11-08 08:00:00', '2024-11-20 20:00:00', '24:00:00', 1, 0, 0),
 (10, '30:30:F9:72:22:8C', 'Antihistamínico', '2024-11-09 09:00:00', '2024-11-19 21:00:00', '12:00:00', 4, 1, 2),
 (13, 'F0:9E:9E:22:6E:80', 'Prueba 1 Secuencial', '2025-05-01 07:15:00', '2025-05-01 08:00:00', '23:59:00', 8, 1, 0),
-(14, 'F0:9E:9E:22:6E:80', 'Prueba 2 Secuencial', '2025-04-26 18:05:28', '2025-04-27 06:00:28', '05:00:00', 2, 0, 0);
+(14, 'F0:9E:9E:22:6E:80', 'Prueba 2 Secuencial', '2025-05-14 18:05:28', '2025-05-17 00:00:28', '05:00:00', 2, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -501,7 +501,7 @@ INSERT INTO `single_mode` (`id`, `mac`, `medicine_name`, `dispensing_date`) VALU
 (8, '30:30:F9:72:22:8C', 'Amoxicilina', '2024-11-07 07:15:00'),
 (9, '30:30:F9:72:22:8C', 'Vitamina C', '2024-11-08 12:00:00'),
 (10, '30:30:F9:72:22:8C', 'Antihistamínico', '2024-11-09 20:45:00'),
-(13, 'F0:9E:9E:22:6E:80', 'ppppp', '2025-01-22 11:19:00');
+(14, 'F0:9E:9E:22:6E:80', 'Pastilla #1', '2025-05-24 20:33:00');
 
 -- --------------------------------------------------------
 
@@ -521,11 +521,9 @@ CREATE TABLE `tokens` (
 --
 
 INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
-(84, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDU3MTI5NzYsImV4cCI6MTc0NjMxNzc3Nn0.FcNv97gj-oj215kOmJFAZucUaJV83SKNXnAAnehgebQ', 1746317776),
-(85, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDU3MTU4OTAsImV4cCI6MTc0NjMyMDY5MH0.Re80r6y99nnriMgiC47a172yGOX63UpNgpy8FGQ5n2k', 1746320690),
-(86, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDU3MTU5NDksImV4cCI6MTc0NjMyMDc0OX0.4MdoSygo6nsbnSfu47-G29Bfavu3ulNToGQLRRRfOAs', 1746320749),
-(87, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDU3MTU5NzMsImV4cCI6MTc0NjMyMDc3M30.XDqghxyZPg00k8F5HQaMaIjFeMsv1rbQP4H6f5uTVK0', 1746320773),
-(88, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDU4NDAzNzksImV4cCI6MTc0NjQ0NTE3OX0.nYHZdZkwLdc3wc9LBn4mwHv8lV1hYaGcB3Kay-jeMIk', 1746445179);
+(94, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDc4ODMzNjYsImV4cCI6MTc0ODQ4ODE2Nn0.I_WQwkvFGLHtrTBar07D40ExV6Ld84Jzypcuv1Y43hU', 1748488166),
+(95, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgwNjM3MzksImV4cCI6MTc0ODY2ODUzOX0.slotMDl9n5le6OB25rcnnOxxrCKIFKBT1NOgr8cxTWI', 1748668539),
+(96, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgxNDA5ODQsImV4cCI6MTc0ODc0NTc4NH0.gFSPmZK7P1E9cpCWKqi40TAOec9ry0VnsMRM_2bidZU', 1748745784);
 
 -- --------------------------------------------------------
 
@@ -588,7 +586,7 @@ ALTER TABLE `dispenser`
 --
 ALTER TABLE `history`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `cell_id` (`cell_id`);
+  ADD KEY `fk_mac_dispenser` (`mac_dispenser`);
 
 --
 -- Indices de la tabla `sequential_mode`
@@ -655,13 +653,13 @@ ALTER TABLE `sequential_mode`
 -- AUTO_INCREMENT de la tabla `single_mode`
 --
 ALTER TABLE `single_mode`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT de la tabla `user`
@@ -698,7 +696,7 @@ ALTER TABLE `dispenser`
 -- Filtros para la tabla `history`
 --
 ALTER TABLE `history`
-  ADD CONSTRAINT `history_ibfk_1` FOREIGN KEY (`cell_id`) REFERENCES `cell` (`id`);
+  ADD CONSTRAINT `fk_mac_dispenser` FOREIGN KEY (`mac_dispenser`) REFERENCES `dispenser` (`mac`);
 
 --
 -- Filtros para la tabla `sequential_mode`
