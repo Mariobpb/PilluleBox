@@ -196,7 +196,8 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         int id = item.getItemId();
 
         if (id == R.id.menu_history) {
-            GeneralInfo.toastMessage("Historial", this);
+            Intent intent = new Intent(MenuActivity.this, HistoryActivity.class);
+            startActivity(intent);
             return true;
         } else if (id == R.id.menu_logout) {
             Log.d(TAG, "onClick: Cerrando sesión");

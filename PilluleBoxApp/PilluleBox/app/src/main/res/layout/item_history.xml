@@ -34,6 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="5dp"
             android:textSize="13dp"
             android:textColor="@android:color/black"
             android:text="Desconocido"
@@ -51,6 +52,7 @@
             android:id="@+id/history_item_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
             android:textSize="13dp"
             android:textColor="@android:color/black"
             android:text="AAAA/MM/DD hh:mm"
@@ -65,6 +67,7 @@
         android:text="Razón por falta de consumo:"
         />
     <TextView
+        android:id="@+id/history_item_reason"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="13dp"

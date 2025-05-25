@@ -678,6 +678,45 @@ app.get('/cells_with_modes/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.get('/history/:mac', authMiddleware, (req, res) => {
+    const macAddress = req.params.mac;
+    const userId = req.userId;
+
+    const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+    connection.query(checkQuery, [macAddress, userId], (err, results) => {
+        if (err) {
+            console.error('Error al verificar el dispensador:', err);
+            return res.status(500).json({ error: 'Error al verificar el dispensador' });
+        }
+
+        if (results.length === 0) {
+            return res.status(403).json({ error: 'No tienes permiso para acceder a este dispensador' });
+        }
+        
+        const query = `
+            SELECT 
+                id,
+                mac_dispenser,
+                medicine_name,
+                consumption_status,
+                date_consumption,
+                reason
+            FROM history 
+            WHERE mac_dispenser = ? 
+            ORDER BY date_consumption DESC
+        `;
+        
+        connection.query(query, [macAddress], (err, history) => {
+            if (err) {
+                console.error('Error al obtener el historial:', err);
+                return res.status(500).json({ error: 'Error al obtener el historial' });
+            }
+            
+            res.json(history);
+        });
+    });
+});
+
 app.put('/update_single_mode/:mac', authMiddleware, (req, res) => {
   const macAddress = req.params.mac;
   const userId = req.userId;
