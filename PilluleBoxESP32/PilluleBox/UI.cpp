@@ -375,6 +375,7 @@ void showBackgroundInfo() {
   snprintf(dateTimeStr, sizeof(dateTimeStr), "%s %s\n", dateStr, timeStr);
   
   setBackground(1);
+  tft.setTextSize(2);
   tft.setCursor(0, 20);
   tft.setTextColor(TFT_WHITE);
   tft.println(dateTimeStr);

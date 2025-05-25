@@ -83,7 +83,7 @@ void loop() {
           if (tokenEEPROM != "" && updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
+              printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -149,10 +149,9 @@ void loop() {
     }
   } else {
     showBackgroundInfo();
-    tft.setCursor(0, 20);
     OptionsWiFiDisconnected.setTextSize(3);
-    OptionsWiFiDisconnected.setPositionY(30);
-    OptionsWiFiDisconnected.setHeight(170);
+    OptionsWiFiDisconnected.setPositionY(tft.getCursorY());
+    OptionsWiFiDisconnected.setHeight(180);
     int seleccion = OptionsWiFiDisconnected.selectItemFromList();
     switch (seleccion) {
       case -1:

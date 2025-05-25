@@ -95,13 +95,14 @@ int Lista::selectItemFromList() {
       readBtns();
       if (WiFi.status() == WL_CONNECTED) {
         if (checkedAlarms()) {
+          showBackgroundInfo();
           drawList();
         }
         if (updateCellsAgain()) {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
+              printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -149,13 +150,14 @@ void connectWiFi(String ssid, String password) {
   tft.setCursor(0, 300);
   tft.setTextSize(4);
   if (tiempo == 30) {
-    tft.print("Conexión Fallida");
+    tft.print("\nConexion\nFallida");
+    delay(2000);
     return;
   }
-  tft.print("Conectado\nexitosamente");
+  tft.print("\nConectado\nexitosamente");
   writeStringInEEPROM(dirSSID, ssid.c_str(), wifiEEPROMSize);
   writeStringInEEPROM(dirPASSWORD, password.c_str(), wifiEEPROMSize);
-  delay(1000);
+  delay(2000);
 }
 
 void reconnectWiFi() {
@@ -439,23 +441,50 @@ void setSingleModeAlarm(const Cell& cell) {
   }
 }
 
+
 bool checkedAlarms() {
   bool startedAlarm = false;
   DateTime now = rtc.now();
+  
   for (int i = 0; i < 14; i++) {
     if (alarms[i].isActive) {
       if (now >= alarms[i].alarmTime) {
         startedAlarm = true;
+        
+        String medicineName = "Med. Desconocido";
+        int cellIndex = alarms[i].cellNumber - 1;
+        
+        if (cellIndex >= 0 && cellIndex < 14) {
+          Cell& currentCell = cells[cellIndex];
+          
+          
+          if (currentCell.getSingleMode() != nullptr) {
+            medicineName = String(currentCell.getSingleMode()->getMedicineName());
+          }
+          else if (currentCell.getSequentialMode() != nullptr) {
+            medicineName = String(currentCell.getSequentialMode()->getMedicineName());
+          }
+          else if (currentCell.getBasicMode() != nullptr) {
+            medicineName = String(currentCell.getBasicMode()->getMedicineName());
+          }
+        }
 
         Serial.print("¡Alarma! Celda ");
         Serial.print(alarms[i].cellNumber);
-        Serial.println(" lista para dispensar");
+        Serial.print(" - Medicamento: ");
+        Serial.print(medicineName);
+        Serial.println(" listo para dispensar");
 
         setBackground(3);
-        tft.setCursor(0, tft.height() / 2);
-        tft.setTextSize(3);
+        tft.setCursor(10, 100);
+        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextSize(4);
+        tft.println(medicineName);
+        tft.setTextSize(2);
         tft.setTextColor(TFT_WHITE);
-        tft.print("Medicamento listo\npara dispensar\n\nFavor de confirmar");
+        tft.print("\n  listo para dispensar");
+        tft.print("\n\n\n\n  Favor de confirmar");
+        
         digitalWrite(Buzzer_PIN, HIGH);
         readBtns();
 
@@ -463,12 +492,15 @@ bool checkedAlarms() {
           delay(50);
           readBtns();
         }
+        
         digitalWrite(Buzzer_PIN, LOW);
         setBackground(2);
         tft.setCursor(0, tft.height() / 2);
         tft.setTextSize(3);
         tft.setTextColor(TFT_WHITE);
-        tft.print("Dispensando medicamento...");
+        tft.print("Dispensando:\n");
+        tft.print(medicineName);
+        tft.print("...");
 
         positionCell(alarms[i].cellNumber);
         dispenseMedicine();
