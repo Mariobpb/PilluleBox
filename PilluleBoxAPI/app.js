@@ -559,7 +559,7 @@ app.post('/register_history/:mac', (req, res) => {
       if (cellResults.length === 0) {
         return res.status(404).json({ error: 'Celda no encontrada' });
       }
-
+//A
       const cellInfo = cellResults[0];
       
       connection.beginTransaction(transErr => {
