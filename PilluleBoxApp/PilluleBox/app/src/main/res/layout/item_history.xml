@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:background="@drawable/corners4"
+    android:padding="15dp"
+    android:background="@drawable/corners1"
     android:layout_margin="5dp"
     >
 
@@ -39,11 +39,16 @@
             android:textColor="@android:color/black"
             android:text="Desconocido"
             />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="30dp"
             android:textSize="13dp"
             android:textColor="@android:color/darker_gray"
             android:text="Fecha de consumo: "

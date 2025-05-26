@@ -416,7 +416,7 @@ void setSingleModeAlarm(const Cell& cell) {
 
       if (cellIndex == 0) {
         rtc.setAlarm1(alarmTime, DS3231_A1_Date);
-      } else if (cellIndex == 1) {  // Para Alarma 2
+      } else if (cellIndex == 1) {
         rtc.setAlarm2(alarmTime, DS3231_A2_Date);
       }
 

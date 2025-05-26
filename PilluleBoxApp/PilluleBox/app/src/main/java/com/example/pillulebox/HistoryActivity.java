@@ -115,15 +115,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void onHistoryItemClick(History history) {
-        String message = String.format(
-                "Medicamento: %s\nEstado: %s\nFecha: %s\nRazón: %s",
-                history.getMedicineName(),
-                history.getConsumptionStatus(),
-                history.getDateConsumption(),
-                history.getReason() != null ? history.getReason() : "Sin razón especificada"
-        );
-
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        
     }
 
     @Override

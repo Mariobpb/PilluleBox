@@ -505,6 +505,154 @@ app.post('/add_basic_mode/:mac', authMiddleware, (req, res) => {
   });
 });
 
+app.post('/register_dispensing/:mac', (req, res) => {
+  const macAddress = req.params.mac;
+  const { 
+    medicine_name, 
+    consumption_status, 
+    date_consumption, 
+    reason,
+    cell_id
+  } = req.body;
+
+  console.log(`Registrando dispensado para MAC: ${macAddress}, Medicina: ${medicine_name}, Celda ID: ${cell_id}`);
+  
+  const checkDispenserQuery = 'SELECT * FROM dispenser WHERE mac = ?';
+  connection.query(checkDispenserQuery, [macAddress], (err, dispenserResults) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (dispenserResults.length === 0) {
+      return res.status(404).json({ error: 'Dispensador no encontrado' });
+    }
+    
+    const getCellQuery = `
+      SELECT 
+        c.id, c.num_cell, c.single_mode_id, c.sequential_mode_id, c.basic_mode_id,
+        sm.id as single_id,
+        sqm.id as seq_id, sqm.current_times_consumption,
+        bm.id as basic_id
+      FROM cell c
+      LEFT JOIN single_mode sm ON c.single_mode_id = sm.id
+      LEFT JOIN sequential_mode sqm ON c.sequential_mode_id = sqm.id
+      LEFT JOIN basic_mode bm ON c.basic_mode_id = bm.id
+      WHERE c.id = ? AND c.mac_dispenser = ?
+    `;
+
+    connection.query(getCellQuery, [cell_id, macAddress], (cellErr, cellResults) => {
+      if (cellErr) {
+        console.error('Error al obtener información de la celda:', cellErr);
+        return res.status(500).json({ error: 'Error al obtener información de la celda' });
+      }
+
+      if (cellResults.length === 0) {
+        return res.status(404).json({ error: 'Celda no encontrada' });
+      }
+
+      const cellInfo = cellResults[0];
+      
+      connection.beginTransaction(transErr => {
+        if (transErr) {
+          console.error('Error al iniciar transacción:', transErr);
+          return res.status(500).json({ error: 'Error al procesar el dispensado' });
+        }
+        
+        const insertHistoryQuery = `
+          INSERT INTO history (mac_dispenser, medicine_name, consumption_status, date_consumption, reason)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+
+        connection.query(insertHistoryQuery, [
+          macAddress,
+          medicine_name,
+          consumption_status,
+          date_consumption,
+          reason
+        ], (historyErr, historyResult) => {
+          if (historyErr) {
+            return connection.rollback(() => {
+              console.error('Error al insertar en historial:', historyErr);
+              res.status(500).json({ error: 'Error al registrar en historial' });
+            });
+          }
+
+          console.log('Historial registrado correctamente');
+
+          const clearCellQuery = 'UPDATE cell SET current_medicine_date = NULL WHERE id = ?';
+          connection.query(clearCellQuery, [cell_id], (clearErr) => {
+            if (clearErr) {
+              return connection.rollback(() => {
+                console.error('Error al limpiar la celda:', clearErr);
+                res.status(500).json({ error: 'Error al limpiar la celda' });
+              });
+            }
+
+            console.log(`Celda ${cell_id} limpiada (current_medicine_date = NULL)`);
+            
+            if (cellInfo.seq_id && consumption_status === 1) {
+              const updateSequentialQuery = `
+                UPDATE sequential_mode 
+                SET current_times_consumption = current_times_consumption + 1
+                WHERE id = ?
+              `;
+
+              connection.query(updateSequentialQuery, [cellInfo.seq_id], (updateErr) => {
+                if (updateErr) {
+                  return connection.rollback(() => {
+                    console.error('Error al actualizar consumos secuenciales:', updateErr);
+                    res.status(500).json({ error: 'Error al actualizar contador de consumos' });
+                  });
+                }
+
+                console.log(`Contador de consumos incrementado para modo secuencial ID: ${cellInfo.seq_id}`);
+                
+                connection.commit(commitErr => {
+                  if (commitErr) {
+                    return connection.rollback(() => {
+                      console.error('Error al confirmar transacción:', commitErr);
+                      res.status(500).json({ error: 'Error al procesar el dispensado' });
+                    });
+                  }
+
+                  res.json({ 
+                    message: 'Dispensado registrado correctamente',
+                    history_id: historyResult.insertId,
+                    mode_type: 'sequential',
+                    consumption_updated: true,
+                    cell_cleared: true
+                  });
+                });
+              });
+            } else {
+              connection.commit(commitErr => {
+                if (commitErr) {
+                  return connection.rollback(() => {
+                    console.error('Error al confirmar transacción:', commitErr);
+                    res.status(500).json({ error: 'Error al procesar el dispensado' });
+                  });
+                }
+
+                const modeType = cellInfo.single_id ? 'single' : 
+                               cellInfo.basic_id ? 'basic' : 'none';
+
+                res.json({ 
+                  message: 'Dispensado registrado correctamente',
+                  history_id: historyResult.insertId,
+                  mode_type: modeType,
+                  consumption_updated: false,
+                  cell_cleared: true
+                });
+              });
+            }
+          });
+        });
+      });
+    });
+  });
+});
+
 app.get('/user_dispensers', authMiddleware, (req, res) => {
   const userId = req.userId;
   const query = 'SELECT mac, dispenser_name, context FROM dispenser WHERE user_id = ?';
