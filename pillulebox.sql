@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-05-2025 a las 06:38:23
+-- Tiempo de generación: 26-05-2025 a las 14:21:13
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -49,7 +49,8 @@ INSERT INTO `basic_mode` (`id`, `mac`, `medicine_name`, `morning_start_time`, `m
 (8, '30:30:F9:72:22:8C', 'Amoxicilina', '09:00:00', '10:00:00', '14:00:00', '15:00:00', '21:00:00', '22:00:00'),
 (9, '30:30:F9:72:22:8C', 'Vitamina C', '06:30:00', '07:30:00', '11:30:00', '12:30:00', '18:30:00', '19:30:00'),
 (12, 'F0:9E:9E:22:6E:80', 'Prueba 1 Básico', '04:00:00', '11:59:00', '12:00:00', '19:59:00', '20:00:00', '03:59:00'),
-(13, 'F0:9E:9E:22:6E:80', 'Prueba 2 Básico', '05:28:00', '06:57:00', '15:45:00', '16:10:00', '21:02:00', '00:00:00');
+(13, 'F0:9E:9E:22:6E:80', 'Prueba 2 Básico', '05:28:00', '06:57:00', '15:45:00', '16:10:00', '21:02:00', '00:00:00'),
+(14, 'F0:9E:9E:22:6E:80', 'bjh', '05:38:00', '06:38:00', '13:30:00', '17:30:00', '23:00:00', '00:30:00');
 
 -- --------------------------------------------------------
 
@@ -352,20 +353,20 @@ INSERT INTO `cell` (`id`, `mac_dispenser`, `num_cell`, `current_medicine_date`, 
 (327, 'B4:C5:D6:E1:F2:A3', 12, NULL, NULL, NULL, NULL),
 (328, 'B4:C5:D6:E1:F2:A3', 13, NULL, NULL, NULL, NULL),
 (329, 'B4:C5:D6:E1:F2:A3', 14, NULL, NULL, NULL, NULL),
-(330, 'F0:9E:9E:22:6E:80', 1, NULL, NULL, NULL, NULL),
-(331, 'F0:9E:9E:22:6E:80', 2, NULL, NULL, NULL, NULL),
+(330, 'F0:9E:9E:22:6E:80', 1, NULL, 17, NULL, NULL),
+(331, 'F0:9E:9E:22:6E:80', 2, '2025-05-26 06:12:12', 17, NULL, NULL),
 (332, 'F0:9E:9E:22:6E:80', 3, NULL, NULL, NULL, NULL),
 (333, 'F0:9E:9E:22:6E:80', 4, NULL, NULL, NULL, NULL),
 (334, 'F0:9E:9E:22:6E:80', 5, NULL, NULL, NULL, NULL),
 (335, 'F0:9E:9E:22:6E:80', 6, NULL, NULL, NULL, NULL),
-(336, 'F0:9E:9E:22:6E:80', 7, NULL, NULL, NULL, NULL),
-(337, 'F0:9E:9E:22:6E:80', 8, NULL, NULL, NULL, NULL),
-(338, 'F0:9E:9E:22:6E:80', 9, NULL, NULL, NULL, NULL),
+(336, 'F0:9E:9E:22:6E:80', 7, '2025-05-26 06:12:25', NULL, NULL, NULL),
+(337, 'F0:9E:9E:22:6E:80', 8, NULL, 17, NULL, NULL),
+(338, 'F0:9E:9E:22:6E:80', 9, NULL, 17, NULL, NULL),
 (339, 'F0:9E:9E:22:6E:80', 10, NULL, NULL, NULL, NULL),
 (340, 'F0:9E:9E:22:6E:80', 11, NULL, NULL, NULL, NULL),
-(341, 'F0:9E:9E:22:6E:80', 12, NULL, NULL, NULL, 12),
-(342, 'F0:9E:9E:22:6E:80', 13, NULL, NULL, 14, NULL),
-(343, 'F0:9E:9E:22:6E:80', 14, '2025-05-14 09:28:55', 14, NULL, NULL);
+(341, 'F0:9E:9E:22:6E:80', 12, NULL, NULL, NULL, NULL),
+(342, 'F0:9E:9E:22:6E:80', 13, NULL, NULL, NULL, NULL),
+(343, 'F0:9E:9E:22:6E:80', 14, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -417,7 +418,7 @@ INSERT INTO `dispenser` (`mac`, `user_id`, `dispenser_name`, `context`) VALUES
 ('E1:F2:A3:B4:C5:D6', 13, 'Asilo Esperanza', 0),
 ('E2:F3:A4:B5:C6:D1', 18, 'Asilo San José', 0),
 ('E3:F4:A5:B6:C1:D2', 13, 'Residencia Norte', 0),
-('F0:9E:9E:22:6E:80', 14, 'Unnamed', 3),
+('F0:9E:9E:22:6E:80', 14, 'Ceti Dispenser', 3),
 ('F2:A3:B4:C5:D6:E1', NULL, 'Casa de los Abuelos', 0),
 ('F3:A4:B5:C6:D1:E2', 14, 'Clínica Nueva Vida', 4);
 
@@ -445,10 +446,23 @@ DELIMITER ;
 CREATE TABLE `history` (
   `id` int(11) NOT NULL,
   `mac_dispenser` char(17) DEFAULT NULL,
+  `medicine_name` varchar(30) DEFAULT NULL,
   `consumption_status` tinyint(1) DEFAULT NULL,
   `date_consumption` datetime DEFAULT NULL,
   `reason` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `history`
+--
+
+INSERT INTO `history` (`id`, `mac_dispenser`, `medicine_name`, `consumption_status`, `date_consumption`, `reason`) VALUES
+(34, 'F0:9E:9E:22:6E:80', 'Single A', 1, '2025-05-26 05:00:06', ''),
+(35, 'F0:9E:9E:22:6E:80', 'Single A', 1, '2025-05-26 05:24:02', ''),
+(36, 'F0:9E:9E:22:6E:80', 'Single A', 1, '2025-05-26 05:49:25', ''),
+(37, 'F0:9E:9E:22:6E:80', 'Single A', 1, '2025-05-26 06:04:45', ''),
+(38, 'F0:9E:9E:22:6E:80', 'Single A', 1, '2025-05-26 06:08:47', 'aaSZ'),
+(39, 'F0:9E:9E:22:6E:80', 'Single C', 0, '2025-05-26 06:14:43', 'Esta sucio');
 
 -- --------------------------------------------------------
 
@@ -501,7 +515,9 @@ INSERT INTO `single_mode` (`id`, `mac`, `medicine_name`, `dispensing_date`) VALU
 (8, '30:30:F9:72:22:8C', 'Amoxicilina', '2024-11-07 07:15:00'),
 (9, '30:30:F9:72:22:8C', 'Vitamina C', '2024-11-08 12:00:00'),
 (10, '30:30:F9:72:22:8C', 'Antihistamínico', '2024-11-09 20:45:00'),
-(14, 'F0:9E:9E:22:6E:80', 'Pastilla #1', '2025-05-24 20:33:00');
+(15, 'F0:9E:9E:22:6E:80', 'Single A', '2025-05-26 03:05:00'),
+(16, 'F0:9E:9E:22:6E:80', 'Single B', '2025-05-26 02:45:00'),
+(17, 'F0:9E:9E:22:6E:80', 'Single C', '2025-05-26 02:40:00');
 
 -- --------------------------------------------------------
 
@@ -523,7 +539,9 @@ CREATE TABLE `tokens` (
 INSERT INTO `tokens` (`id`, `user`, `token`, `token_exp`) VALUES
 (94, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDc4ODMzNjYsImV4cCI6MTc0ODQ4ODE2Nn0.I_WQwkvFGLHtrTBar07D40ExV6Ld84Jzypcuv1Y43hU', 1748488166),
 (95, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgwNjM3MzksImV4cCI6MTc0ODY2ODUzOX0.slotMDl9n5le6OB25rcnnOxxrCKIFKBT1NOgr8cxTWI', 1748668539),
-(96, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgxNDA5ODQsImV4cCI6MTc0ODc0NTc4NH0.gFSPmZK7P1E9cpCWKqi40TAOec9ry0VnsMRM_2bidZU', 1748745784);
+(96, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgxNDA5ODQsImV4cCI6MTc0ODc0NTc4NH0.gFSPmZK7P1E9cpCWKqi40TAOec9ry0VnsMRM_2bidZU', 1748745784),
+(97, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgxOTA4MjMsImV4cCI6MTc0ODc5NTYyM30.w4VcMdQxdRxM_r-id3SfxIVdL-0PNr3WE_J_DtxhSRM', 1748795623),
+(98, 14, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZV9lbWFpbCI6Ik0yIiwicGFzc3dvcmQiOiJYdkc4VE1OY0c4Tjdla1p3YmpjWXlRPT0iLCJpYXQiOjE3NDgyMTA2OTIsImV4cCI6MTc0ODgxNTQ5Mn0.GAKkKCdT7hpm0soFh8l0KkPAWQNykTImWMNDPBt4e9c', 1748815492);
 
 -- --------------------------------------------------------
 
@@ -623,7 +641,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT de la tabla `basic_mode`
 --
 ALTER TABLE `basic_mode`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `cell`
@@ -641,7 +659,7 @@ ALTER TABLE `codes`
 -- AUTO_INCREMENT de la tabla `history`
 --
 ALTER TABLE `history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT de la tabla `sequential_mode`
@@ -653,13 +671,13 @@ ALTER TABLE `sequential_mode`
 -- AUTO_INCREMENT de la tabla `single_mode`
 --
 ALTER TABLE `single_mode`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de la tabla `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT de la tabla `user`
