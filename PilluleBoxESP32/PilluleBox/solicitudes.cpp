@@ -158,7 +158,7 @@ bool updateCellsData(const char* token) {
 
     if (!error) {
       JsonArray array = doc.as<JsonArray>();
-      
+
       // Primero, limpiar todas las celdas para garantizar que los modos eliminados se borren
       for (int i = 0; i < 14; i++) {
         cells[i].clearOtherModes();
@@ -263,6 +263,164 @@ bool updateCellsData(const char* token) {
       http.end();
       return true;
     }
+  }
+
+  http.end();
+  return false;
+}
+
+bool updateCurrentMedicineDate(int cellId, const char* token) {
+  setBackground(2);
+  tft.setCursor(0, 200);
+  tft.setTextSize(3);
+  tft.setTextColor(TFT_WHITE);
+  tft.print("Actualizando\ndatos...");
+
+  HTTPClient http;
+  String url = String(apiUrl) + "/update_medicine_date";
+
+  // Obtener timestamp Unix directamente
+  time_t currentTime = rtc.now().unixtime();
+
+  StaticJsonDocument<300> doc;
+  doc["cell_id"] = cellId;
+  doc["current_medicine_date"] = currentTime; // Enviar como timestamp Unix
+  doc["mac_address"] = WiFi.macAddress();
+
+  String jsonString;
+  serializeJson(doc, jsonString);
+
+  Serial.println("Actualizando fecha de medicina para celda ID: " + String(cellId));
+  Serial.println("Timestamp Unix: " + String(currentTime));
+  Serial.println("JSON: " + jsonString);
+
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", token);
+
+  int httpResponseCode = http.POST(jsonString);
+
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.printf("Código de respuesta HTTP: %d\n", httpResponseCode);
+    Serial.println("Respuesta: " + response);
+
+    if (httpResponseCode == 200) {
+      StaticJsonDocument<200> responseDoc;
+      DeserializationError error = deserializeJson(responseDoc, response);
+
+      if (!error && responseDoc.containsKey("message")) {
+        Serial.println("Fecha de medicina actualizada correctamente");
+        http.end();
+        return true;
+      }
+    }
+  } else {
+    Serial.printf("Error en la solicitud HTTP: %d\n", httpResponseCode);
+  }
+
+  http.end();
+  return false;
+}
+
+bool registerHistory(const char* medicine_name, int consumption_status, const char* reason, int cell_id) {
+  HTTPClient http;
+  String url = String(apiUrl) + "/register_history/" + WiFi.macAddress();
+
+  setBackground(2);
+  tft.setCursor(0, 200);
+  tft.setTextSize(3);
+  tft.setTextColor(TFT_WHITE);
+  tft.print("Actualizando\ndatos...");
+
+  Serial.println("\n--- Registrando en historial ---");
+  Serial.println("URL: " + url);
+  Serial.println("Medicina: " + String(medicine_name));
+  Serial.println("Estado: " + String(consumption_status));
+  Serial.println("Razón: " + String(reason));
+  Serial.println("Cell ID: " + String(cell_id));
+  
+  // Obtener timestamp Unix directamente
+  time_t currentTime = rtc.now().unixtime();
+  
+  StaticJsonDocument<400> doc;
+  doc["medicine_name"] = medicine_name;
+  doc["consumption_status"] = consumption_status;
+  doc["date_consumption"] = currentTime; // Enviar como timestamp Unix
+  doc["reason"] = reason;
+  doc["cell_id"] = cell_id;
+
+  String jsonString;
+  serializeJson(doc, jsonString);
+
+  Serial.println("JSON enviado: " + jsonString);
+  Serial.println("Timestamp Unix: " + String(currentTime));
+  
+  http.begin(url);
+  http.addHeader("Content-Type", "application/json");
+  
+  int httpResponseCode = http.POST(jsonString);
+  Serial.printf("Código de respuesta HTTP: %d\n", httpResponseCode);
+
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println("Respuesta del servidor: " + response);
+
+    if (httpResponseCode == 200) {
+      
+      StaticJsonDocument<500> responseDoc;
+      DeserializationError error = deserializeJson(responseDoc, response);
+
+      if (!error && responseDoc.containsKey("message")) {
+        Serial.println("Registro en historial exitoso");
+        
+        if (responseDoc.containsKey("mode_type")) {
+          String modeType = responseDoc["mode_type"].as<String>();
+          Serial.println("Tipo de modo: " + modeType);
+        }
+        
+        if (responseDoc.containsKey("consumption_updated") && 
+            responseDoc["consumption_updated"].as<bool>()) {
+          Serial.println("Contador de consumos actualizado");
+        }
+        
+        if (responseDoc.containsKey("cell_cleared") && 
+            responseDoc["cell_cleared"].as<bool>()) {
+          Serial.println("Celda limpiada correctamente");
+        }
+
+        delay(2000);
+        http.end();
+        return true;
+      }
+    } else {
+      StaticJsonDocument<300> errorDoc;
+      DeserializationError error = deserializeJson(errorDoc, response);
+      
+      String errorMessage = "Error desconocido";
+      if (!error && errorDoc.containsKey("error")) {
+        errorMessage = errorDoc["error"].as<String>();
+      }
+      
+      Serial.println("Error del servidor: " + errorMessage);
+      
+      setBackground(2);
+      tft.setCursor(0, 50);
+      tft.setTextSize(2);
+      tft.setTextColor(TFT_WHITE);
+      tft.println("Error:");
+      tft.println(errorMessage);
+      delay(3000);
+    }
+  } else {
+    Serial.printf("Error en la conexión HTTP: %d\n", httpResponseCode);
+    
+    setBackground(1);
+    tft.setCursor(0, 50);
+    tft.setTextSize(2);
+    tft.setTextColor(TFT_YELLOW);
+    tft.println("Error de\nconexion");
+    delay(3000);
   }
 
   http.end();

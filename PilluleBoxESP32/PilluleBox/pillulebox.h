@@ -47,8 +47,9 @@ void enterMedicine();
 int getNumCell(int column, int row);
 void mostrarPulsos(int seccion, bool esOffset);
 void buscarOffset(int servoChannel360, int pinOffset, int seccion);
+void posicionarCelda(int numCell);
 void procesarSeccion(int seccion, int posicion);
-void activarServo180(int servoChannel180);
+void dispensarSeccion(int servoChannel180);
 
 // UI
 void setBackground(int b);
@@ -66,6 +67,8 @@ bool validateMacAddress();
 bool logIn(String username_email, String password);
 bool validateToken(const char* token);
 bool updateCellsData(const char* token);
+bool updateCurrentMedicineDate(int cellId, const char* token);
+bool registerHistory(const char* medicine_name, int consumption_status, const char* reason, int cell_id);
 
 // Variables globales
 extern const int btnPins[6];

@@ -505,7 +505,7 @@ app.post('/add_basic_mode/:mac', authMiddleware, (req, res) => {
   });
 });
 
-app.post('/register_dispensing/:mac', (req, res) => {
+app.post('/register_history/:mac', (req, res) => {
   const macAddress = req.params.mac;
   const { 
     medicine_name, 
@@ -516,6 +516,15 @@ app.post('/register_dispensing/:mac', (req, res) => {
   } = req.body;
 
   console.log(`Registrando dispensado para MAC: ${macAddress}, Medicina: ${medicine_name}, Celda ID: ${cell_id}`);
+  let formattedDate;
+  if (typeof date_consumption === 'number') {
+    const date = new Date(date_consumption * 1000);
+    formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+    console.log(`Timestamp recibido: ${date_consumption}, Fecha convertida: ${formattedDate}`);
+  } else {
+    formattedDate = date_consumption;
+    console.log(`Fecha recibida como string: ${formattedDate}`);
+  }
   
   const checkDispenserQuery = 'SELECT * FROM dispenser WHERE mac = ?';
   connection.query(checkDispenserQuery, [macAddress], (err, dispenserResults) => {
@@ -568,7 +577,7 @@ app.post('/register_dispensing/:mac', (req, res) => {
           macAddress,
           medicine_name,
           consumption_status,
-          date_consumption,
+          formattedDate, // Usar la fecha formateada
           reason
         ], (historyErr, historyResult) => {
           if (historyErr) {
@@ -578,7 +587,7 @@ app.post('/register_dispensing/:mac', (req, res) => {
             });
           }
 
-          console.log('Historial registrado correctamente');
+          console.log('Historial registrado correctamente con fecha:', formattedDate);
 
           const clearCellQuery = 'UPDATE cell SET current_medicine_date = NULL WHERE id = ?';
           connection.query(clearCellQuery, [cell_id], (clearErr) => {
@@ -621,7 +630,8 @@ app.post('/register_dispensing/:mac', (req, res) => {
                     history_id: historyResult.insertId,
                     mode_type: 'sequential',
                     consumption_updated: true,
-                    cell_cleared: true
+                    cell_cleared: true,
+                    registered_date: formattedDate
                   });
                 });
               });
@@ -642,11 +652,82 @@ app.post('/register_dispensing/:mac', (req, res) => {
                   history_id: historyResult.insertId,
                   mode_type: modeType,
                   consumption_updated: false,
-                  cell_cleared: true
+                  cell_cleared: true,
+                  registered_date: formattedDate
                 });
               });
             }
           });
+        });
+      });
+    });
+  });
+});
+
+app.post('/update_medicine_date', authMiddleware, (req, res) => {
+  const { cell_id, current_medicine_date, mac_address } = req.body;
+  const userId = req.userId;
+
+  console.log(`Actualizando current_medicine_date para celda ID: ${cell_id}, MAC: ${mac_address}`);
+  
+  // Convertir timestamp Unix a formato de fecha MySQL
+  let formattedDate;
+  if (typeof current_medicine_date === 'number') {
+    // Si recibimos un timestamp Unix
+    const date = new Date(current_medicine_date * 1000);
+    formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+    console.log(`Timestamp recibido: ${current_medicine_date}, Fecha convertida: ${formattedDate}`);
+  } else {
+    // Si recibimos una cadena de fecha
+    formattedDate = current_medicine_date;
+    console.log(`Fecha recibida como string: ${formattedDate}`);
+  }
+  
+  if (!cell_id || !current_medicine_date || !mac_address) {
+    return res.status(400).json({ error: 'Faltan datos requeridos (cell_id, current_medicine_date, mac_address)' });
+  }
+  
+  const checkDispenserQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
+  connection.query(checkDispenserQuery, [mac_address, userId], (err, dispenserResults) => {
+    if (err) {
+      console.error('Error al verificar el dispensador:', err);
+      return res.status(500).json({ error: 'Error al verificar el dispensador' });
+    }
+    
+    if (dispenserResults.length === 0) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
+    }
+    
+    const checkCellQuery = 'SELECT * FROM cell WHERE id = ? AND mac_dispenser = ?';
+    connection.query(checkCellQuery, [cell_id, mac_address], (cellErr, cellResults) => {
+      if (cellErr) {
+        console.error('Error al verificar la celda:', cellErr);
+        return res.status(500).json({ error: 'Error al verificar la celda' });
+      }
+
+      if (cellResults.length === 0) {
+        return res.status(404).json({ error: 'Celda no encontrada o no pertenece al dispensador especificado' });
+      }
+      
+      const updateQuery = 'UPDATE cell SET current_medicine_date = ? WHERE id = ? AND mac_dispenser = ?';
+      connection.query(updateQuery, [formattedDate, cell_id, mac_address], (updateErr, result) => {
+        if (updateErr) {
+          console.error('Error al actualizar current_medicine_date:', updateErr);
+          return res.status(500).json({ error: 'Error al actualizar la fecha de medicina' });
+        }
+        
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'No se pudo actualizar la celda' });
+        }
+
+        console.log(`current_medicine_date actualizado correctamente para celda ID: ${cell_id}`);
+        console.log(`Fecha guardada en BD: ${formattedDate}`);
+        
+        res.json({ 
+          message: 'Fecha de medicina actualizada correctamente',
+          cell_id: cell_id,
+          updated_date: formattedDate,
+          original_timestamp: current_medicine_date
         });
       });
     });

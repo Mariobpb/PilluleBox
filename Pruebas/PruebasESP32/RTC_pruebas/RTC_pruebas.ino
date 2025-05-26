@@ -35,7 +35,7 @@ void setup() {
         // Fijar a la fecha y hora de compilación
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
-
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     // Configurar la hora de la alarma (ejemplo: 12:00:00)
     alarmTime = DateTime(2024, 11, 10, 21, 57, 0);
     

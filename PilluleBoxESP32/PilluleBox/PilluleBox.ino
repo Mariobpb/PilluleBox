@@ -69,6 +69,8 @@ void setup() {
   if (!emptyDirFlash(dirSSID, wifiEEPROMSize)) {
     connectWiFi(ssidEEPROM, passwordEEPROM);
   }
+  posicionarCelda(1);
+  posicionarCelda(8);
 }
 
 void loop() {

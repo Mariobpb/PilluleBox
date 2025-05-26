@@ -254,8 +254,8 @@ void setBackground(int b) {
     case 2:
       tft.fillScreen(TFT_BLACK);
       break;
-      case 3:
-      tft.fillScreen(convertRGBtoRGB565(34, 155, 58));
+    case 3:
+      tft.fillScreen(convertRGBtoRGB565(18, 200, 233));
       break;
   }
 }
@@ -445,26 +445,24 @@ void setSingleModeAlarm(const Cell& cell) {
 bool checkedAlarms() {
   bool startedAlarm = false;
   DateTime now = rtc.now();
-  
+
   for (int i = 0; i < 14; i++) {
     if (alarms[i].isActive) {
-      if (now >= alarms[i].alarmTime) {
+      int cellIndex = alarms[i].cellNumber - 1;
+      if (now >= alarms[i].alarmTime && cells[cellIndex].getCurrentMedicineDate() != -1) {
         startedAlarm = true;
-        
+
         String medicineName = "Med. Desconocido";
-        int cellIndex = alarms[i].cellNumber - 1;
-        
+
         if (cellIndex >= 0 && cellIndex < 14) {
           Cell& currentCell = cells[cellIndex];
-          
-          
+
+
           if (currentCell.getSingleMode() != nullptr) {
             medicineName = String(currentCell.getSingleMode()->getMedicineName());
-          }
-          else if (currentCell.getSequentialMode() != nullptr) {
+          } else if (currentCell.getSequentialMode() != nullptr) {
             medicineName = String(currentCell.getSequentialMode()->getMedicineName());
-          }
-          else if (currentCell.getBasicMode() != nullptr) {
+          } else if (currentCell.getBasicMode() != nullptr) {
             medicineName = String(currentCell.getBasicMode()->getMedicineName());
           }
         }
@@ -484,7 +482,7 @@ bool checkedAlarms() {
         tft.setTextColor(TFT_WHITE);
         tft.print("\n  listo para dispensar");
         tft.print("\n\n\n\n  Favor de confirmar");
-        
+
         digitalWrite(Buzzer_PIN, HIGH);
         readBtns();
 
@@ -492,18 +490,17 @@ bool checkedAlarms() {
           delay(50);
           readBtns();
         }
-        
         digitalWrite(Buzzer_PIN, LOW);
-        setBackground(2);
-        tft.setCursor(0, tft.height() / 2);
-        tft.setTextSize(3);
-        tft.setTextColor(TFT_WHITE);
-        tft.print("Dispensando:\n");
-        tft.print(medicineName);
-        tft.print("...");
+        int currentCell = alarms[i].cellNumber;
+        posicionarCelda(currentCell);
+        if (currentCell <= 7) {
+          dispensarSeccion(SERVO180_1_CHANNEL);
+        }
+        else {
+          dispensarSeccion(SERVO180_2_CHANNEL);
+        }
+        registerHistory(medicineName.c_str(), 1, "", cells[cellIndex].getId());
 
-        positionCell(alarms[i].cellNumber);
-        dispenseMedicine();
 
         alarms[i].isActive = false;
         delay(1000);
@@ -516,15 +513,15 @@ bool checkedAlarms() {
 }
 
 void parseTimeString(const char* timeStr, tm* timeStruct) {
-    // For MySQL TIME format "HH:MM:SS"
-    if (timeStr && strlen(timeStr) >= 8) {
-        int hour, min, sec;
-        if (sscanf(timeStr, "%d:%d:%d", &hour, &min, &sec) == 3) {
-            timeStruct->tm_hour = hour;
-            timeStruct->tm_min = min;
-            timeStruct->tm_sec = sec;
-        }
+  // For MySQL TIME format "HH:MM:SS"
+  if (timeStr && strlen(timeStr) >= 8) {
+    int hour, min, sec;
+    if (sscanf(timeStr, "%d:%d:%d", &hour, &min, &sec) == 3) {
+      timeStruct->tm_hour = hour;
+      timeStruct->tm_min = min;
+      timeStruct->tm_sec = sec;
     }
+  }
 }
 
 void printCellData(const Cell& cell) {
@@ -638,18 +635,18 @@ bool updateCellsAgain() {
   return false;
 }
 
-void positionCell(int cellNumber) {
-}
-
-void dispenseMedicine() {
-}
-
 void enterMedicine() {
   setBackground(1);
   tft.setCursor(0, 0);
   tft.setTextColor(TFT_WHITE);
   tft.setTextSize(2);
   tft.print("Seleccione la celda\na ingresar el medicamento");
+  tft.fillRect(20, 360, 20, 20, TFT_GREEN);
+  tft.setCursor(50, 360);
+  tft.print("Seleccionar");
+  tft.fillRect(20, 420, 20, 20, TFT_RED);
+  tft.setCursor(50, 420);
+  tft.print("Cancelar");
   int column = 0;
   int row = 0;
   do {
@@ -682,17 +679,32 @@ void enterMedicine() {
   int cellSelected = (row + 1) + (column * 7);
   Serial.println("Celda seleccionada: " + (String)cellSelected);
 
-  if (cellSelected >= 1 && cellSelected <= 14) {
-    if (cellSelected <= 7) {
-      Serial.println("\nProcesando Seccion 1");
-      procesarSeccion(1, cellSelected);
-    } else {
-      Serial.println("\nProcesando Seccion 2");
-      procesarSeccion(2, cellSelected - 7);
+  posicionarCelda(cellSelected);
+  setBackground(1);
+  tft.setCursor(0, 0);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextSize(3);
+  tft.print("Favor de\nconfirmar el\nIngreso del\nmedicamento");
+  tft.fillRect(20, 200, 50, 50, TFT_GREEN);
+  tft.setCursor(80, 200);
+  tft.print("Confirmar");
+  tft.fillRect(20, 300, 50, 50, TFT_RED);
+  tft.setCursor(80, 300);
+  tft.print("Cancelar");
+  do {
+    resetBtns();
+    while (!btnCurrentStatus[4] && !btnCurrentStatus[5]) {
+      readBtns();
+      delay(50);
     }
-  }
+    if (btnCurrentStatus[5]) {
+      return;
+    }
+  } while (!btnCurrentStatus[4]);
+  updateCurrentMedicineDate(cells[cellSelected-1].getId(), tokenEEPROM);
 }
 
+/*
 void mostrarPulsos(int seccion, bool esOffset) {
   if (esOffset) {
     Serial.print("Seccion ");
@@ -706,6 +718,7 @@ void mostrarPulsos(int seccion, bool esOffset) {
     Serial.println(pulsosPrincipales);
   }
 }
+*/
 
 void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
   encontradoOffset = false;
@@ -723,7 +736,7 @@ void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
     // Detectar cambio de HIGH a LOW (flanco descendente)
     if (currentState == LOW && lastStateOffset == HIGH) {
       pulsosOffset++;
-      mostrarPulsos(seccion, true);
+      //mostrarPulsos(seccion, true);
     }
 
     lastStateOffset = currentState;
@@ -739,7 +752,26 @@ void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
   }
 }
 
+void posicionarCelda(int numCell) {
+  if (numCell >= 1 && numCell <= 14) {
+    if (numCell <= 7) {
+      Serial.println("\nProcesando Seccion 1");
+      setBackground(2);
+      procesarSeccion(1, numCell);
+    } else {
+      Serial.println("\nProcesando Seccion 2");
+      procesarSeccion(2, numCell - 7);
+    }
+  }
+}
+
 void procesarSeccion(int seccion, int posicion) {
+  setBackground(2);
+  tft.setCursor(0, tft.height() / 2);
+  tft.setTextSize(3);
+  tft.setTextColor(TFT_WHITE);
+  tft.print("Posicionando\ncelda...");
+
   int servoChannel360 = (seccion == 1) ? SERVO360_1_CHANNEL : SERVO360_2_CHANNEL;
   int servoChannel180 = (seccion == 1) ? SERVO180_1_CHANNEL : SERVO180_2_CHANNEL;
   int pinOffset = (seccion == 1) ? ENCODER1_OFFSET_INPUT : ENCODER2_OFFSET_INPUT;
@@ -747,16 +779,14 @@ void procesarSeccion(int seccion, int posicion) {
 
   pulsosPrincipales = 0;
   int currentState;
-
-  // Siempre buscar el offset primero
+  
   buscarOffset(servoChannel360, pinOffset, seccion);
-
-  // Si necesitamos movernos a una posición específica (mayor a 1)
+  
   if (posicion > 1) {
     int pulsosObjetivo = posicion - 1;
-    Serial.print("Moviendo a posicion " + (String) posicion);
+    Serial.print("Moviendo a posicion " + (String)posicion);
 
-    pwm.setPWM(servoChannel360, 0, SERVO_SPIN);  // Continuar movimiento
+    pwm.setPWM(servoChannel360, 0, SERVO_SPIN);
 
     while (pulsosPrincipales < pulsosObjetivo) {
       currentState = digitalRead(pinPrincipal);
@@ -764,7 +794,7 @@ void procesarSeccion(int seccion, int posicion) {
       // Detectar cambio de HIGH a LOW (flanco descendente)
       if (currentState == LOW && lastStatePrincipal == HIGH) {
         pulsosPrincipales++;
-        mostrarPulsos(seccion, false);
+        //mostrarPulsos(seccion, false);
       }
 
       lastStatePrincipal = currentState;
@@ -774,22 +804,25 @@ void procesarSeccion(int seccion, int posicion) {
     pwm.setPWM(servoChannel360, 0, SERVO_STOP);  // Detener servo
     Serial.println("Posicion alcanzada!");
   }
-
-  // Activar servo de 180 grados
-  activarServo180(servoChannel180);
 }
 
-void activarServo180(int servoChannel180) {
+void dispensarSeccion(int servoChannel180) {
+  setBackground(2);
+  tft.setCursor(0, tft.height() / 2);
+  tft.setTextSize(3);
+  tft.setTextColor(TFT_WHITE);
+  tft.print("Dispensando...");
   Serial.println("Activando servo de 180 grados");
+
   if (servoChannel180 == SERVO180_1_CHANNEL) {
     pwm.setPWM(servoChannel180, 0, SERVO_180);
     delay(2000);
     pwm.setPWM(servoChannel180, 0, SERVO_MIN);
     delay(2000);
   } else {
-    pwm.setPWM(servoChannel180, 0, SERVO_MIN);  // Mover a 0 grados
+    pwm.setPWM(servoChannel180, 0, SERVO_MIN);
     delay(2000);
-    pwm.setPWM(servoChannel180, 0, SERVO_180);  // Regresar a 180 grados
+    pwm.setPWM(servoChannel180, 0, SERVO_180);
     delay(2000);
   }
   Serial.println("Servo de 180 grados completado");
