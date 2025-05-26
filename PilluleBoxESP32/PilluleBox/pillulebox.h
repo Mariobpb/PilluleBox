@@ -39,6 +39,7 @@ String generateSecretKey();
 String encryptPassword(String password);
 String base64_encode(uint8_t* data, size_t length);
 time_t parseDateTime(const char* dateStr);
+void snoozeAlarm(int alarmIndex);
 bool checkedAlarms();
 bool updateCellsAgain();
 void positionCell(int cellNumber);

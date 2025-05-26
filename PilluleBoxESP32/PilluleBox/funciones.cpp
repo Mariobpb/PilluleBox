@@ -102,7 +102,7 @@ int Lista::selectItemFromList() {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              printCellData(cells[i]);
+              //printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -255,7 +255,7 @@ void setBackground(int b) {
       tft.fillScreen(TFT_BLACK);
       break;
     case 3:
-      tft.fillScreen(convertRGBtoRGB565(18, 200, 233));
+      tft.fillScreen(convertRGBtoRGB565(162, 85, 245));
       break;
   }
 }
@@ -409,6 +409,22 @@ void setSingleModeAlarm(const Cell& cell) {
       timeinfo->tm_sec);
 
     DateTime now = rtc.now();
+
+    if (alarms[cellIndex].isActive) {
+
+      if (alarms[cellIndex].alarmTime > alarmTime) {
+        Serial.print("Preservando alarma aplazada para celda ");
+        Serial.print(cell.getNumCell());
+        Serial.print(" - Hora aplazada: ");
+        Serial.print(alarms[cellIndex].alarmTime.hour());
+        Serial.print(":");
+        Serial.print(alarms[cellIndex].alarmTime.minute());
+        Serial.print(":");
+        Serial.println(alarms[cellIndex].alarmTime.second());
+        return;
+      }
+    }
+
     if (alarmTime > now || cell.getCurrentMedicineDate() != -1) {
       alarms[cellIndex].isActive = true;
       alarms[cellIndex].alarmTime = alarmTime;
@@ -442,6 +458,39 @@ void setSingleModeAlarm(const Cell& cell) {
 }
 
 
+void snoozeAlarm(int alarmIndex) {
+  int minutes = 5;
+  if (alarmIndex >= 0 && alarmIndex < 14 && alarms[alarmIndex].isActive) {
+    // Obtener la hora actual
+    DateTime now = rtc.now();
+
+    // Calcular nueva hora de alarma (aplazar por los minutos especificados)
+    DateTime newAlarmTime = now + TimeSpan(0, 0, minutes, 0);
+
+    // Actualizar la alarma
+    alarms[alarmIndex].alarmTime = newAlarmTime;
+
+    Serial.print("Alarma aplazada para celda ");
+    Serial.print(alarms[alarmIndex].cellNumber);
+    Serial.print(" por ");
+    Serial.print(minutes);
+    Serial.print(" minutos. Nueva hora: ");
+    Serial.print(newAlarmTime.hour());
+    Serial.print(":");
+    Serial.print(newAlarmTime.minute());
+    Serial.print(":");
+    Serial.println(newAlarmTime.second());
+
+    // Si es una de las dos primeras alarmas, actualizar también el RTC
+    if (alarmIndex == 0) {
+      rtc.setAlarm1(newAlarmTime, DS3231_A1_Date);
+    } else if (alarmIndex == 1) {
+      rtc.setAlarm2(newAlarmTime, DS3231_A2_Date);
+    }
+  }
+}
+
+// Función checkedAlarms() modificada para incluir el aplazamiento
 bool checkedAlarms() {
   bool startedAlarm = false;
   DateTime now = rtc.now();
@@ -456,7 +505,6 @@ bool checkedAlarms() {
 
         if (cellIndex >= 0 && cellIndex < 14) {
           Cell& currentCell = cells[cellIndex];
-
 
           if (currentCell.getSingleMode() != nullptr) {
             medicineName = String(currentCell.getSingleMode()->getMedicineName());
@@ -475,34 +523,98 @@ bool checkedAlarms() {
 
         setBackground(3);
         tft.setCursor(10, 100);
-        tft.setTextColor(TFT_WHITE, TFT_BLACK);
+        tft.setTextColor(TFT_WHITE);
         tft.setTextSize(4);
         tft.println(medicineName);
         tft.setTextSize(2);
         tft.setTextColor(TFT_WHITE);
         tft.print("\n  listo para dispensar");
-        tft.print("\n\n\n\n  Favor de confirmar");
+        tft.fillRect(20, 360, 20, 20, TFT_GREEN);
+        tft.setCursor(50, 360);
+        tft.print("Dispensar");
+        tft.fillRect(20, 420, 20, 20, TFT_RED);
+        tft.setCursor(50, 420);
+        tft.print("Posponer 5 min");
 
         digitalWrite(Buzzer_PIN, HIGH);
         readBtns();
 
-        while (!btnCurrentStatus[4]) {
-          delay(50);
-          readBtns();
-        }
-        digitalWrite(Buzzer_PIN, LOW);
-        int currentCell = alarms[i].cellNumber;
-        posicionarCelda(currentCell);
-        if (currentCell <= 7) {
-          dispensarSeccion(SERVO180_1_CHANNEL);
-        }
-        else {
-          dispensarSeccion(SERVO180_2_CHANNEL);
-        }
-        registerHistory(medicineName.c_str(), 1, "", cells[cellIndex].getId());
+        bool alarmHandled = false;
+        do {
+          resetBtns();
+          while (!btnCurrentStatus[4] && !btnCurrentStatus[5]) {
+            readBtns();
+            delay(50);
+          }
 
+          if (btnCurrentStatus[5]) {
+            digitalWrite(Buzzer_PIN, LOW);
+            snoozeAlarm(i);
 
-        alarms[i].isActive = false;
+            // Mostrar mensaje de confirmación
+            setBackground(1);
+            tft.setCursor(10, 200);
+            tft.setTextColor(TFT_WHITE);
+            tft.setTextSize(3);
+            tft.println("Alarma aplazada");
+            tft.setTextSize(2);
+            tft.println("por 5 minutos");
+            delay(2000);
+
+            alarmHandled = true;
+            break;
+          }
+
+          if (btnCurrentStatus[4]) {
+            // Dispensar medicamento
+            digitalWrite(Buzzer_PIN, LOW);
+            int currentCell = alarms[i].cellNumber;
+            posicionarCelda(currentCell);
+            if (currentCell <= 7) {
+              dispensarSeccion(SERVO180_1_CHANNEL);
+            } else {
+              dispensarSeccion(SERVO180_2_CHANNEL);
+            }
+
+            bool consumedMedicine = false;
+            String reason = "";
+            setBackground(1);
+            tft.setCursor(0, 0);
+            tft.setTextColor(TFT_WHITE);
+            tft.setTextSize(3);
+            tft.print("Favor de confirmar el\nconsumo del\nmedicamento");
+            tft.fillRect(20, 200, 50, 50, TFT_GREEN);
+            tft.setTextSize(2);
+            tft.setCursor(80, 200);
+            tft.print("Lo he consumido");
+            tft.fillRect(20, 300, 50, 50, TFT_RED);
+            tft.setCursor(80, 300);
+            tft.print("No puedo consumirlo");
+            resetBtns();
+            while (!btnCurrentStatus[4] && !btnCurrentStatus[5]) {
+              readBtns();
+              delay(50);
+            }
+            if (btnCurrentStatus[4]) {
+            }
+            else if (btnCurrentStatus[5]) {
+              setBackground(1);
+              tft.setCursor(0, 20);
+              tft.setTextColor(TFT_WHITE);
+              tft.setTextSize(2);
+              tft.print("Favor de definir la razon\npor su falta de consumo\n");
+              reason = waitEnterText(basicKeys, "", 0, 0, tft.getCursorY() + tft.fontHeight());
+            }
+            registerHistory(medicineName.c_str(), consumedMedicine, reason.c_str(), cells[cellIndex].getId());
+
+            // Desactivar alarma después de dispensar
+            alarms[i].isActive = false;
+            alarmHandled = true;
+            break;
+          }
+
+        } while (!alarmHandled);
+
         delay(1000);
         readBtns();
         setBackground(1);
@@ -558,7 +670,6 @@ void printCellData(const Cell& cell) {
                 formatDateTime(cell.getCurrentMedicineDate()).c_str());
   Serial.println("----------------------------------------");
 
-  // Verificar y mostrar modo Single
   if (cell.getSingleMode() != nullptr) {
     SingleMode* sMode = cell.getSingleMode();
     Serial.println("MODO ÚNICO ACTIVO:");
@@ -568,7 +679,6 @@ void printCellData(const Cell& cell) {
                   formatDateTime(sMode->getDispensingDate()).c_str());
   }
 
-  // Verificar y mostrar modo Sequential
   if (cell.getSequentialMode() != nullptr) {
     SequentialMode* sqMode = cell.getSequentialMode();
     Serial.println("MODO SECUENCIAL ACTIVO:");
@@ -587,7 +697,6 @@ void printCellData(const Cell& cell) {
                   sqMode->getAffectedPeriods() ? "Sí" : "No");
   }
 
-  // Verificar y mostrar modo Basic
   if (cell.getBasicMode() != nullptr) {
     BasicMode* bMode = cell.getBasicMode();
     Serial.println("MODO BÁSICO ACTIVO:");
@@ -701,7 +810,7 @@ void enterMedicine() {
       return;
     }
   } while (!btnCurrentStatus[4]);
-  updateCurrentMedicineDate(cells[cellSelected-1].getId(), tokenEEPROM);
+  updateCurrentMedicineDate(cells[cellSelected - 1].getId(), tokenEEPROM);
 }
 
 /*
@@ -745,7 +854,7 @@ void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
       encontradoOffset = true;
       pwm.setPWM(servoChannel360, 0, SERVO_ANTISPIN);
       delay(50);
-      pwm.setPWM(servoChannel360, 0, SERVO_STOP);  // Detener servo
+      pwm.setPWM(servoChannel360, 0, SERVO_STOP);
       Serial.println("Offset encontrado!");
       delay(500);
     }
@@ -779,9 +888,9 @@ void procesarSeccion(int seccion, int posicion) {
 
   pulsosPrincipales = 0;
   int currentState;
-  
+
   buscarOffset(servoChannel360, pinOffset, seccion);
-  
+
   if (posicion > 1) {
     int pulsosObjetivo = posicion - 1;
     Serial.print("Moviendo a posicion " + (String)posicion);
