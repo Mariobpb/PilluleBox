@@ -102,7 +102,7 @@ int Lista::selectItemFromList() {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
+              printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -596,6 +596,7 @@ bool checkedAlarms() {
               delay(50);
             }
             if (btnCurrentStatus[4]) {
+              consumedMedicine = true;
             }
             else if (btnCurrentStatus[5]) {
               setBackground(1);

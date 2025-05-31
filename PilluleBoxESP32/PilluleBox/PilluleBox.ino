@@ -85,7 +85,7 @@ void loop() {
           if (tokenEEPROM != "" && updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
+              printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
