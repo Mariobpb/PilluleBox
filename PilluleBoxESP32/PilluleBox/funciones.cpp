@@ -102,7 +102,7 @@ int Lista::selectItemFromList() {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
             for (int i = 0; i < 14; i++) {
-              printCellData(cells[i]);
+              //printCellData(cells[i]);
             }
           } else {
             Serial.println("Falló la actualización de celdas");
@@ -597,8 +597,7 @@ bool checkedAlarms() {
             }
             if (btnCurrentStatus[4]) {
               consumedMedicine = true;
-            }
-            else if (btnCurrentStatus[5]) {
+            } else if (btnCurrentStatus[5]) {
               setBackground(1);
               tft.setCursor(0, 20);
               tft.setTextColor(TFT_WHITE);
@@ -607,7 +606,11 @@ bool checkedAlarms() {
               reason = waitEnterText(basicKeys, "", 0, 0, tft.getCursorY() + tft.fontHeight());
             }
             registerHistory(medicineName.c_str(), consumedMedicine, reason.c_str(), cells[cellIndex].getId());
-
+            if (updateCellsData(tokenEEPROM)) {
+              Serial.println("Actualización de celdas exitosa");
+            } else {
+              Serial.println("Falló la actualización de celdas");
+            }
             // Desactivar alarma después de dispensar
             alarms[i].isActive = false;
             alarmHandled = true;
@@ -812,6 +815,11 @@ void enterMedicine() {
     }
   } while (!btnCurrentStatus[4]);
   updateCurrentMedicineDate(cells[cellSelected - 1].getId(), tokenEEPROM);
+  if (updateCellsData(tokenEEPROM)) {
+    Serial.println("Actualización de celdas exitosa");
+  } else {
+    Serial.println("Falló la actualización de celdas");
+  }
 }
 
 /*

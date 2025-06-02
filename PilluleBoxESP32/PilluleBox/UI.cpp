@@ -1,8 +1,6 @@
 #include "pillulebox.h"
 #include <TFT_eSPI.h>
 
-void menuUI() {
-}
 
 void logInUI() {
   setBackground(1);
@@ -115,9 +113,6 @@ void logInUI() {
   }
 
   delay(2000);
-}
-
-void dispenserUI() {
 }
 
 void Lista::drawList() {
@@ -349,13 +344,21 @@ void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
 
   int PosX = (sprite.width() / 2) - (cellSizeX + 10);
   int PosY = 5;
+  sprite.setTextSize(3);
+  sprite.setTextColor(TFT_BLACK);
   for (int column = 0; column <= 1; column++) {
     for (int row = 0; row <= 6; row++) {
+      int numCell = (row + 1) + (column * 7);
       if (column == columnSelected && row == rowSelected) {
         sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_BLUE);
-      } else {
-        sprite.fillRect(PosX, PosY, cellSizeX, cellSizeY, TFT_WHITE);
       }
+      if (cells[numCell-1].getCurrentMedicineDate() != -1){
+        sprite.fillRect(PosX+2, PosY+2, cellSizeX-4, cellSizeY-4, TFT_GREEN);
+      } else {
+        sprite.fillRect(PosX+2, PosY+2, cellSizeX-4, cellSizeY-4, TFT_RED);
+      }
+      sprite.setCursor(PosX + 4, PosY + 4);
+      sprite.print((String)numCell);
       PosY += cellSizeY + 5;
     }
     PosX += cellSizeX + 20;
@@ -373,7 +376,7 @@ void showBackgroundInfo() {
   sprintf(timeStr, "%02d:%02d", now.hour(), now.minute());
   char dateTimeStr[50];
   snprintf(dateTimeStr, sizeof(dateTimeStr), "%s %s\n", dateStr, timeStr);
-  
+
   setBackground(1);
   tft.setTextSize(2);
   tft.setCursor(0, 20);
