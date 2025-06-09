@@ -16,11 +16,6 @@ import com.example.pillulebox.R;
 import Models.Answer;
 import Models.Question;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link QuestionFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class QuestionFragment extends Fragment {
 
     private Question question;

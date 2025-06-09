@@ -296,7 +296,6 @@ public class DefineSequentialModeFragment extends Fragment {
             Toast.makeText(requireContext(),
                     "Error al procesar los datos: " + e.getMessage(),
                     Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Error: " + e.getMessage(), e);
         }
     }
 }

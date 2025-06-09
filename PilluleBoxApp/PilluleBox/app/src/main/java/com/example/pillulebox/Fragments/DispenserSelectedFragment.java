@@ -86,7 +86,6 @@ public class DispenserSelectedFragment extends Fragment {
             dispenserContext.setText(selectedDispenser.getContextDispenser() == 0 ?
                     "Favor de definir el contexto" : "");
 
-            // Reiniciar las celdas antes de cargar nuevos datos
             restartCells();
 
             String token = GeneralInfo.getToken(requireContext());
@@ -94,7 +93,7 @@ public class DispenserSelectedFragment extends Fragment {
                     new GetDispenserCellsTask.CellsCallback() {
                         @Override
                         public void onCellsLoaded(List<Cell> cells) {
-                            if (isAdded()) { // Verificar que el fragment aún esté adjunto
+                            if (isAdded()) {
                                 updateCells(cells);
                             }
                         }

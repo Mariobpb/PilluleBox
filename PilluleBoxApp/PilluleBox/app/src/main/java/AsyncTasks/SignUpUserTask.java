@@ -71,10 +71,8 @@ public class SignUpUserTask extends AsyncTask<String, Void, Response> {
                 Intent intent = new Intent(context, LogInActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                // Iniciar LogInActivity
                 context.startActivity(intent);
 
-                // Cerrar todas las Activities relacionadas con la tarea actual
                 activity.finish();
             } else {
                 int statusCode = response.code();

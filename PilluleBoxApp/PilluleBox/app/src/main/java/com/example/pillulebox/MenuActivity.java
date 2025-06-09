@@ -104,7 +104,6 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
             fragment = new DispenserSelectedFragment();
         }
 
-        // Realizar la transacción del fragment
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container_menu, fragment)
@@ -141,11 +140,7 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
     }
 
     public void updateSelectedDispenserName(String name) {
-        /*
-        if (dispenserSelectedName != null) {
-            dispenserSelectedName.setText(name != null ? name : "Sin seleccionar");
-        }
-        */
+
     }
 
     private void loadUserDispensers() {
@@ -219,7 +214,6 @@ public class MenuActivity extends AppCompatActivity implements CallbackValidatio
         finish();
     }
 
-    // CallbackValidations
     @Override
     public void onCodeSent(boolean success) {
         Log.d(TAG, "onCodeSent: " + success);

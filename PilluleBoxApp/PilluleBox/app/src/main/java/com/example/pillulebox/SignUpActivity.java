@@ -2,6 +2,7 @@ package com.example.pillulebox;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -114,8 +115,8 @@ public class SignUpActivity extends AppCompatActivity implements CallbackValidat
         } else if ((!(password.matches(".*[A-Z].*") && password.matches(".*[a-z].*") && password.matches(".*[0-9].*") && password.matches(".*[&!+:#*_$=@.].*"))) || (!password.matches("^[a-zA-Z0-9 &!+:#*_@.ñÑ\\$=]*$"))) {
             error.setText("La contraseña debe contener al menos una minúscula, una mayúscula, un número, y algún símbolo permitido:\n('&', '!', '+', ':', '#', '*', '_', '$', '=', '@', '.')");
             return false;
-        } else if (password_str != confirmed_password_str) {
-            error.setText("Las contraseñas non coinciden");
+        } else if (!password.equals(confirmed_password)) {
+            error.setText("Las contraseñas no coinciden");
             return false;
         }
         error.setText("");

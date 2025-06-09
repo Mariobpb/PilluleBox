@@ -61,7 +61,6 @@ public class GeneralInfo {
         }
         return code.toString();
     }
-    // Nuevos métodos para manejar el dispensador seleccionado
     public static void setSelectedDispenser(Context context, Dispenser dispenser) {
         SharedPreferences sharedPref = context.getSharedPreferences(Archivo, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -88,7 +87,6 @@ public class GeneralInfo {
         editor.apply();
     }
 
-    // Método para limpiar todas las preferencias (token y dispensador)
     public static void clearAllPreferences(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences(Archivo, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();

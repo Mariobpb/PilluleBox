@@ -77,8 +77,6 @@ char numberSymbolKeys[4][10] = {
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
-//extern String inputString = "";
-//extern boolean stringComplete = false;
 const char* apiUrl = "http://192.168.100.9:8080";
 const int dirTOKEN = 128;
 const int dirPASSWORD = 64;

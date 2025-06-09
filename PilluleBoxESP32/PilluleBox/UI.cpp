@@ -305,35 +305,6 @@ void displayCharSelectedKeyboard(char Keys[][10], int positionX, int positionY, 
   sprite.deleteSprite();
 }
 
-void displayCellsList() {
-  String cellsList[] = {
-    "Celda 1",
-    "Celda 2",
-    "Celda 3",
-    "Celda 4",
-    "Celda 5",
-    "Celda 6",
-    "Celda 7",
-    "Celda 8",
-    "Celda 9",
-    "Celda 10",
-    "Celda 11",
-    "Celda 12",
-    "Celda 13",
-    "Celda 14",
-  };
-  Lista OptionsCells(cellsList, sizeof(cellsList) / sizeof(cellsList[0]));
-
-  setBackground(1);
-  tft.setTextColor(TFT_WHITE);
-  tft.setCursor(0, 20);
-  tft.setTextColor(TFT_BLUE);
-  OptionsCells.setTextSize(3);
-  OptionsCells.setPositionY(tft.getCursorY());
-  OptionsCells.setHeight(300);
-  int seleccion = OptionsCells.selectItemFromList();
-}
-
 void displayCellSelected(Cell cells[], int columnSelected, int rowSelected) {
   int cellSizeX = 60;
   int cellSizeY = 35;

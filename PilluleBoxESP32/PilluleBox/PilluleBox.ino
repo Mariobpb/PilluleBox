@@ -2,7 +2,6 @@
 
 #include <Wire.h>
 #include <EEPROM.h>
-//#include <HTTPClient.h>
 #include <WiFi.h>
 
 
@@ -23,7 +22,6 @@ void setup() {
   EEPROM.begin(512);
   setenv("TZ", "GMT-6", 1);
   tzset();
-  
   
   // Inicializar primer bus I2C para RTC
   Wire.begin(SDA_RTC_PIN, SCL_RTC_PIN);
@@ -84,9 +82,7 @@ void loop() {
         if (updateCellsAgain()) {
           if (tokenEEPROM != "" && updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
-            for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
-            }
+            
           } else {
             Serial.println("Falló la actualización de celdas");
           }

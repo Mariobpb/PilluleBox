@@ -68,22 +68,17 @@ bool logIn(String username_email, String password) {
 
   if (httpResponseCode > 0) {
     String response = http.getString();
-
-    // Parsea la respuesta JSON
     StaticJsonDocument<200> responseDoc;
     DeserializationError error = deserializeJson(responseDoc, response);
 
     if (!error) {
       if (responseDoc.containsKey("token")) {
-        // Autenticación exitosa
         String token = responseDoc["token"].as<String>();
         writeStringInEEPROM(dirTOKEN, token.c_str(), tokenBufferSize);
         return true;
       }
     }
   }
-
-  // Si llegamos aquí, hubo un error en la autenticación
   return false;
 }
 
@@ -158,8 +153,6 @@ bool updateCellsData(const char* token) {
 
     if (!error) {
       JsonArray array = doc.as<JsonArray>();
-
-      // Primero, limpiar todas las celdas para garantizar que los modos eliminados se borren
       for (int i = 0; i < 14; i++) {
         cells[i].clearOtherModes();
       }
@@ -173,8 +166,6 @@ bool updateCellsData(const char* token) {
           try {
             cell.setId(v["id"].as<int>());
             cell.setNumCell(v["num_cell"].as<uint8_t>());
-
-            // Usar la nueva función para parsear la fecha
             if (!v["current_medicine_date"].isNull()) {
               const char* dateStr = v["current_medicine_date"].as<const char*>();
               time_t timestamp = parseDateTime(dateStr);
@@ -183,7 +174,7 @@ bool updateCellsData(const char* token) {
               cell.setCurrentMedicineDate(-1);
             }
 
-            // Verifica explícitamente cada modo y solo lo establece si no es nulo
+            // SingleMode
             if (!v["single_id"].isNull()) {
               SingleMode* sMode = new SingleMode(v["single_id"].as<int>());
               sMode->setMedicineName(v["single_medicine"].as<const char*>());
@@ -226,11 +217,11 @@ bool updateCellsData(const char* token) {
               cell.setSequentialMode(sqMode);
             }
 
+            // BasicMode
             if (!v["basic_id"].isNull()) {
               BasicMode* bMode = new BasicMode(v["basic_id"].as<int>());
               bMode->setMedicineName(v["basic_medicine"].as<const char*>());
 
-              // Parse time strings from database
               tm morningStart = {}, morningEnd = {};
               parseTimeString(v["morning_start_time"].as<const char*>(), &morningStart);
               parseTimeString(v["morning_end_time"].as<const char*>(), &morningEnd);
@@ -278,13 +269,12 @@ bool updateCurrentMedicineDate(int cellId, const char* token) {
 
   HTTPClient http;
   String url = String(apiUrl) + "/update_medicine_date";
-
-  // Obtener timestamp Unix directamente
+  
   time_t currentTime = rtc.now().unixtime();
 
   StaticJsonDocument<300> doc;
   doc["cell_id"] = cellId;
-  doc["current_medicine_date"] = currentTime; // Enviar como timestamp Unix
+  doc["current_medicine_date"] = currentTime;
   doc["mac_address"] = WiFi.macAddress();
 
   String jsonString;
@@ -339,14 +329,13 @@ bool registerHistory(const char* medicine_name, int consumption_status, const ch
   Serial.println("Estado: " + String(consumption_status));
   Serial.println("Razón: " + String(reason));
   Serial.println("Cell ID: " + String(cell_id));
-  
-  // Obtener timestamp Unix directamente
+
   time_t currentTime = rtc.now().unixtime();
   
   StaticJsonDocument<400> doc;
   doc["medicine_name"] = medicine_name;
   doc["consumption_status"] = consumption_status;
-  doc["date_consumption"] = currentTime; // Enviar como timestamp Unix
+  doc["date_consumption"] = currentTime;
   doc["reason"] = reason;
   doc["cell_id"] = cell_id;
 

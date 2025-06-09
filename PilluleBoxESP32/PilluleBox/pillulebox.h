@@ -59,7 +59,6 @@ void displayEditableText(String str, int initialPosY);
 void displayCharSelectedKeyboard(char Keys[][10], int positionX, int positionY, int initialPosY);
 void menuUI();
 void logInUI();
-void displayCellsList();
 void dispenserUI();
 void showBackgroundInfo();
 
@@ -280,7 +279,6 @@ struct AlarmInfo {
 
 void setSingleModeAlarm(const Cell& cell);
 void parseTimeString(const char* timeStr, tm* timeStruct);
-void printCellData(const Cell& cell);
 void displayCellSelected(Cell cells[], int columnSelected, int rowSelected);
 
 extern AlarmInfo alarms[14];

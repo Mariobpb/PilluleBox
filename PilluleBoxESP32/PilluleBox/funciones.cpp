@@ -32,7 +32,7 @@ void readBtns() {
     } else {
       btnCurrentStatus[i] = false;
     }
-    prevBtnStatus[i] = currentStatus;  // Updates PreviousStatus
+    prevBtnStatus[i] = currentStatus;
   }
 }
 
@@ -101,9 +101,7 @@ int Lista::selectItemFromList() {
         if (updateCellsAgain()) {
           if (updateCellsData(tokenEEPROM)) {
             Serial.println("Actualización de celdas exitosa");
-            for (int i = 0; i < 14; i++) {
-              //printCellData(cells[i]);
-            }
+            
           } else {
             Serial.println("Falló la actualización de celdas");
             delay(1000);
@@ -124,7 +122,6 @@ int Lista::selectItemFromList() {
 }
 
 void connectWiFi(String ssid, String password) {
-  // Disconnects WiFi if it is already connected
   WiFi.disconnect(true);
 
   delay(1000);
@@ -180,16 +177,16 @@ void readStringfromEEPROM(int address, char* str, int length) {
   for (int i = 0; i < length; i++) {
     str[i] = EEPROM.read(address + i);
   }
-  str[length] = '\0';  // Agrega el carácter nulo al final de la cadena
+  str[length] = '\0';
 }
 
 bool emptyDirFlash(int direccion, int longitud) {
   for (int i = 0; i < longitud; i++) {
     if (EEPROM.read(direccion + i) != 0xFF) {
-      return false;  // No está vacía
+      return false;
     }
   }
-  return true;  // Está vacía
+  return true;
 }
 
 void writeStringInEEPROM(int direccion, const char* cadena, int longitud) {
@@ -206,7 +203,7 @@ bool stringToBool(String value) {
 
 int selectNetwork() {
   WiFi.disconnect(true);
-  WiFi.scanDelete();  // Borrar la caché de escaneo
+  WiFi.scanDelete();
 
   tft.setTextColor(TFT_WHITE);
   tft.setTextSize(3);
@@ -215,7 +212,7 @@ int selectNetwork() {
 
   delay(1000);
 
-  WiFi.scanNetworks(true);  // Escanear redes WiFi
+  WiFi.scanNetworks(true);
   tft.print("Escaneando redes ");
   int i = 0;
   while (WiFi.scanComplete() <= 0 && i < 11) {
@@ -241,7 +238,6 @@ int selectNetwork() {
     int sprPosY = tft.getCursorY() + tft.fontHeight();
     lista.setPositionY(sprPosY);
     lista.setHeight(tft.height() - (sprPosY + (tft.fontHeight() * 2)));
-    //lista.setHeight(200));
     return lista.selectItemFromList();
   }
 }
@@ -271,38 +267,10 @@ String generateSecretKey() {
   for (int i = 0; i < keyLength; i++) {
     key[i] = char(esp_random() % 26 + 'A');  // Genera letras mayúsculas aleatorias
   }
-  key[keyLength] = '\0';  // Asegura que la cadena termine con nulo
+  key[keyLength] = '\0';
 
   return String(key);
 }
-/*
-void serialEvent() {
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    if (inChar == '\n' || inChar == '\r') {
-      stringComplete = true;
-    } else {
-      inputString += inChar;
-    }
-  }
-}
-
-String esperarStringSerial() {
-  String res;
-  while (!stringComplete) {
-    serialEvent();
-  }
-  res = inputString;
-
-  // Eliminar el carácter de nueva línea si está presente
-  res.trim();
-
-  Serial.println("Cadena recibida: " + res);
-  inputString = "";
-  stringComplete = false;
-  return res;
-}
-*/
 
 String encryptPassword(String password) {
   byte key[16];
@@ -461,13 +429,8 @@ void setSingleModeAlarm(const Cell& cell) {
 void snoozeAlarm(int alarmIndex) {
   int minutes = 5;
   if (alarmIndex >= 0 && alarmIndex < 14 && alarms[alarmIndex].isActive) {
-    // Obtener la hora actual
     DateTime now = rtc.now();
-
-    // Calcular nueva hora de alarma (aplazar por los minutos especificados)
     DateTime newAlarmTime = now + TimeSpan(0, 0, minutes, 0);
-
-    // Actualizar la alarma
     alarms[alarmIndex].alarmTime = newAlarmTime;
 
     Serial.print("Alarma aplazada para celda ");
@@ -480,8 +443,6 @@ void snoozeAlarm(int alarmIndex) {
     Serial.print(newAlarmTime.minute());
     Serial.print(":");
     Serial.println(newAlarmTime.second());
-
-    // Si es una de las dos primeras alarmas, actualizar también el RTC
     if (alarmIndex == 0) {
       rtc.setAlarm1(newAlarmTime, DS3231_A1_Date);
     } else if (alarmIndex == 1) {
@@ -490,7 +451,6 @@ void snoozeAlarm(int alarmIndex) {
   }
 }
 
-// Función checkedAlarms() modificada para incluir el aplazamiento
 bool checkedAlarms() {
   bool startedAlarm = false;
   DateTime now = rtc.now();
@@ -551,7 +511,6 @@ bool checkedAlarms() {
             digitalWrite(Buzzer_PIN, LOW);
             snoozeAlarm(i);
 
-            // Mostrar mensaje de confirmación
             setBackground(1);
             tft.setCursor(10, 200);
             tft.setTextColor(TFT_WHITE);
@@ -566,7 +525,6 @@ bool checkedAlarms() {
           }
 
           if (btnCurrentStatus[4]) {
-            // Dispensar medicamento
             digitalWrite(Buzzer_PIN, LOW);
             int currentCell = alarms[i].cellNumber;
             posicionarCelda(currentCell);
@@ -611,7 +569,6 @@ bool checkedAlarms() {
             } else {
               Serial.println("Falló la actualización de celdas");
             }
-            // Desactivar alarma después de dispensar
             alarms[i].isActive = false;
             alarmHandled = true;
             break;
@@ -629,7 +586,6 @@ bool checkedAlarms() {
 }
 
 void parseTimeString(const char* timeStr, tm* timeStruct) {
-  // For MySQL TIME format "HH:MM:SS"
   if (timeStr && strlen(timeStr) >= 8) {
     int hour, min, sec;
     if (sscanf(timeStr, "%d:%d:%d", &hour, &min, &sec) == 3) {
@@ -640,91 +596,6 @@ void parseTimeString(const char* timeStr, tm* timeStruct) {
   }
 }
 
-void printCellData(const Cell& cell) {
-  Serial.println("\n----------------------------------------");
-  Serial.printf("DATOS DE CELDA #%d (ID: %d)\n", cell.getNumCell(), cell.getId());
-  Serial.println("----------------------------------------");
-
-  // Función helper para formatear tiempo
-  auto formatTime = [](const tm& time) -> String {
-    char buffer[6];
-    sprintf(buffer, "%02d:%02d", time.tm_hour, time.tm_min);
-    return String(buffer);
-  };
-
-  // Función helper para formatear fecha y hora
-  auto formatDateTime = [](time_t timestamp) -> String {
-    if (timestamp == -1) {
-      return String("No establecida");
-    }
-
-    struct tm* timeinfo = localtime(&timestamp);
-    char buffer[20];
-    sprintf(buffer, "%02d/%02d/%d %02d:%02d",
-            timeinfo->tm_mday,
-            timeinfo->tm_mon + 1,
-            timeinfo->tm_year + 1900,
-            timeinfo->tm_hour,
-            timeinfo->tm_min);
-    return String(buffer);
-  };
-
-  // Mostrar fecha actual del medicamento
-  Serial.printf("Fecha actual del medicamento: %s\n",
-                formatDateTime(cell.getCurrentMedicineDate()).c_str());
-  Serial.println("----------------------------------------");
-
-  if (cell.getSingleMode() != nullptr) {
-    SingleMode* sMode = cell.getSingleMode();
-    Serial.println("MODO ÚNICO ACTIVO:");
-    Serial.printf("ID: %d\n", sMode->getId());
-    Serial.printf("Medicina: %s\n", sMode->getMedicineName());
-    Serial.printf("Fecha de dispensación: %s\n",
-                  formatDateTime(sMode->getDispensingDate()).c_str());
-  }
-
-  if (cell.getSequentialMode() != nullptr) {
-    SequentialMode* sqMode = cell.getSequentialMode();
-    Serial.println("MODO SECUENCIAL ACTIVO:");
-    Serial.printf("ID: %d\n", sqMode->getId());
-    Serial.printf("Medicina: %s\n", sqMode->getMedicineName());
-    Serial.printf("Fecha inicio: %s\n",
-                  formatDateTime(sqMode->getStartDate()).c_str());
-    Serial.printf("Fecha fin: %s\n",
-                  formatDateTime(sqMode->getEndDate()).c_str());
-    Serial.printf("Período: %s\n",
-                  formatTime(sqMode->getPeriod()).c_str());
-    Serial.printf("Tomas: %d/%d\n",
-                  sqMode->getCurrentTimesConsumption(),
-                  sqMode->getLimitTimesConsumption());
-    Serial.printf("Períodos afectados: %s\n",
-                  sqMode->getAffectedPeriods() ? "Sí" : "No");
-  }
-
-  if (cell.getBasicMode() != nullptr) {
-    BasicMode* bMode = cell.getBasicMode();
-    Serial.println("MODO BÁSICO ACTIVO:");
-    Serial.printf("ID: %d\n", bMode->getId());
-    Serial.printf("Medicina: %s\n", bMode->getMedicineName());
-
-    Serial.println("Horarios:");
-    Serial.printf("  Mañana:  %s - %s\n",
-                  formatTime(bMode->getMorningStartTime()).c_str(),
-                  formatTime(bMode->getMorningEndTime()).c_str());
-    Serial.printf("  Tarde:   %s - %s\n",
-                  formatTime(bMode->getAfternoonStartTime()).c_str(),
-                  formatTime(bMode->getAfternoonEndTime()).c_str());
-    Serial.printf("  Noche:   %s - %s\n",
-                  formatTime(bMode->getNightStartTime()).c_str(),
-                  formatTime(bMode->getNightEndTime()).c_str());
-  }
-
-  if (cell.getSingleMode() == nullptr && cell.getSequentialMode() == nullptr && cell.getBasicMode() == nullptr) {
-    Serial.println("CELDA SIN MODO CONFIGURADO");
-  }
-
-  Serial.println("----------------------------------------\n");
-}
 
 bool updateCellsAgain() {
   DateTime now = rtc.now();
@@ -822,22 +693,6 @@ void enterMedicine() {
   }
 }
 
-/*
-void mostrarPulsos(int seccion, bool esOffset) {
-  if (esOffset) {
-    Serial.print("Seccion ");
-    Serial.print(seccion);
-    Serial.print(" - Pulsos Offset: ");
-    Serial.println(pulsosOffset);
-  } else {
-    Serial.print("Seccion ");
-    Serial.print(seccion);
-    Serial.print(" - Pulsos Principal: ");
-    Serial.println(pulsosPrincipales);
-  }
-}
-*/
-
 void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
   encontradoOffset = false;
   pulsosOffset = 0;
@@ -846,15 +701,11 @@ void buscarOffset(int servoChannel360, int pinOffset, int seccion) {
   Serial.print("Buscando offset en seccion ");
   Serial.println(seccion);
 
-  pwm.setPWM(servoChannel360, 0, SERVO_SPIN);  // Iniciar movimiento
-
+  pwm.setPWM(servoChannel360, 0, SERVO_SPIN);
   while (!encontradoOffset) {
     currentState = digitalRead(pinOffset);
-
-    // Detectar cambio de HIGH a LOW (flanco descendente)
     if (currentState == LOW && lastStateOffset == HIGH) {
       pulsosOffset++;
-      //mostrarPulsos(seccion, true);
     }
 
     lastStateOffset = currentState;
@@ -909,17 +760,15 @@ void procesarSeccion(int seccion, int posicion) {
     while (pulsosPrincipales < pulsosObjetivo) {
       currentState = digitalRead(pinPrincipal);
 
-      // Detectar cambio de HIGH a LOW (flanco descendente)
       if (currentState == LOW && lastStatePrincipal == HIGH) {
         pulsosPrincipales++;
-        //mostrarPulsos(seccion, false);
       }
 
       lastStatePrincipal = currentState;
     }
     pwm.setPWM(servoChannel360, 0, SERVO_ANTISPIN);
     delay(50);
-    pwm.setPWM(servoChannel360, 0, SERVO_STOP);  // Detener servo
+    pwm.setPWM(servoChannel360, 0, SERVO_STOP);
     Serial.println("Posicion alcanzada!");
   }
 }
