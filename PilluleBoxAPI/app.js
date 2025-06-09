@@ -60,8 +60,7 @@ app.post('/validate_mac', (req, res) => {
 app.post('/login', (req, res) => {
   const { username_email, password, secretKey, mac_address } = req.body;
   console.log("\n\nAutenticando: '" + username_email + "' & '" + password + "'" + " | secret key: " + secretKey + " | MAC: " + mac_address);
-
-  // Imprimir contraseñas desencriptadas
+  
   const decryptedPasswordApp = decryptPassword(password);
   const queryPass = 'SELECT password FROM user WHERE username = ? OR email = ?';
   connection.query(queryPass, [username_email, username_email], (err, results) => {
@@ -330,8 +329,7 @@ app.post('/validateCode', (req, res) => {
 app.post('/update_dispenser_context', authMiddleware, (req, res) => {
   const { mac_address, context } = req.body;
   const userId = req.userId;
-
-  // Primero verificamos que el dispensador pertenezca al usuario
+  
   const checkQuery = 'SELECT * FROM dispenser WHERE mac = ? AND user_id = ?';
   connection.query(checkQuery, [mac_address, userId], (err, results) => {
     if (err) {
@@ -342,8 +340,7 @@ app.post('/update_dispenser_context', authMiddleware, (req, res) => {
     if (results.length === 0) {
       return res.status(403).json({ error: 'No tienes permiso para modificar este dispensador' });
     }
-
-    // Si el dispensador pertenece al usuario, actualizamos el contexto
+    
     const updateQuery = 'UPDATE dispenser SET context = ? WHERE mac = ?';
     connection.query(updateQuery, [context, mac_address], (updateErr) => {
       if (updateErr) {
@@ -559,7 +556,7 @@ app.post('/register_history/:mac', (req, res) => {
       if (cellResults.length === 0) {
         return res.status(404).json({ error: 'Celda no encontrada' });
       }
-//A
+      
       const cellInfo = cellResults[0];
       
       connection.beginTransaction(transErr => {
@@ -577,7 +574,7 @@ app.post('/register_history/:mac', (req, res) => {
           macAddress,
           medicine_name,
           consumption_status,
-          formattedDate, // Usar la fecha formateada
+          formattedDate,
           reason
         ], (historyErr, historyResult) => {
           if (historyErr) {
@@ -673,12 +670,10 @@ app.post('/update_medicine_date', authMiddleware, (req, res) => {
   // Convertir timestamp Unix a formato de fecha MySQL
   let formattedDate;
   if (typeof current_medicine_date === 'number') {
-    // Si recibimos un timestamp Unix
     const date = new Date(current_medicine_date * 1000);
     formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
     console.log(`Timestamp recibido: ${current_medicine_date}, Fecha convertida: ${formattedDate}`);
   } else {
-    // Si recibimos una cadena de fecha
     formattedDate = current_medicine_date;
     console.log(`Fecha recibida como string: ${formattedDate}`);
   }
@@ -1246,7 +1241,6 @@ app.delete('/delete_basic_mode/:mac/:id', authMiddleware, (req, res) => {
     });
   });
 });
-
 
 function validateToken(token) {
   return new Promise((resolve, reject) => {
